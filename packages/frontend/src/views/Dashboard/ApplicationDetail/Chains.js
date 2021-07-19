@@ -13,15 +13,15 @@ import {
   useToast,
   GU,
 } from '@pokt-foundation/ui'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
-import { log } from 'lib/utils'
-import env from 'environment'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
+import { log } from '../../../lib/utils'
+import env from '../../../environment'
 import {
   KNOWN_MUTATION_SUFFIXES,
   KNOWN_QUERY_SUFFIXES,
-} from 'known-query-suffixes'
-import { sentryEnabled } from 'sentry'
+} from '../../../known-query-suffixes'
+import { sentryEnabled } from '../../../sentry'
 
 export default function BasicSetup({ appData }) {
   const [selectedChain, setSelectedChain] = useState('')

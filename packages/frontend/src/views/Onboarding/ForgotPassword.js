@@ -12,11 +12,11 @@ import {
   useTheme,
   GU,
 } from '@pokt-foundation/ui'
-import Onboarding from 'components/Onboarding/Onboarding'
-import env from 'environment'
-import { KNOWN_MUTATION_SUFFIXES } from 'known-query-suffixes'
-import { sentryEnabled } from 'sentry'
-import VerifyNotice from 'components/VerifyResetNotice/VerifyResetNotice'
+import Onboarding from '../../components/Onboarding/Onboarding'
+import VerifyNotice from '../../components/VerifyResetNotice/VerifyResetNotice'
+import env from '../../environment'
+import { KNOWN_MUTATION_SUFFIXES } from '../../known-query-suffixes'
+import { sentryEnabled } from '../../sentry'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')

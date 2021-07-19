@@ -2,8 +2,8 @@ import React from 'react'
 import { useViewport } from 'use-viewport'
 import { Spacer, useTheme, GU } from '@pokt-foundation/ui'
 import 'styled-components/macro'
-import OnboardingHeader from 'components/OnboardingHeader/OnboardingHeader'
-import PortalLogo from 'assets/portal_logo.svg'
+import OnboardingHeader from '../OnboardingHeader/OnboardingHeader'
+import PortalLogo from '../../assets/portal_logo.svg'
 
 export default function Onboarding({ children }) {
   const theme = useTheme()

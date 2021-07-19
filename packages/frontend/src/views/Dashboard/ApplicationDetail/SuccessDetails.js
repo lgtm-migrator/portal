@@ -19,14 +19,14 @@ import {
   GU,
   TextCopy,
 } from '@pokt-foundation/ui'
-import AppStatus from 'components/AppStatus/AppStatus'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
-import env from 'environment'
-import { log } from 'lib/utils'
-import { sentryEnabled } from 'sentry'
-import { shortenAddress } from 'lib/pocket-utils'
-import { KNOWN_QUERY_SUFFIXES } from 'known-query-suffixes'
+import AppStatus from '../../../components/AppStatus/AppStatus'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
+import { log } from '../../../lib/utils'
+import { shortenAddress } from '../../../lib/pocket-utils'
+import env from '../../../environment'
+import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
+import { sentryEnabled } from '../../../sentry'
 
 const DEFAULT_FILTERED_STATE = {
   failedRelays: [],

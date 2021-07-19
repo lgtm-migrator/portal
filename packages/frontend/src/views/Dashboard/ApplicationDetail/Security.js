@@ -18,15 +18,15 @@ import {
   useToast,
   GU,
 } from '@pokt-foundation/ui'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
-import env from 'environment'
+import AppStatus from '../../../components/AppStatus/AppStatus'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
+import env from '../../../environment'
 import {
   KNOWN_MUTATION_SUFFIXES,
   KNOWN_QUERY_SUFFIXES,
-} from 'known-query-suffixes'
-import { sentryEnabled } from 'sentry'
-import AppStatus from 'components/AppStatus/AppStatus'
+} from '../../../known-query-suffixes'
+import { sentryEnabled } from '../../../sentry'
 
 const ADDORNMENT_SETTINGS = {
   width: 36,

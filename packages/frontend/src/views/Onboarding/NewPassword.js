@@ -14,9 +14,9 @@ import {
   useTheme,
   GU,
 } from '@pokt-foundation/ui'
-import Onboarding from 'components/Onboarding/Onboarding'
-import env from 'environment'
-import { sentryEnabled } from 'sentry'
+import Onboarding from '../../components/Onboarding/Onboarding'
+import env from '../../environment'
+import { sentryEnabled } from '../../sentry'
 
 export default function NewPassword() {
   const [password, setPassword] = useState('')

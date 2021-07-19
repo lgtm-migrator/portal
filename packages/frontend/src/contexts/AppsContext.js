@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo } from 'react'
-import { useUserApplications } from 'hooks/application-hooks'
-import { log } from 'lib/utils'
+import { useUserApplications } from '../hooks/application-hooks'
+import { log } from '../lib/utils'
 
 const DEFAULT_APP_STATE = {
   appsLoading: true,

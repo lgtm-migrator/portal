@@ -5,10 +5,10 @@ import axios from 'axios'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
 import { Button, Spacer, textStyle, GU } from '@pokt-foundation/ui'
-import Onboarding from 'components/Onboarding/Onboarding'
-import env from 'environment'
-import { sentryEnabled } from 'sentry'
-import { KNOWN_MUTATION_SUFFIXES } from 'known-query-suffixes'
+import Onboarding from '../../components/Onboarding/Onboarding'
+import env from '../../environment'
+import { KNOWN_MUTATION_SUFFIXES } from '../../known-query-suffixes'
+import { sentryEnabled } from '../../sentry'
 
 export default function Validate() {
   const { search } = useLocation()

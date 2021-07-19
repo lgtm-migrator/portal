@@ -1,11 +1,11 @@
 import React from 'react'
 import { useMutation } from 'react-query'
 import axios from 'axios'
+import { Button, Link, Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
-import env from 'environment'
-import { sentryEnabled } from 'sentry'
-import { Button, Link, Spacer, textStyle, GU } from '@pokt-foundation/ui'
+import env from '../../environment'
+import { sentryEnabled } from '../../sentry'
 
 export default function VerifyNotice({ email, mode = 'verify' }) {
   const { isLoading, mutate } = useMutation(async function signup() {

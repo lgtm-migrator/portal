@@ -15,17 +15,17 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import VisuallyHidden from '@reach/visually-hidden'
-import AnimatedLogo from 'components/AnimatedLogo/AnimatedLogo'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
+import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
 import {
   useNetworkSuccessRate,
   useTotalWeeklyRelays,
   useNetworkSummary,
   useChains,
-} from 'hooks/network-hooks'
-import { norm } from 'lib/math-utils'
-import { PRODUCTION_CHAINS } from 'lib/chain-utils'
+} from '../../../hooks/network-hooks'
+import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
+import { norm } from '../../../lib/math-utils'
 import Economics from '../../../assets/economics.jpg'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

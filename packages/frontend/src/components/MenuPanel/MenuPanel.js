@@ -12,10 +12,10 @@ import {
   GU,
   RADIUS,
 } from '@pokt-foundation/ui'
-import IconApp from 'components/MenuPanel/IconApp'
-import IconNetwork from 'components/MenuPanel/IconNetwork'
+import IconApp from './IconApp'
+import IconNetwork from './IconNetwork'
 import PortalLogo from '../../assets/portal_logo.svg'
-import { log, shorten } from 'lib/utils'
+import { log, shorten } from '../../lib/utils'
 
 const CHILD_INSTANCE_HEIGHT = 6 * GU
 

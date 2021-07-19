@@ -24,19 +24,19 @@ import {
   textStyle,
   GU,
 } from '@pokt-foundation/ui'
-import AppStatus from 'components/AppStatus/AppStatus'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
-import { useUserApps } from 'contexts/AppsContext'
-import { log } from 'lib/utils'
-import { MAX_USER_APPS } from 'lib/pocket-utils'
-import env from 'environment'
+import AppStatus from '../../../components/AppStatus/AppStatus'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
+import { useUserApps } from '../../../contexts/AppsContext'
+import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
+import { MAX_USER_APPS } from '../../../lib/pocket-utils'
+import { log } from '../../../lib/utils'
+import env from '../../../environment'
 import {
   KNOWN_MUTATION_SUFFIXES,
   KNOWN_QUERY_SUFFIXES,
-} from 'known-query-suffixes'
-import { sentryEnabled } from 'sentry'
-import { PRODUCTION_CHAINS } from 'lib/chain-utils'
+} from '../../../known-query-suffixes'
+import { sentryEnabled } from '../../../sentry'
 
 const FREE_TIER_TOKENS = 8000000000
 const FREE_TIER_MAX_RELAYS = 1000000

@@ -1,6 +1,6 @@
 import { init as initSentry, captureMessage } from '@sentry/react'
 import { Integrations } from '@sentry/tracing'
-import env from 'environment'
+import env from './environment'
 
 export const sentryEnabled = Boolean(env('SENTRY_DSN'))
 

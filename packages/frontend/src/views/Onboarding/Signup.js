@@ -17,10 +17,10 @@ import {
   useTheme,
   GU,
 } from '@pokt-foundation/ui'
-import Onboarding from 'components/Onboarding/Onboarding'
-import VerifyResetNotice from 'components/VerifyResetNotice/VerifyResetNotice'
-import env from 'environment'
-import { sentryEnabled } from 'sentry'
+import Onboarding from '../../components/Onboarding/Onboarding'
+import VerifyResetNotice from '../../components/VerifyResetNotice/VerifyResetNotice'
+import env from '../../environment'
+import { sentryEnabled } from '../../sentry'
 
 export default function Signup() {
   const [email, setEmail] = useState('')

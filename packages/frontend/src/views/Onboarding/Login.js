@@ -14,8 +14,8 @@ import {
   GU,
   RADIUS,
 } from '@pokt-foundation/ui'
-import Onboarding from 'components/Onboarding/Onboarding'
-import env from 'environment'
+import Onboarding from '../../components/Onboarding/Onboarding'
+import env from '../../environment'
 
 export default function Login() {
   const [email, setEmail] = useState('')

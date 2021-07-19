@@ -17,9 +17,9 @@ import {
   GU,
   RADIUS,
 } from '@pokt-foundation/ui'
-import env from 'environment'
-import { shorten } from 'lib/utils'
-import { sentryEnabled } from 'sentry'
+import env from '../../environment'
+import { shorten } from '../../lib/utils'
+import { sentryEnabled } from '../../sentry'
 
 const DEFAULT_TITLE = 'Pocket Portal'
 const MAX_CHARACTERS = 25

@@ -3,7 +3,7 @@ import * as dayjs from 'dayjs'
 import * as dayJsutcPlugin from 'dayjs/plugin/utc'
 import { GraphQLClient, gql } from 'graphql-request'
 import { useQuery } from 'react-query'
-import env from 'environment'
+import env from '../environment'
 
 const gqlClient = new GraphQLClient(env('HASURA_URL'), {
   headers: {

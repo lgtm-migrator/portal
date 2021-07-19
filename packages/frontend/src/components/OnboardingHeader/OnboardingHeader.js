@@ -2,7 +2,7 @@ import React from 'react'
 import { useViewport } from 'use-viewport'
 import { Link, GU } from '@pokt-foundation/ui'
 import styled from 'styled-components/macro'
-import PortalLogo from 'assets/portal_logo_full.png'
+import PortalLogo from '../../assets/portal_logo_full.png'
 
 export default function OnboardingHeader() {
   const { within } = useViewport()

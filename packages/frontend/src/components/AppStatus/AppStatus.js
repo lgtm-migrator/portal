@@ -1,8 +1,8 @@
 import React from 'react'
 import TokenAmount from 'token-amount'
 import 'styled-components/macro'
-import Box from 'components/Box/Box'
 import { Spacer, Tag, textStyle, GU } from '@pokt-foundation/ui'
+import Box from '../Box/Box'
 
 export default function AppStatus({ stakedTokens, maxDailyRelays }) {
   return (

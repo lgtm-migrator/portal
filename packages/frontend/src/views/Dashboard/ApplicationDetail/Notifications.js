@@ -18,16 +18,16 @@ import {
   GU,
   color,
 } from '@pokt-foundation/ui'
-import Box from 'components/Box/Box'
-import FloatUp from 'components/FloatUp/FloatUp'
-import { formatNumberToSICompact } from 'lib/formatting-utils'
-import { log } from 'lib/utils'
-import env from 'environment'
+import Box from '../../../components/Box/Box'
+import FloatUp from '../../../components/FloatUp/FloatUp'
+import { formatNumberToSICompact } from '../../../lib/formatting-utils'
+import { log } from '../../../lib/utils'
+import env from '../../../environment'
 import {
-  KNOWN_QUERY_SUFFIXES,
   KNOWN_MUTATION_SUFFIXES,
+  KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
-import { sentryEnabled } from 'sentry'
+import { sentryEnabled } from '../../../sentry'
 
 const GRAPH_SIZE = 130
 

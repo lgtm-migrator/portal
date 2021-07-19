@@ -1,7 +1,7 @@
 import React from 'react'
 import 'styled-components/macro'
 import { Button, GU, Link, Spacer, textStyle } from '@pokt-foundation/ui'
-import Box from 'components/Box/Box'
+import Box from '../components/Box/Box'
 
 export default function Fallback() {
   return (

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useQueries } from 'react-query'
-import env from 'environment'
-import { log } from 'lib/utils'
+import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { log } from '../lib/utils'
 
 export function useAppMetrics({ activeApplication }) {
   const { id: appId = '', isLb = false } = activeApplication

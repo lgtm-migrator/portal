@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import env from 'environment'
 import * as Sentry from '@sentry/react'
-import { sentryEnabled } from 'sentry'
-import { KNOWN_QUERY_SUFFIXES } from 'known-query-suffixes'
+import env from '../environment'
+import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { sentryEnabled } from '../sentry'
 
 const PER_PAGE = 10
 
