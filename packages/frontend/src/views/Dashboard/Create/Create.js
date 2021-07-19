@@ -28,6 +28,7 @@ import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUserApps } from '../../../contexts/AppsContext'
+import { trackEvent } from '../../../lib/analytics'
 import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
 import { log } from '../../../lib/utils'
@@ -215,10 +216,21 @@ export default function Create() {
         }
       )
 
+      const { data } = res
+      const { id } = data
+
+      trackEvent('portal_app_creation', {
+        segmentation: {
+          chain: selectedNetwork,
+          appName,
+          id,
+        },
+      })
+
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 
       history.push({
-        pathname: `/app/${res.data.id}`,
+        pathname: `/app/${id}`,
       })
 
       return res

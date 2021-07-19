@@ -15,6 +15,7 @@ import {
 } from '@pokt-foundation/ui'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
+import { trackEvent } from '../../../lib/analytics'
 import { log } from '../../../lib/utils'
 import env from '../../../environment'
 import {
@@ -23,7 +24,7 @@ import {
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 
-export default function BasicSetup({ appData }) {
+export default function SwitchChains({ appData }) {
   const [selectedChain, setSelectedChain] = useState('')
   const history = useHistory()
   const { appId } = useParams()
@@ -75,6 +76,14 @@ export default function BasicSetup({ appData }) {
         const {
           data: { id },
         } = res
+
+        trackEvent('portal_chain_switch', {
+          segmentation: {
+            newChain: selectedChain,
+            oldChain: activeAppChain,
+            id,
+          },
+        })
 
         queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 
