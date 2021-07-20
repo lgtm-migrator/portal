@@ -83,7 +83,7 @@ const MAIN_CHAINS = {
   FUSE_FULL: {
     ticker: 'FUSE',
     id: '0005',
-    limit: 2,
+    limit: 8,
   },
   POCKET_MAINNET: {
     ticker: 'POKT',
