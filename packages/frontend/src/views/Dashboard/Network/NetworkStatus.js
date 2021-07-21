@@ -24,7 +24,7 @@ import {
   useNetworkSummary,
   useChains,
 } from '../../../hooks/network-hooks'
-import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
+import { getServiceLevelByChain } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
 import Economics from '../../../assets/economics.jpg'
 
@@ -211,11 +211,7 @@ export default function NetworkStatus() {
                           {description || network}
                         </p>,
                         <p>{id}</p>,
-                        <p>
-                          {PRODUCTION_CHAINS.includes(id)
-                            ? 'Production'
-                            : 'Beta'}
-                        </p>,
+                        <p>{getServiceLevelByChain(id)}</p>,
                       ]
                     }}
                   />

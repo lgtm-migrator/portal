@@ -6,6 +6,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0005', { prefix: 'fuse-mainnet', name: 'Fuse Mainnet' }],
   ['0006', { prefix: 'solana-mainnet', name: 'Solana Mainnet' }],
   ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic)' }],
+  ['0010', { prefix: 'bsc-archival', name: 'Binance Smart Chain (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],
   ['0022', { prefix: 'eth-archival', name: 'Ethereum Mainnet (Archival)' }],
   ['0023', { prefix: 'eth-ropsten', name: 'Ethereum Ropsten' }],
@@ -17,7 +18,17 @@ const CHAIN_ID_PREFIXES = new Map([
 ])
 
 export const PRODUCTION_CHAINS = ['0001', '0005', '0021', '0022', '0028']
+export const ALPHA_CHAINS = ['0009']
 
 export function prefixFromChainId(chainId) {
   return CHAIN_ID_PREFIXES.get(chainId)
+}
+
+export function getServiceLevelByChain(chainId) {
+  if (PRODUCTION_CHAINS.includes(chainId)) {
+    return 'Production'
+  } else if (ALPHA_CHAINS.includes(chainId)) {
+    return 'Alpha'
+  }
+  return 'Beta'
 }

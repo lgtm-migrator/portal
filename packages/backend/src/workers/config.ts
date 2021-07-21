@@ -45,6 +45,11 @@ const MAIN_CHAINS = {
     id: '0004',
     limit: 2,
   },
+  BINANCE_SMART_CHAIN_ARCHIVAL: {
+    ticker: 'BSC',
+    id: '0010',
+    limit: 2,
+  },
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',
@@ -89,6 +94,11 @@ const MAIN_CHAINS = {
     ticker: 'POKT',
     id: '0001',
     limit: 1,
+  },
+  POLYGON_MAINNET: {
+    ticker: 'POLY',
+    id: '0009',
+    limit: 2,
   },
 }
 
