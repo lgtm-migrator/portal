@@ -28,7 +28,7 @@ const DEFAULT_GATEWAY_SETTINGS = {
   whitelistOrigins: [],
   whitelistUserAgents: [],
 }
-const DEFAULT_TIMEOUT = 2000
+const DEFAULT_TIMEOUT = 5000
 const MAX_USER_APPS = 4
 
 const router = express.Router()
