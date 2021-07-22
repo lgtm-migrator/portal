@@ -2006,15 +2006,15 @@ export type Timestamptz_Comparison_Exp = {
 
 export const GetSuccessfulAppRelays = gql`
   query getSuccessfulAppRelays(
-    $_apk: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_aggregate(
       where: {
         timestamp: { _gte: $_gte }
-        _and: { timestamp: { _lte: $_lte } }
-        app_pub_key: { _eq: $_apk }
+        _and: { timestamp: { _lte: $_lte }, method: { _neq: "chaincheck" } }
+        app_pub_key: { _in: $_apk }
         method: { _neq: "synccheck" }
         result: { _eq: "200" }
       }
@@ -2027,15 +2027,15 @@ export const GetSuccessfulAppRelays = gql`
 `
 export const GetTotalAppRelays = gql`
   query getTotalAppRelays(
-    $_apk: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_aggregate(
       where: {
         timestamp: { _gte: $_gte }
-        _and: { timestamp: { _lte: $_lte } }
-        app_pub_key: { _eq: $_apk }
+        _and: { timestamp: { _lte: $_lte }, method: { _neq: "chaincheck" } }
+        app_pub_key: { _in: $_apk }
         method: { _neq: "synccheck" }
         service_node: { _nilike: "fallback%" }
       }
@@ -2047,9 +2047,9 @@ export const GetTotalAppRelays = gql`
   }
 `
 export const GetTotalRelaysAndLatency = gql`
-  query getTotalRelaysAndLatency($_eq: String, $_gte: timestamptz) {
+  query getTotalRelaysAndLatency($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily_aggregate(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
     ) {
       aggregate {
@@ -2065,13 +2065,13 @@ export const GetTotalRelaysAndLatency = gql`
 `
 export const GetTotalRangedRelaysAndLatency = gql`
   query getTotalRangedRelaysAndLatency(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte, _lte: $_lte }
       }
       order_by: { bucket: desc }
@@ -2088,10 +2088,10 @@ export const GetTotalRangedRelaysAndLatency = gql`
   }
 `
 export const GetTotalSuccessfulRelays = gql`
-  query getTotalSuccessfulRelays($_eq: String, $_gte: timestamptz) {
+  query getTotalSuccessfulRelays($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte }
         result: { _eq: "200" }
       }
@@ -2110,13 +2110,13 @@ export const GetTotalSuccessfulRelays = gql`
 `
 export const GetTotalSuccessfulRangedRelays = gql`
   query getTotalSuccessfulRangedRelays(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte, _lte: $_lte }
         result: { _eq: "200" }
       }
@@ -2131,9 +2131,9 @@ export const GetTotalSuccessfulRangedRelays = gql`
   }
 `
 export const GetDailyTotalRelays = gql`
-  query getDailyTotalRelays($_eq: String, $_gte: timestamptz) {
+  query getDailyTotalRelays($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
     ) {
       bucket
@@ -2143,12 +2143,12 @@ export const GetDailyTotalRelays = gql`
 `
 export const GetLastSessionAppRelays = gql`
   query getLastSessionAppRelays(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_buckets: Int
   ) {
     relay_app_hourly(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
       limit: $_buckets
     ) {
@@ -2158,12 +2158,12 @@ export const GetLastSessionAppRelays = gql`
   }
 `
 export const GetLatestRelays = gql`
-  query getLatestRelays($_eq: String, $limit: Int, $offset: Int) {
+  query getLatestRelays($_apk: [String!], $limit: Int, $offset: Int) {
     relay(
       limit: $limit
       offset: $offset
       order_by: { timestamp: desc }
-      where: { app_pub_key: { _eq: $_eq } }
+      where: { app_pub_key: { _in: $_apk }, method: { _neq: "synccheck" } }
     ) {
       service_node
       method
@@ -2175,12 +2175,13 @@ export const GetLatestRelays = gql`
   }
 `
 export const GetTotalRelayDuration = gql`
-  query getTotalRelayDuration($_eq: String, $_gte: timestamptz) {
+  query getTotalRelayDuration($_apk: [String!], $_gte: timestamptz) {
     relay_app_hourly(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte }
         elapsed_time: { _lte: "3" }
+        result: { _eq: "200" }
       }
       order_by: { bucket: desc }
     ) {
@@ -2190,10 +2191,14 @@ export const GetTotalRelayDuration = gql`
   }
 `
 export const GetLatestSuccessfulRelays = gql`
-  query getLatestSuccessfulRelays($_eq: String, $_eq1: numeric, $offset: Int) {
+  query getLatestSuccessfulRelays(
+    $_apk: [String!]
+    $_eq1: numeric
+    $offset: Int
+  ) {
     relay(
       limit: 10
-      where: { app_pub_key: { _eq: $_eq }, result: { _eq: $_eq1 } }
+      where: { app_pub_key: { _in: $_apk }, result: { _eq: $_eq1 } }
       order_by: { timestamp: desc }
       offset: $offset
     ) {
@@ -2202,14 +2207,26 @@ export const GetLatestSuccessfulRelays = gql`
       elapsed_time
       bytes
       service_node
+      timestamp
     }
   }
 `
 export const GetLatestFailingRelays = gql`
-  query getLatestFailingRelays($_eq: String, $_eq1: numeric, $offset: Int) {
+  query getLatestFailingRelays(
+    $_apk: [String!]
+    $_eq1: numeric
+    $offset: Int
+    $_gte: timestamptz
+  ) {
     relay(
       limit: 10
-      where: { app_pub_key: { _eq: $_eq }, result: { _neq: $_eq1 } }
+      where: {
+        app_pub_key: { _in: $_apk }
+        result: { _neq: $_eq1 }
+        method: { _neq: "synccheck" }
+        timestamp: { _gte: $_gte }
+        service_node: { _ilike: "fallback%" }
+      }
       order_by: { timestamp: desc }
       offset: $offset
     ) {
@@ -2218,6 +2235,7 @@ export const GetLatestFailingRelays = gql`
       elapsed_time
       bytes
       service_node
+      timestamp
     }
   }
 `
@@ -2269,7 +2287,7 @@ export const GetTotalNetworkRelays = gql`
 
 export const GetSuccessfulAppRelaysDocument = gql`
   query getSuccessfulAppRelays(
-    $_apk: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
@@ -2277,7 +2295,7 @@ export const GetSuccessfulAppRelaysDocument = gql`
       where: {
         timestamp: { _gte: $_gte }
         _and: { timestamp: { _lte: $_lte }, method: { _neq: "chaincheck" } }
-        app_pub_key: { _eq: $_apk }
+        app_pub_key: { _in: $_apk }
         method: { _neq: "synccheck" }
         result: { _eq: "200" }
       }
@@ -2290,7 +2308,7 @@ export const GetSuccessfulAppRelaysDocument = gql`
 `
 export const GetTotalAppRelaysDocument = gql`
   query getTotalAppRelays(
-    $_apk: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
@@ -2298,7 +2316,7 @@ export const GetTotalAppRelaysDocument = gql`
       where: {
         timestamp: { _gte: $_gte }
         _and: { timestamp: { _lte: $_lte }, method: { _neq: "chaincheck" } }
-        app_pub_key: { _eq: $_apk }
+        app_pub_key: { _in: $_apk }
         method: { _neq: "synccheck" }
         service_node: { _nilike: "fallback%" }
       }
@@ -2310,9 +2328,9 @@ export const GetTotalAppRelaysDocument = gql`
   }
 `
 export const GetTotalRelaysAndLatencyDocument = gql`
-  query getTotalRelaysAndLatency($_eq: String, $_gte: timestamptz) {
+  query getTotalRelaysAndLatency($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily_aggregate(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
     ) {
       aggregate {
@@ -2328,13 +2346,13 @@ export const GetTotalRelaysAndLatencyDocument = gql`
 `
 export const GetTotalRangedRelaysAndLatencyDocument = gql`
   query getTotalRangedRelaysAndLatency(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte, _lte: $_lte }
       }
       order_by: { bucket: desc }
@@ -2351,10 +2369,10 @@ export const GetTotalRangedRelaysAndLatencyDocument = gql`
   }
 `
 export const GetTotalSuccessfulRelaysDocument = gql`
-  query getTotalSuccessfulRelays($_eq: String, $_gte: timestamptz) {
+  query getTotalSuccessfulRelays($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte }
         result: { _eq: "200" }
       }
@@ -2373,13 +2391,13 @@ export const GetTotalSuccessfulRelaysDocument = gql`
 `
 export const GetTotalSuccessfulRangedRelaysDocument = gql`
   query getTotalSuccessfulRangedRelays(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_lte: timestamptz
   ) {
     relay_apps_daily_aggregate(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte, _lte: $_lte }
         result: { _eq: "200" }
       }
@@ -2394,9 +2412,9 @@ export const GetTotalSuccessfulRangedRelaysDocument = gql`
   }
 `
 export const GetDailyTotalRelaysDocument = gql`
-  query getDailyTotalRelays($_eq: String, $_gte: timestamptz) {
+  query getDailyTotalRelays($_apk: [String!], $_gte: timestamptz) {
     relay_apps_daily(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
     ) {
       bucket
@@ -2406,12 +2424,12 @@ export const GetDailyTotalRelaysDocument = gql`
 `
 export const GetLastSessionAppRelaysDocument = gql`
   query getLastSessionAppRelays(
-    $_eq: String
+    $_apk: [String!]
     $_gte: timestamptz
     $_buckets: Int
   ) {
     relay_app_hourly(
-      where: { app_pub_key: { _eq: $_eq }, bucket: { _gte: $_gte } }
+      where: { app_pub_key: { _in: $_apk }, bucket: { _gte: $_gte } }
       order_by: { bucket: desc }
       limit: $_buckets
     ) {
@@ -2421,12 +2439,12 @@ export const GetLastSessionAppRelaysDocument = gql`
   }
 `
 export const GetLatestRelaysDocument = gql`
-  query getLatestRelays($_eq: String, $limit: Int, $offset: Int) {
+  query getLatestRelays($_apk: [String!], $limit: Int, $offset: Int) {
     relay(
       limit: $limit
       offset: $offset
       order_by: { timestamp: desc }
-      where: { app_pub_key: { _eq: $_eq }, method: { _neq: "synccheck" } }
+      where: { app_pub_key: { _in: $_apk }, method: { _neq: "synccheck" } }
     ) {
       service_node
       method
@@ -2438,10 +2456,10 @@ export const GetLatestRelaysDocument = gql`
   }
 `
 export const GetTotalRelayDurationDocument = gql`
-  query getTotalRelayDuration($_eq: String, $_gte: timestamptz) {
+  query getTotalRelayDuration($_apk: [String!], $_gte: timestamptz) {
     relay_app_hourly(
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         bucket: { _gte: $_gte }
         elapsed_time: { _lte: "3" }
         result: { _eq: "200" }
@@ -2454,10 +2472,14 @@ export const GetTotalRelayDurationDocument = gql`
   }
 `
 export const GetLatestSuccessfulRelaysDocument = gql`
-  query getLatestSuccessfulRelays($_eq: String, $_eq1: numeric, $offset: Int) {
+  query getLatestSuccessfulRelays(
+    $_apk: [String!]
+    $_eq1: numeric
+    $offset: Int
+  ) {
     relay(
       limit: 10
-      where: { app_pub_key: { _eq: $_eq }, result: { _eq: $_eq1 } }
+      where: { app_pub_key: { _in: $_apk }, result: { _eq: $_eq1 } }
       order_by: { timestamp: desc }
       offset: $offset
     ) {
@@ -2466,12 +2488,13 @@ export const GetLatestSuccessfulRelaysDocument = gql`
       elapsed_time
       bytes
       service_node
+      timestamp
     }
   }
 `
 export const GetLatestFailingRelaysDocument = gql`
   query getLatestFailingRelays(
-    $_eq: String
+    $_apk: [String!]
     $_eq1: numeric
     $offset: Int
     $_gte: timestamptz
@@ -2479,7 +2502,7 @@ export const GetLatestFailingRelaysDocument = gql`
     relay(
       limit: 10
       where: {
-        app_pub_key: { _eq: $_eq }
+        app_pub_key: { _in: $_apk }
         result: { _neq: $_eq1 }
         method: { _neq: "synccheck" }
         timestamp: { _gte: $_gte }
@@ -2493,6 +2516,7 @@ export const GetLatestFailingRelaysDocument = gql`
       elapsed_time
       bytes
       service_node
+      timestamp
     }
   }
 `
@@ -2768,7 +2792,7 @@ export function getSdk(
 }
 export type Sdk = ReturnType<typeof getSdk>
 export type GetSuccessfulAppRelaysQueryVariables = Exact<{
-  _apk?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
   _lte?: Maybe<Scalars['timestamptz']>
 }>
@@ -2785,7 +2809,7 @@ export type GetSuccessfulAppRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetTotalAppRelaysQueryVariables = Exact<{
-  _apk?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
   _lte?: Maybe<Scalars['timestamptz']>
 }>
@@ -2802,7 +2826,7 @@ export type GetTotalAppRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetTotalRelaysAndLatencyQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
 }>
 
@@ -2828,7 +2852,7 @@ export type GetTotalRelaysAndLatencyQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetTotalRangedRelaysAndLatencyQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
   _lte?: Maybe<Scalars['timestamptz']>
 }>
@@ -2857,7 +2881,7 @@ export type GetTotalRangedRelaysAndLatencyQuery = {
 }
 
 export type GetTotalSuccessfulRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
 }>
 
@@ -2883,7 +2907,7 @@ export type GetTotalSuccessfulRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetTotalSuccessfulRangedRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
   _lte?: Maybe<Scalars['timestamptz']>
 }>
@@ -2906,7 +2930,7 @@ export type GetTotalSuccessfulRangedRelaysQuery = {
 }
 
 export type GetDailyTotalRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
 }>
 
@@ -2920,7 +2944,7 @@ export type GetDailyTotalRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetLastSessionAppRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
   _buckets?: Maybe<Scalars['Int']>
 }>
@@ -2935,7 +2959,7 @@ export type GetLastSessionAppRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetLatestRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   limit?: Maybe<Scalars['Int']>
   offset?: Maybe<Scalars['Int']>
 }>
@@ -2955,7 +2979,7 @@ export type GetLatestRelaysQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetTotalRelayDurationQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _gte?: Maybe<Scalars['timestamptz']>
 }>
 
@@ -2969,7 +2993,7 @@ export type GetTotalRelayDurationQuery = { __typename?: 'query_root' } & {
 }
 
 export type GetLatestSuccessfulRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _eq1?: Maybe<Scalars['numeric']>
   offset?: Maybe<Scalars['Int']>
 }>
@@ -2978,22 +3002,33 @@ export type GetLatestSuccessfulRelaysQuery = { __typename?: 'query_root' } & {
   relay: Array<
     { __typename?: 'relay' } & Pick<
       Relay,
-      'method' | 'result' | 'elapsed_time' | 'bytes' | 'service_node'
+      | 'method'
+      | 'result'
+      | 'elapsed_time'
+      | 'bytes'
+      | 'service_node'
+      | 'timestamp'
     >
   >
 }
 
 export type GetLatestFailingRelaysQueryVariables = Exact<{
-  _eq?: Maybe<Scalars['String']>
+  _apk?: Maybe<Array<Scalars['String']> | Scalars['String']>
   _eq1?: Maybe<Scalars['numeric']>
   offset?: Maybe<Scalars['Int']>
+  _gte?: Maybe<Scalars['timestamptz']>
 }>
 
 export type GetLatestFailingRelaysQuery = { __typename?: 'query_root' } & {
   relay: Array<
     { __typename?: 'relay' } & Pick<
       Relay,
-      'method' | 'result' | 'elapsed_time' | 'bytes' | 'service_node'
+      | 'method'
+      | 'result'
+      | 'elapsed_time'
+      | 'bytes'
+      | 'service_node'
+      | 'timestamp'
     >
   >
 }

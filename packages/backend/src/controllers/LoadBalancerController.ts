@@ -331,8 +331,6 @@ router.get(
 
     const readableApps = apps.map((app: QueryAppResponse) => app.toJSON())
 
-    console.log('appResponses', readableApps)
-
     const appsStatus = readableApps.reduce(
       (status, app) => {
         return {
@@ -562,6 +560,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -575,34 +582,14 @@ router.get(
     const twentyFoursHoursAgo = composeHoursFromNowUtcDate(24)
     const now = composeHoursFromNowUtcDate(0)
 
-    const totalRelaysAndLatency = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getTotalAppRelays({
-          _apk: application.freeTierApplicationAccount.publicKey,
-          _gte: twentyFoursHoursAgo,
-          _lte: now,
-        })
-
-        return {
-          total_relays: result.relay_aggregate.aggregate.count ?? 0,
-        }
-      })
-    )
-
-    const cumulativeRelaysAndLatency = totalRelaysAndLatency.reduce(
-      function processResults(prev, cur) {
-        return {
-          total_relays: prev.total_relays + cur.total_relays,
-        }
-      }
-    )
+    const result = await gqlClient.getTotalAppRelays({
+      _apk: publicKeys,
+      _gte: twentyFoursHoursAgo,
+      _lte: now,
+    })
 
     const processedRelaysAndLatency = {
-      total_relays: cumulativeRelaysAndLatency.total_relays,
+      total_relays: result.relay_aggregate.aggregate.count || 0,
     }
 
     res.status(200).send(processedRelaysAndLatency)
@@ -639,6 +626,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -652,40 +648,17 @@ router.get(
     const twentyFoursHoursAgo = composeHoursFromNowUtcDate(24)
     const now = composeHoursFromNowUtcDate(0)
 
-    const totalRelaysAndLatency = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
+    const result = await gqlClient.getSuccessfulAppRelays({
+      _apk: publicKeys,
+      _gte: twentyFoursHoursAgo,
+      _lte: now,
+    })
 
-        const result = await gqlClient.getSuccessfulAppRelays({
-          _apk: application.freeTierApplicationAccount.publicKey,
-          _gte: twentyFoursHoursAgo,
-          _lte: now,
-        })
-
-        return {
-          total_relays: result.relay_aggregate.aggregate.count ?? 0,
-        }
-      })
-    )
-
-    const cumulativeRelaysAndLatency = totalRelaysAndLatency.reduce(
-      function processResults(prev, cur) {
-        return {
-          total_relays: prev.total_relays + cur.total_relays,
-        }
-      },
-      {
-        total_relays: 0,
-      }
-    )
-
-    const processedRelaysAndLatency = {
-      total_relays: cumulativeRelaysAndLatency.total_relays,
+    const processedSuccessfulRelays = {
+      total_relays: result.relay_aggregate.aggregate.count || 0,
     }
 
-    res.status(200).send(processedRelaysAndLatency)
+    res.status(200).send(processedSuccessfulRelays)
   })
 )
 
@@ -719,6 +692,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -732,34 +714,23 @@ router.get(
     const sevenDaysAgo = composeDaysFromNowUtcDate(7)
     const dailyRelays = new Map()
 
-    await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
+    const result = await gqlClient.getDailyTotalRelays({
+      _apk: publicKeys,
+      _gte: sevenDaysAgo,
+    })
 
-        const result = await gqlClient.getDailyTotalRelays({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          _gte: sevenDaysAgo,
-        })
+    for (const {
+      bucket,
+      total_relays: dailyRelayCount,
+    } of result.relay_apps_daily) {
+      if (!dailyRelays.has(bucket)) {
+        dailyRelays.set(bucket, dailyRelayCount ?? 0)
+      } else {
+        const currentCount = dailyRelays.get(bucket)
 
-        for (const {
-          bucket,
-          total_relays: dailyRelayCount,
-        } of result.relay_apps_daily) {
-          if (!dailyRelays.has(bucket)) {
-            dailyRelays.set(bucket, dailyRelayCount ?? 0)
-          } else {
-            const currentCount = dailyRelays.get(bucket)
-
-            dailyRelays.set(
-              bucket,
-              Number(currentCount) + Number(dailyRelayCount)
-            )
-          }
-        }
-      })
-    )
+        dailyRelays.set(bucket, Number(currentCount) + Number(dailyRelayCount))
+      }
+    }
 
     const processedDailyRelays = []
 
@@ -803,6 +774,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -815,34 +795,16 @@ router.get(
 
     const today = composeTodayUtcDate()
 
-    const sessionRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
+    const result = await gqlClient.getLastSessionAppRelays({
+      _apk: publicKeys,
+      _gte: today,
+      _buckets: BUCKETS_PER_HOUR,
+    })
 
-        const result = await gqlClient.getLastSessionAppRelays({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          _gte: today,
-          _buckets: BUCKETS_PER_HOUR,
-        })
-
-        const totalSessionRelays = result.relay_app_hourly.reduce(
-          (total, { total_relays: totalRelays }) => total + totalRelays,
-          0
-        )
-
-        return totalSessionRelays
-      })
+    const totalSessionRelays = result.relay_app_hourly.reduce(
+      (total, { total_relays: totalRelays }) => total + totalRelays,
+      0
     )
-
-    const totalSessionRelays = sessionRelaysPerApp.reduce(function sumRelays(
-      total,
-      sessionRelays
-    ) {
-      return total + sessionRelays
-    },
-    0)
 
     res.status(200).send({
       session_relays: totalSessionRelays,
@@ -880,6 +842,15 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -890,29 +861,13 @@ router.post(
       })
     )
 
-    const latestRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getLatestRelays({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          limit,
-          offset,
-        })
-
-        return result
-      })
-    )
-
-    const relays = []
-
-    latestRelaysPerApp.map((relayBatch) => {
-      for (const relay of relayBatch.relay) {
-        relays.push(relay)
-      }
+    const result = await gqlClient.getLatestRelays({
+      _apk: publicKeys,
+      limit,
+      offset,
     })
+
+    const relays = [...result.relay]
 
     relays
       .sort((a, b) => {
@@ -961,6 +916,15 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -971,29 +935,13 @@ router.post(
       })
     )
 
-    const latestRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getLatestSuccessfulRelays({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          _eq1: 200,
-          offset,
-        })
-
-        return result
-      })
-    )
-
-    const relays = []
-
-    latestRelaysPerApp.map((relayBatch) => {
-      for (const relay of relayBatch.relay) {
-        relays.push(relay)
-      }
+    const result = await gqlClient.getLatestSuccessfulRelays({
+      _apk: publicKeys,
+      _eq1: 200,
+      offset,
     })
+
+    const relays = [...result.relay]
 
     relays
       .sort((a, b) => {
@@ -1041,6 +989,15 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1053,31 +1010,15 @@ router.post(
 
     const twentyFourHoursAgo = composeHoursFromNowUtcDate(2)
 
-    const latestRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getLatestFailingRelays({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          _eq1: 200,
-          // @ts-ignore
-          _gte: twentyFourHoursAgo,
-          offset,
-        })
-
-        return result
-      })
-    )
-
-    const relays = []
-
-    latestRelaysPerApp.map((relayBatch) => {
-      for (const relay of relayBatch.relay) {
-        relays.push(relay)
-      }
+    const result = await gqlClient.getLatestFailingRelays({
+      _apk: publicKeys,
+      _eq1: 200,
+      // @ts-ignore
+      _gte: twentyFourHoursAgo,
+      offset,
     })
+
+    const relays = [...result.relay]
 
     relays
       .sort((a, b) => {
@@ -1125,6 +1066,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1138,33 +1088,14 @@ router.get(
     const fourtyEightHoursAgo = composeHoursFromNowUtcDate(48)
     const twentyFourHoursAgo = composeHoursFromNowUtcDate(24)
 
-    const previousSuccessfulRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getTotalAppRelays({
-          _apk: application.freeTierApplicationAccount.publicKey,
-          _gte: fourtyEightHoursAgo,
-          _lte: twentyFourHoursAgo,
-        })
-
-        return {
-          total_relays: result.relay_aggregate.aggregate.count ?? 0,
-        }
-      })
-    )
-
-    const totalRangedRelays = previousSuccessfulRelaysPerApp.reduce(
-      function sumRelays(total, app): number {
-        return total + app.total_relays
-      },
-      0
-    )
+    const result = await gqlClient.getTotalAppRelays({
+      _apk: publicKeys,
+      _gte: fourtyEightHoursAgo,
+      _lte: twentyFourHoursAgo,
+    })
 
     res.status(200).send({
-      total_relays: totalRangedRelays,
+      total_relays: result.relay_aggregate.aggregate.count || 0,
     })
   })
 )
@@ -1199,6 +1130,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1212,33 +1152,14 @@ router.get(
     const fourtyEightHoursAgo = composeHoursFromNowUtcDate(48)
     const twentyFourHoursAgo = composeHoursFromNowUtcDate(24)
 
-    const previousSuccessfulRelaysPerApp = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        const result = await gqlClient.getSuccessfulAppRelays({
-          _apk: application.freeTierApplicationAccount.publicKey,
-          _gte: fourtyEightHoursAgo,
-          _lte: twentyFourHoursAgo,
-        })
-
-        return {
-          successful_relays: result.relay_aggregate.aggregate.count ?? 0,
-        }
-      })
-    )
-
-    const totalSuccessfulRelays = previousSuccessfulRelaysPerApp.reduce(
-      function sumRelays(total, app) {
-        return total + app.successful_relays
-      },
-      0
-    )
+    const result = await gqlClient.getSuccessfulAppRelays({
+      _apk: publicKeys,
+      _gte: fourtyEightHoursAgo,
+      _lte: twentyFourHoursAgo,
+    })
 
     res.status(200).send({
-      successful_relays: totalSuccessfulRelays,
+      successful_relays: result.relay_aggregate.aggregate.count,
     })
   })
 )
@@ -1273,6 +1194,15 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
+    const publicKeys = await Promise.all(
+      appIds.map(async function getData(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        return application.freeTierApplicationAccount.publicKey
+      })
+    )
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1286,34 +1216,26 @@ router.get(
     const aDayAgo = composeHoursFromNowUtcDate(24)
     const hourlyLatency = new Map()
 
-    await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
+    const result = await gqlClient.getTotalRelayDuration({
+      _apk: publicKeys,
+      _gte: aDayAgo,
+    })
 
-        const result = await gqlClient.getTotalRelayDuration({
-          _eq: application.freeTierApplicationAccount.publicKey,
-          _gte: aDayAgo,
-        })
+    for (const {
+      bucket,
+      elapsed_time: elapsedTime,
+    } of result.relay_app_hourly) {
+      if (!hourlyLatency.has(bucket)) {
+        hourlyLatency.set(bucket, elapsedTime ?? 0)
+      } else {
+        const currentCount = hourlyLatency.get(bucket)
 
-        for (const {
+        hourlyLatency.set(
           bucket,
-          elapsed_time: elapsedTime,
-        } of result.relay_app_hourly) {
-          if (!hourlyLatency.has(bucket)) {
-            hourlyLatency.set(bucket, elapsedTime ?? 0)
-          } else {
-            const currentCount = hourlyLatency.get(bucket)
-
-            hourlyLatency.set(
-              bucket,
-              (Number(currentCount) + Number(elapsedTime)) / 2
-            )
-          }
-        }
-      })
-    )
+          (Number(currentCount) + Number(elapsedTime)) / 2
+        )
+      }
+    }
 
     const processedHourlyLatency = []
 

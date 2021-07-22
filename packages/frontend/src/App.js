@@ -5,7 +5,16 @@ import { ViewportProvider } from 'use-viewport'
 import { Main } from '@pokt-foundation/ui'
 import DashboardRoutes from './views/DashboardRoutes'
 
-const queryClient = new QueryClient()
+const DEFAULT_REFETCH_TIME = 15 * 1000 // 15s
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchInterval: DEFAULT_REFETCH_TIME,
+    },
+  },
+})
 
 function App() {
   return (
