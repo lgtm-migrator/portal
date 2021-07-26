@@ -106,6 +106,9 @@ export const ENV_VARS = {
   REDIS_ENDPOINT(): string {
     return process.env.REDIS_ENDPOINT?.trim() ?? ''
   },
+  GODMODE_ACCOUNT(): string {
+    return process.env.GODMODE_ACCOUNT?.trim() ?? ''
+  },
 }
 
 type envVarCategory =
@@ -116,6 +119,7 @@ type envVarCategory =
   | 'EMAIL_FROM'
   | 'ENABLE_WORKERS'
   | 'FRONTEND_URL'
+  | 'GODMODE_ACCOUNT'
   | 'HASURA_SECRET'
   | 'HASURA_URL'
   | 'PERSISTENCE'

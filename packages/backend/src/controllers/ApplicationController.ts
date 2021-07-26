@@ -82,6 +82,7 @@ router.get(
         notificationSettings: app.notificationSettings,
         name: app.name,
         id: app._id.toString(),
+        user: id,
         status: app.status,
         updatedAt: app.updatedAt,
       })

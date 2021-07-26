@@ -157,7 +157,7 @@ export default function Create() {
     whitelistUserAgents,
     secretKeyRequired,
   } = appConfigData
-  const { isAppsLoading, userApps } = useUserApps()
+  const { isAppsLoading, userApps, userID } = useUserApps()
   const queryClient = useQueryClient()
 
   const {
@@ -250,10 +250,10 @@ export default function Create() {
   const memoizableUserApps = JSON.stringify(userApps)
 
   useEffect(() => {
-    if (userApps.length >= MAX_USER_APPS) {
+    if (userApps.length >= MAX_USER_APPS && userID !== env('GODMODE_ACCOUNT')) {
       setCreationModalVisible(true)
     }
-  }, [memoizableUserApps, userApps.length])
+  }, [memoizableUserApps, userApps.length, userID])
 
   const onCloseCreationModal = useCallback(() => {
     setCreationModalVisible(false)

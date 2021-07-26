@@ -35,7 +35,9 @@ export function AppsContextProvider({ children }) {
       return DEFAULT_APP_STATE
     }
 
-    return { appsLoading, userApps: appsData, refetchApps }
+    const { user: userID } = appsData.find((app) => app.user)
+
+    return { appsLoading, userApps: appsData, refetchApps, userID }
   }, [appsData, appsLoading, refetchApps])
 
   log('USER APPS:', userApps)

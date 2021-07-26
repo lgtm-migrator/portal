@@ -17,4 +17,5 @@ export type GetApplicationQuery = {
   notificationSettings: INotificationSettings
   id: string
   status: string
+  user?: string
 }

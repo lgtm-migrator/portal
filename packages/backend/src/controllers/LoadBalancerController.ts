@@ -123,6 +123,7 @@ router.get(
           notificationSettings: app.notificationSettings,
           name: lb.name,
           id: lb._id.toString(),
+          user: id,
           status: app.status,
         }
 
@@ -141,7 +142,8 @@ router.post(
 
     const id = (req.user as IUser)._id
     const userApps = await Application.find({ user: id })
-    const isNewAppRequestInvalid = userApps.length >= MAX_USER_APPS
+    const isNewAppRequestInvalid =
+      userApps.length >= MAX_USER_APPS && id !== env('GODMODE_ACCOUNT')
 
     if (isNewAppRequestInvalid) {
       throw HttpError.BAD_REQUEST({
@@ -233,6 +235,7 @@ router.post(
           publicKey: application.freeTierApplicationAccount.publicKey,
         },
       ],
+      user: id,
       gatewaySettings: application.gatewaySettings,
       notificationSettings: application.notificationSettings,
     }

@@ -38,22 +38,22 @@ const MAIN_CHAINS = {
   AVAX_MAINNET: {
     ticker: 'AVAX',
     id: '0003',
-    limit: 3,
+    limit: 5,
   },
   BINANCE_SMART_CHAIN: {
     ticker: 'BSC',
     id: '0004',
-    limit: 5,
+    limit: 8,
   },
   BINANCE_SMART_CHAIN_ARCHIVAL: {
     ticker: 'BSC',
     id: '0010',
-    limit: 5,
+    limit: 8,
   },
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',
-    limit: 5,
+    limit: 8,
   },
   ETHEREUM_KOVAN_FULL: {
     ticker: 'POA',
@@ -68,27 +68,27 @@ const MAIN_CHAINS = {
   EHEREUM_MAINNET_ARCHIVAL_TRACING: {
     ticker: 'ETH',
     id: '0028',
-    limit: 5,
+    limit: 8,
   },
   ETHEREUM_MAINNET_FULL: {
     ticker: 'ETH',
     id: '0021',
-    limit: 5,
+    limit: 8,
   },
   ETHEREUM_RINKEBY_FULL: {
     ticker: 'ETH',
     id: '0025',
-    limit: 5,
+    limit: 8,
   },
   ETHEREUM_XDAI_FULL: {
     ticker: 'POA',
     id: '0027',
-    limit: 5,
+    limit: 8,
   },
   FUSE_FULL: {
     ticker: 'FUSE',
     id: '0005',
-    limit: 5,
+    limit: 8,
   },
   POCKET_MAINNET: {
     ticker: 'POKT',
@@ -98,7 +98,7 @@ const MAIN_CHAINS = {
   POLYGON_MAINNET: {
     ticker: 'POLY',
     id: '0009',
-    limit: 5,
+    limit: 8,
   },
 }
 
