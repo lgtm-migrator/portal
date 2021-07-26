@@ -3,12 +3,18 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import morgan from 'morgan'
 import passport from 'passport'
+import env from './environment'
 import { errorHandler } from './helpers/utils'
 import notFoundMiddleware from './middlewares/not-found'
 import { configureRoutes } from './routes'
 import { connect } from './db'
 
 const PORT = process.env.PORT || 4200
+const ALLOWED_DOMAINS = (env('ALLOWED_DOMAINS') as unknown) as string[]
+
+if (!env('prod')) {
+  ALLOWED_DOMAINS.push('http://localhost:3000')
+}
 
 const app = express()
 
@@ -22,10 +28,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 app.use(
   cors({
-    origin: [
-      'https://mainnet.portal.pokt.network',
-      'https://mainnet.dashboard.pokt.network',
-    ],
+    origin: ALLOWED_DOMAINS,
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true,
     exposedHeaders: ['Authorization'],

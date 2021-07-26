@@ -103,20 +103,24 @@ export const ENV_VARS = {
       clientPubKey: process.env.POCKET_NETWORK_CLIENT_PUB_KEY,
     }
   },
+  REDIS_ENDPOINT(): string {
+    return process.env.REDIS_ENDPOINT?.trim() ?? ''
+  },
 }
 
 type envVarCategory =
   | 'prod'
-  | 'POCKET_NETWORK'
-  | 'PERSISTENCE'
-  | 'FRONTEND_URL'
   | 'ALLOWED_DOMAINS'
-  | 'ENABLE_WORKERS'
-  | 'HASURA_SECRET'
-  | 'HASURA_URL'
   | 'AUTH'
   | 'EMAIL_API_KEY'
   | 'EMAIL_FROM'
+  | 'ENABLE_WORKERS'
+  | 'FRONTEND_URL'
+  | 'HASURA_SECRET'
+  | 'HASURA_URL'
+  | 'PERSISTENCE'
+  | 'POCKET_NETWORK'
+  | 'REDIS_ENDPOINT'
 
 /**
  * Returns the corresponding object for the named passed
