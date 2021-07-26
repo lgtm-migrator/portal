@@ -4256,34 +4256,6 @@
     tsify "^4.0.1"
     varint "^6.0.0"
 
-"@pokt-network/pocket-js@^0.6.13-rc":
-  version "0.6.13-rc"
-  resolved "https://registry.yarnpkg.com/@pokt-network/pocket-js/-/pocket-js-0.6.13-rc.tgz#4a06d97a99d8fd700dba0ba7865a75c16f6dc5a4"
-  integrity sha512-JpMs6eRrFVRfa0Vkkj7I3kovr6pM39rr+xwZLe9SkUQ32ZdGgEAt1KtzTkOTkbya/EoQdCh0ewW+hx8ZETRNrQ==
-  dependencies:
-    "@pokt-network/aat-js" "0.1.1-rc"
-    "@pokt-network/amino-js" "0.7.5-alpha.1"
-    "@tendermint/belt" "^0.2.1"
-    "@types/aes-js" "^3.1.0"
-    "@types/libsodium-wrappers" "^0.7.7"
-    "@types/scrypt-js" "^2.0.4"
-    "@types/varint" "^6.0.0"
-    aes-js "^3.1.2"
-    axios "^0.21.1"
-    bigint-conversion "^2.1.12"
-    browserify "^16.5.1"
-    buffer "^5.6.0"
-    js-sha256 "^0.9.0"
-    js-sha3 "^0.8.0"
-    libsodium-wrappers "^0.7.6"
-    minifyify "^7.3.5"
-    node-localstorage "^2.1.5"
-    pbkdf2 "^3.0.17"
-    scrypt-js "^3.0.1"
-    ts-proto "^1.76.0"
-    tsify "^4.0.1"
-    varint "^6.0.0"
-
 "@popperjs/core@^2.5.4":
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.9.0.tgz#32e63212293dd3efbb521cd35a5020ab66eaa546"
@@ -5452,6 +5424,13 @@
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@types/http-proxy-agent/-/http-proxy-agent-2.0.2.tgz#942c1f35c7e1f0edd1b6ffae5d0f9051cfb32be1"
   integrity sha512-2S6IuBRhqUnH1/AUx9k8KWtY3Esg4eqri946MnxTG5HwehF1S5mqLln8fcyMiuQkY72p2gH3W+rIPqp5li0LyQ==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ioredis@^4.26.6":
+  version "4.26.6"
+  resolved "https://registry.yarnpkg.com/@types/ioredis/-/ioredis-4.26.6.tgz#7e332d6d24f12d79a1099834ccfa0c169ef667ed"
+  integrity sha512-Q9ydXL/5Mot751i7WLCm9OGTj5jlW3XBdkdEW21SkXZ8Y03srbkluFGbM3q8c+vzPW30JOLJ+NsZWHoly0+13A==
   dependencies:
     "@types/node" "*"
 
@@ -13793,6 +13772,22 @@ ioredis@^4.22.0:
     redis-parser "^3.0.0"
     standard-as-callback "^2.0.1"
 
+ioredis@^4.27.6:
+  version "4.27.6"
+  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.27.6.tgz#a53d427d3fe75fbd10ed7ad150ce00559df8dcf8"
+  integrity sha512-6W3ZHMbpCa8ByMyC1LJGOi7P2WiOKP9B3resoZOVLDhi+6dDBOW+KNsRq3yI36Hmnb2sifCxHX+YSarTeXh48A==
+  dependencies:
+    cluster-key-slot "^1.1.0"
+    debug "^4.3.1"
+    denque "^1.1.0"
+    lodash.defaults "^4.2.0"
+    lodash.flatten "^4.4.0"
+    p-map "^2.1.0"
+    redis-commands "1.7.0"
+    redis-errors "^1.2.0"
+    redis-parser "^3.0.0"
+    standard-as-callback "^2.1.0"
+
 ip-regex@^2.0.0, ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
@@ -21901,6 +21896,11 @@ standard-as-callback@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/standard-as-callback/-/standard-as-callback-2.0.1.tgz#ed8bb25648e15831759b6023bdb87e6b60b38126"
   integrity sha512-NQOxSeB8gOI5WjSaxjBgog2QFw55FV8TkS6Y07BiB3VJ8xNTvUYm0wl0s8ObgQ5NhdpnNfigMIKjgPESzgr4tg==
+
+standard-as-callback@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/standard-as-callback/-/standard-as-callback-2.1.0.tgz#8953fc05359868a77b5b9739a665c5977bb7df45"
+  integrity sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==
 
 state-toggle@^1.0.0:
   version "1.0.3"

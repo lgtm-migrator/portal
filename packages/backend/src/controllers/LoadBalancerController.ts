@@ -3,6 +3,11 @@ import crypto from 'crypto'
 import { GraphQLClient } from 'graphql-request'
 import { typeGuard, QueryAppResponse } from '@pokt-network/pocket-js'
 import { IAppInfo, GetApplicationQuery } from './types'
+import {
+  cache,
+  getResponseFromCache,
+  FIVE_MINUTES_CACHE_EXPIRATION_TIME,
+} from '../redis'
 import env from '../environment'
 import { getSdk } from '../graphql/types'
 import asyncMiddleware from '../middlewares/async'
@@ -30,6 +35,32 @@ const DEFAULT_GATEWAY_SETTINGS = {
 }
 const DEFAULT_TIMEOUT = 5000
 const MAX_USER_APPS = 4
+
+async function getLbPublicKeys(appIds, lbId) {
+  const cachedPublicKeys = await getResponseFromCache(`${lbId}-pks`)
+  const publicKeys = cachedPublicKeys
+    ? JSON.parse(cachedPublicKeys as string)
+    : await Promise.all(
+        appIds.map(async function getData(applicationId) {
+          const application: IApplication = await Application.findById(
+            applicationId
+          )
+
+          return application.freeTierApplicationAccount.publicKey
+        })
+      )
+
+  if (!cachedPublicKeys) {
+    await cache.set(
+      `${lbId}-pks`,
+      JSON.stringify(publicKeys),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
+  }
+
+  return publicKeys
+}
 
 const router = express.Router()
 
@@ -559,16 +590,16 @@ router.get(
       })
     }
 
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-total-relays`
     )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -591,6 +622,13 @@ router.get(
     const processedRelaysAndLatency = {
       total_relays: result.relay_aggregate.aggregate.count || 0,
     }
+
+    await cache.set(
+      `${lbId}-total-relays`,
+      JSON.stringify(processedRelaysAndLatency),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
 
     res.status(200).send(processedRelaysAndLatency)
   })
@@ -624,17 +662,16 @@ router.get(
         ],
       })
     }
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-successful-relays`
+    )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -657,6 +694,13 @@ router.get(
     const processedSuccessfulRelays = {
       total_relays: result.relay_aggregate.aggregate.count || 0,
     }
+
+    await cache.set(
+      `${lbId}-successful-relays`,
+      JSON.stringify(processedSuccessfulRelays),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
 
     res.status(200).send(processedSuccessfulRelays)
   })
@@ -690,17 +734,16 @@ router.get(
         ],
       })
     }
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-daily-relays`
+    )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -738,9 +781,18 @@ router.get(
       processedDailyRelays.push({ bucket, dailyRelays: dailyRelayCount })
     }
 
-    res.status(200).send({
+    const processedDailyRelaysResponse = {
       daily_relays: processedDailyRelays.reverse(),
-    })
+    }
+
+    await cache.set(
+      `${lbId}-daily-relays`,
+      JSON.stringify(processedDailyRelaysResponse),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
+
+    res.status(200).send(processedDailyRelaysResponse)
   })
 )
 
@@ -774,15 +826,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -842,15 +886,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -890,7 +926,7 @@ router.post(
   asyncMiddleware(async (req: Request, res: Response) => {
     const userId = (req.user as IUser)._id
 
-    const { id, limit, offset } = req.body
+    const { id, offset } = req.body
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
 
@@ -916,15 +952,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -989,15 +1017,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
-    )
+    const publicKeys = await getLbPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1008,13 +1028,13 @@ router.post(
       })
     )
 
-    const twentyFourHoursAgo = composeHoursFromNowUtcDate(2)
+    const twoHoursAgo = composeHoursFromNowUtcDate(2)
 
     const result = await gqlClient.getLatestFailingRelays({
       _apk: publicKeys,
       _eq1: 200,
       // @ts-ignore
-      _gte: twentyFourHoursAgo,
+      _gte: twoHoursAgo,
       offset,
     })
 
@@ -1065,16 +1085,16 @@ router.get(
       })
     }
 
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-ranged-relays`
     )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1094,9 +1114,18 @@ router.get(
       _lte: twentyFourHoursAgo,
     })
 
-    res.status(200).send({
+    const processedTotalRangedRelays = {
       total_relays: result.relay_aggregate.aggregate.count || 0,
-    })
+    }
+
+    await cache.set(
+      `${lbId}-ranged-relays`,
+      JSON.stringify(processedTotalRangedRelays),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
+
+    res.status(200).send(processedTotalRangedRelays)
   })
 )
 
@@ -1129,16 +1158,16 @@ router.get(
       })
     }
 
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-previous-successful-relays`
     )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1158,9 +1187,18 @@ router.get(
       _lte: twentyFourHoursAgo,
     })
 
-    res.status(200).send({
+    const processedPreviousSuccessfulRelaysResponse = {
       successful_relays: result.relay_aggregate.aggregate.count,
-    })
+    }
+
+    await cache.set(
+      `${lbId}-previous-successful-relays`,
+      JSON.stringify(processedPreviousSuccessfulRelaysResponse),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
+
+    res.status(200).send(processedPreviousSuccessfulRelaysResponse)
   })
 )
 
@@ -1193,16 +1231,16 @@ router.get(
       })
     }
 
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await Promise.all(
-      appIds.map(async function getData(applicationId) {
-        const application: IApplication = await Application.findById(
-          applicationId
-        )
-
-        return application.freeTierApplicationAccount.publicKey
-      })
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbId}-hourly-latency`
     )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLbPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1243,9 +1281,18 @@ router.get(
       processedHourlyLatency.push({ bucket, latency: hourlyLatencyAvg })
     }
 
-    res.status(200).send({
+    const processedHourlyLatencyResponse = {
       hourly_latency: processedHourlyLatency.reverse(),
-    })
+    }
+
+    await cache.set(
+      `${lbId}-hourly-latency`,
+      JSON.stringify(processedHourlyLatencyResponse),
+      'EX',
+      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+    )
+
+    res.status(200).send(processedHourlyLatencyResponse)
   })
 )
 
