@@ -1,11 +1,11 @@
 import Redis from 'ioredis'
 import env from './environment'
 
-export const TEN_MINUTES_CACHE_EXPIRATION_TIME = 600
-export const FIVE_MINUTES_CACHE_EXPIRATION_TIME = 300
+export const NETWORK_METRICS_TTL = 1200
+export const LB_METRICS_TTL = 60
 
 if (!env('REDIS_ENDPOINT')) {
-  console.log('---REDIS NOT RUNNING---')
+  console.log('---REDIS ENDPOINT MISSING---')
 }
 
 export const cache = new Redis(env('REDIS_ENDPOINT') as string)

@@ -3,11 +3,7 @@ import crypto from 'crypto'
 import { GraphQLClient } from 'graphql-request'
 import { typeGuard, QueryAppResponse } from '@pokt-network/pocket-js'
 import { IAppInfo, GetApplicationQuery } from './types'
-import {
-  cache,
-  getResponseFromCache,
-  FIVE_MINUTES_CACHE_EXPIRATION_TIME,
-} from '../redis'
+import { cache, getResponseFromCache, LB_METRICS_TTL } from '../redis'
 import env from '../environment'
 import { getSdk } from '../graphql/types'
 import asyncMiddleware from '../middlewares/async'
@@ -36,14 +32,14 @@ const DEFAULT_GATEWAY_SETTINGS = {
 const DEFAULT_TIMEOUT = 5000
 const MAX_USER_APPS = 4
 
-async function getLbPublicKeys(appIds, lbId) {
-  const cachedPublicKeys = await getResponseFromCache(`${lbId}-pks`)
+async function getLBPublicKeys(appIDs: string[], lbID: string) {
+  const cachedPublicKeys = await getResponseFromCache(`${lbID}-pks`)
   const publicKeys = cachedPublicKeys
     ? JSON.parse(cachedPublicKeys as string)
     : await Promise.all(
-        appIds.map(async function getData(applicationId) {
+        appIDs.map(async function getData(applicationID) {
           const application: IApplication = await Application.findById(
-            applicationId
+            applicationID
           )
 
           return application.freeTierApplicationAccount.publicKey
@@ -52,10 +48,10 @@ async function getLbPublicKeys(appIds, lbId) {
 
   if (!cachedPublicKeys) {
     await cache.set(
-      `${lbId}-pks`,
+      `${lbID}-pks`,
       JSON.stringify(publicKeys),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
   }
 
@@ -599,7 +595,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -627,7 +623,7 @@ router.get(
       `${lbId}-total-relays`,
       JSON.stringify(processedRelaysAndLatency),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedRelaysAndLatency)
@@ -671,7 +667,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -699,7 +695,7 @@ router.get(
       `${lbId}-successful-relays`,
       JSON.stringify(processedSuccessfulRelays),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedSuccessfulRelays)
@@ -743,7 +739,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -789,7 +785,7 @@ router.get(
       `${lbId}-daily-relays`,
       JSON.stringify(processedDailyRelaysResponse),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedDailyRelaysResponse)
@@ -826,7 +822,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -886,7 +882,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, id)
+    const publicKeys = await getLBPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -952,7 +948,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, id)
+    const publicKeys = await getLBPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1017,7 +1013,7 @@ router.post(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, id)
+    const publicKeys = await getLBPublicKeys(appIds, id)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1094,7 +1090,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1122,7 +1118,7 @@ router.get(
       `${lbId}-ranged-relays`,
       JSON.stringify(processedTotalRangedRelays),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedTotalRangedRelays)
@@ -1167,7 +1163,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1195,7 +1191,7 @@ router.get(
       `${lbId}-previous-successful-relays`,
       JSON.stringify(processedPreviousSuccessfulRelaysResponse),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedPreviousSuccessfulRelaysResponse)
@@ -1240,7 +1236,7 @@ router.get(
     }
 
     const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLbPublicKeys(appIds, lbId)
+    const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     const gqlClient = getSdk(
       new GraphQLClient(env('HASURA_URL') as string, {
@@ -1289,7 +1285,7 @@ router.get(
       `${lbId}-hourly-latency`,
       JSON.stringify(processedHourlyLatencyResponse),
       'EX',
-      FIVE_MINUTES_CACHE_EXPIRATION_TIME
+      LB_METRICS_TTL
     )
 
     res.status(200).send(processedHourlyLatencyResponse)

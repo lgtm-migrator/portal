@@ -9,11 +9,7 @@ import ApplicationPool from '../models/PreStakedApp'
 import asyncMiddleware from '../middlewares/async'
 import { authenticate } from '../middlewares/passport-auth'
 import { composeDaysFromNowUtcDate } from '../lib/date-utils'
-import {
-  cache,
-  getResponseFromCache,
-  TEN_MINUTES_CACHE_EXPIRATION_TIME,
-} from '../redis'
+import { cache, getResponseFromCache, NETWORK_METRICS_TTL } from '../redis'
 
 const router = express.Router()
 
@@ -134,7 +130,7 @@ router.get(
       'network-daily-relays',
       JSON.stringify(processedNetworkRelaysResponse),
       'EX',
-      TEN_MINUTES_CACHE_EXPIRATION_TIME
+      NETWORK_METRICS_TTL
     )
 
     res.status(200).send(processedNetworkRelaysResponse)
@@ -176,7 +172,7 @@ router.get(
       'network-weekly-successful-relays',
       JSON.stringify(processedTotalSuccessfulNetworkRelaysResponse),
       'EX',
-      TEN_MINUTES_CACHE_EXPIRATION_TIME
+      NETWORK_METRICS_TTL
     )
 
     res.status(200).send(processedTotalSuccessfulNetworkRelaysResponse)
@@ -218,7 +214,7 @@ router.get(
       'network-total-weekly-relays',
       JSON.stringify(processedTotalNetworkRelaysResponse),
       'EX',
-      TEN_MINUTES_CACHE_EXPIRATION_TIME
+      NETWORK_METRICS_TTL
     )
 
     res.status(200).send(processedTotalNetworkRelaysResponse)
