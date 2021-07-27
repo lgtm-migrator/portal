@@ -22,7 +22,11 @@ export function useUserApps() {
 }
 
 export function AppsContextProvider({ children }) {
-  const { isAppsLoading, appsData, refetchUserApps } = useUserApplications()
+  const {
+    isAppsLoading,
+    appsData = [],
+    refetchUserApps,
+  } = useUserApplications()
 
   const appsLoading = isAppsLoading
 
@@ -35,7 +39,9 @@ export function AppsContextProvider({ children }) {
       return DEFAULT_APP_STATE
     }
 
-    const { user: userID } = appsData.find((app) => app.user)
+    const appWithUser = appsData.find((app) => app.user)
+
+    const userID = appWithUser?.user ?? ''
 
     return { appsLoading, userApps: appsData, refetchApps, userID }
   }, [appsData, appsLoading, refetchApps])
