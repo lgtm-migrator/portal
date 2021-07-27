@@ -294,7 +294,7 @@ export default function Create() {
       isCreateSuccess ||
       !appName ||
       isAppsLoading ||
-      userApps.length >= MAX_USER_APPS ||
+      (userApps.length >= MAX_USER_APPS && userID !== env('GODMODE_ACCOUNT')) ||
       !selectedNetwork,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
