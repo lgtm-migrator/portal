@@ -5,7 +5,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0004', { prefix: 'bsc-mainnet', name: 'Binance Smart Chain Mainnet' }],
   ['0005', { prefix: 'fuse-mainnet', name: 'Fuse Mainnet' }],
   ['0006', { prefix: 'solana-mainnet', name: 'Solana Mainnet' }],
-  ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic)' }],
+  ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic) Mainnet' }],
   ['0010', { prefix: 'bsc-archival', name: 'Binance Smart Chain (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],
   ['0022', { prefix: 'eth-archival', name: 'Ethereum Mainnet (Archival)' }],
@@ -18,7 +18,7 @@ const CHAIN_ID_PREFIXES = new Map([
 ])
 
 export const PRODUCTION_CHAINS = ['0001', '0005', '0021', '0022', '0028']
-export const ALPHA_CHAINS = ['0009']
+export const ALPHA_CHAINS = []
 
 export function prefixFromChainId(chainId) {
   return CHAIN_ID_PREFIXES.get(chainId)
