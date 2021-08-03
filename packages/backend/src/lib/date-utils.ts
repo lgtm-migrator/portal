@@ -32,9 +32,9 @@ export function composeTodayUtcDate(): string {
 
   const today = dayjs.utc()
 
-  const todayBucket = `${today.year()}-0${
-    today.month() + 1
-  }-${today.date()}T00:00:00+00:00`
+  const todayBucket = `${today.year()}-0${today.month() + 1}-${
+    today.date() < 10 ? `0${today.date()}` : today.date()
+  }T00:00:00+00:00`
 
   return todayBucket
 }

@@ -25,8 +25,6 @@
     "chromatic": "^5.6.3",
     "d3-format": "^2.0.0",
     "dayjs": "^1.10.4",
-    "graphql": "^15.5.0",
-    "graphql-request": "^3.4.0",
     "husky": "^4.3.0",
     "popper.js": "^1.16.1",
     "prop-types": "^15.7.2",
