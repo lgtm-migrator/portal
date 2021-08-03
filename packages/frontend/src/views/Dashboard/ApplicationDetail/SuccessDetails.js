@@ -10,7 +10,6 @@ import {
   ButtonBase,
   CircleGraph,
   DataView,
-  Pagination,
   Spacer,
   Split,
   textStyle,
@@ -23,7 +22,6 @@ import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { log } from '../../../lib/utils'
-import { shortenAddress } from '../../../lib/pocket-utils'
 import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
@@ -33,7 +31,6 @@ const DEFAULT_FILTERED_STATE = {
   successfulRelays: [],
 }
 const FAILED_RELAYS_KEY = 'failedRelays'
-const PER_PAGE = 10
 const SUCCESSFUL_RELAYS_KEY = 'successfulRelays'
 
 export default function SuccessDetails({
@@ -44,7 +41,6 @@ export default function SuccessDetails({
   successfulRelayData,
   weeklyRelayData,
 }) {
-  const [page, setPage] = useState(0)
   const [activeKey, setActiveKey] = useState(SUCCESSFUL_RELAYS_KEY)
   const history = useHistory()
   const theme = useTheme()
@@ -54,7 +50,7 @@ export default function SuccessDetails({
   const compactMode = within(-1, 'medium')
 
   const { isLoading, data } = useQuery(
-    [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, page, id, isLb],
+    [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id, isLb],
     async function getFilteredRelays() {
       const successfulPath = `${env('BACKEND_URL')}/api/${
         isLb ? 'lb' : 'applications'
@@ -72,8 +68,6 @@ export default function SuccessDetails({
           successfulPath,
           {
             id,
-            limit: PER_PAGE,
-            offset: page * PER_PAGE,
           },
           {
             withCredentials: true,
@@ -84,8 +78,6 @@ export default function SuccessDetails({
           failingPath,
           {
             id,
-            limit: PER_PAGE,
-            offset: page * PER_PAGE,
           },
           {
             withCredentials: true,
@@ -130,7 +122,6 @@ export default function SuccessDetails({
       : (weeklyRelayData.total_relays - successfulRelayData.total_relays) /
           weeklyRelayData.total_relays
   }, [successfulRelayData, weeklyRelayData])
-  const onPageChange = useCallback((page) => setPage(page), [])
 
   const displayData = useMemo(() => {
     if (activeKey === SUCCESSFUL_RELAYS_KEY) {
@@ -301,11 +292,7 @@ export default function SuccessDetails({
                     'Service Node',
                   ]}
                   entries={displayData}
-                  renderEntry={({
-                    bytes,
-                    method,
-                    service_node: serviceNode,
-                  }) => {
+                  renderEntry={({ bytes, method, nodePublicKey }) => {
                     return [
                       <div
                         css={`
@@ -325,7 +312,7 @@ export default function SuccessDetails({
                       <p>{method ? method : 'Unknown'}</p>,
                       <p>{bytes}B</p>,
                       <TextCopy
-                        value={shortenAddress(serviceNode, 16)}
+                        value={nodePublicKey}
                         onCopy={() => toast('Node address copied to cliboard')}
                         css={`
                           width: 100%;
@@ -337,11 +324,6 @@ export default function SuccessDetails({
                     ]
                   }}
                   status={isLoading ? 'loading' : 'default'}
-                />
-                <Pagination
-                  pages={10}
-                  selected={page}
-                  onChange={onPageChange}
                 />
               </Box>
             </>

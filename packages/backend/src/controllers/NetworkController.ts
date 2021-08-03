@@ -1,19 +1,22 @@
 import express, { Response, Request } from 'express'
-import { GraphQLClient } from 'graphql-request'
 import { APPLICATION_STATUSES } from '../application-statuses'
-import env from '../environment'
-import { getSdk } from '../graphql/types'
 import Chain from '../models/Blockchains'
 import NetworkData from '../models/NetworkData'
 import ApplicationPool from '../models/PreStakedApp'
 import asyncMiddleware from '../middlewares/async'
 import { authenticate } from '../middlewares/passport-auth'
 import { composeDaysFromNowUtcDate } from '../lib/date-utils'
+import {
+  buildSuccessfulNetworkRelaysQuery,
+  influx,
+  NETWORK_AGGREGATES_QUERY,
+} from '../lib/influx'
 import { cache, getResponseFromCache, NETWORK_METRICS_TTL } from '../redis'
 
 const router = express.Router()
 
 router.use(authenticate)
+
 /**
  * Get info for all chains.
  */
@@ -97,7 +100,7 @@ router.get(
 
     res.status(200).send({
       summary: {
-        appsStaked: latestNetworkData.appsStaked,
+        appsStaked: 2000,
         nodesStaked: latestNetworkData.nodesStaked,
         poktStaked: latestNetworkData.poktStaked,
       },
@@ -111,113 +114,61 @@ router.get(
     const cachedResponse = await getResponseFromCache('network-daily-relays')
 
     if (cachedResponse) {
-      return res.status(200).send(JSON.parse(cachedResponse as string))
+      // return res.status(200).send(JSON.parse(cachedResponse as string))
     }
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+
+    console.log(composeDaysFromNowUtcDate(8), composeDaysFromNowUtcDate(1))
+
+    const rawDailyRelays = await influx.collectRows(
+      buildSuccessfulNetworkRelaysQuery({
+        start: composeDaysFromNowUtcDate(8),
+        stop: composeDaysFromNowUtcDate(1),
       })
     )
 
-    const networkRelays = await gqlClient.getDailyNetworkRelays()
+    console.log(rawDailyRelays)
 
-    const processedNetworkRelaysResponse = networkRelays.relays_daily
+    const processedDailyRelaysResponse = rawDailyRelays.map(
+      ({ _time, _value }) => ({ total_relays: _value ?? 0, bucket: _time })
+    )
 
     await cache.set(
       'network-daily-relays',
-      JSON.stringify(processedNetworkRelaysResponse),
+      JSON.stringify(processedDailyRelaysResponse),
       'EX',
       NETWORK_METRICS_TTL
     )
 
-    res.status(200).send(processedNetworkRelaysResponse)
+    res.status(200).send(processedDailyRelaysResponse)
   })
 )
 
 router.get(
-  '/weekly-successful-relays',
+  '/weekly-aggregate-stats',
   asyncMiddleware(async (_: Request, res: Response) => {
-    const cachedResponse = await getResponseFromCache(
-      'network-weekly-successful-relays'
-    )
+    const cachedResponse = await getResponseFromCache('weekly-aggregate-stats')
 
     if (cachedResponse) {
       return res.status(200).send(JSON.parse(cachedResponse as string))
     }
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
-      })
+    const [{ success, total }] = await influx.collectRows(
+      NETWORK_AGGREGATES_QUERY
     )
 
-    const sevenDaysAgo = composeDaysFromNowUtcDate(8)
-    const yesterday = composeDaysFromNowUtcDate(1)
-
-    const networkRelays = await gqlClient.getTotalSuccessfulNetworkRelays({
-      _gte: sevenDaysAgo,
-      _lte: yesterday,
-    })
-
-    const processedTotalSuccessfulNetworkRelaysResponse =
-      networkRelays.relay_nodes_hourly_aggregate.aggregate.sum
-
-    await cache.set(
-      'network-weekly-successful-relays',
-      JSON.stringify(processedTotalSuccessfulNetworkRelaysResponse),
-      'EX',
-      NETWORK_METRICS_TTL
-    )
-
-    res.status(200).send(processedTotalSuccessfulNetworkRelaysResponse)
-  })
-)
-
-router.get(
-  '/total-weekly-relays',
-  asyncMiddleware(async (_: Request, res: Response) => {
-    const cachedResponse = await getResponseFromCache(
-      'network-total-weekly-relays'
-    )
-
-    if (cachedResponse) {
-      return res.status(200).send(JSON.parse(cachedResponse as string))
+    const processedAggregateStatsResponse = {
+      successful_relays: success,
+      total_relays: total,
     }
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
-      })
-    )
-
-    const sevenDaysAgo = composeDaysFromNowUtcDate(8)
-    const yesterday = composeDaysFromNowUtcDate(1)
-
-    const networkRelays = await gqlClient.getTotalNetworkRelays({
-      _gte: sevenDaysAgo,
-      _lte: yesterday,
-    })
-
-    const processedTotalNetworkRelaysResponse =
-      networkRelays.relay_nodes_hourly_aggregate.aggregate.sum
-
     await cache.set(
-      'network-total-weekly-relays',
-      JSON.stringify(processedTotalNetworkRelaysResponse),
+      'weekly-aggregate-stats',
+      JSON.stringify(processedAggregateStatsResponse),
       'EX',
       NETWORK_METRICS_TTL
     )
 
-    res.status(200).send(processedTotalNetworkRelaysResponse)
+    res.status(200).send(processedAggregateStatsResponse)
   })
 )
 

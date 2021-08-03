@@ -1,36 +1,6 @@
 import axios from 'axios'
-import * as dayjs from 'dayjs'
-import * as dayJsutcPlugin from 'dayjs/plugin/utc'
-import { GraphQLClient, gql } from 'graphql-request'
 import { useQuery } from 'react-query'
 import env from '../environment'
-
-const gqlClient = new GraphQLClient(env('HASURA_URL'), {
-  headers: {
-    'x-hasura-admin-secret': env('HASURA_SECRET'),
-  },
-})
-
-const RELAY_APPS_QUERY = gql`
-  query DAILY_RELAYS_QUERY {
-    relays_daily(limit: 8, order_by: { bucket: desc }) {
-      bucket
-      total_relays
-    }
-  }
-`
-
-const WEEKLY_RELAY_COUNT_QUERY = gql`
-  query DAILY_RELAYS_QUERY($_gte: timestamptz!) {
-    relay_apps_hourly_aggregate(where: { bucket: { _gte: $_gte } }) {
-      aggregate {
-        sum {
-          total_relays
-        }
-      }
-    }
-  }
-`
 
 export function useNetworkSummary() {
   const {
@@ -97,35 +67,12 @@ export function useTotalWeeklyRelays() {
     data: relayData,
   } = useQuery('network/weekly-relays', async function getWeeklyRelays() {
     try {
-      const res = await gqlClient.request(RELAY_APPS_QUERY)
+      const path = `${env('BACKEND_URL')}/api/network/daily-relays`
+      const { data } = await axios.get(path, {
+        withCredentials: true,
+      })
 
-      dayjs.extend(dayJsutcPlugin)
-
-      const sevenDaysAgo = dayjs.utc().subtract(7, 'day')
-
-      const formattedTimestamp = `${sevenDaysAgo.year()}-0${
-        sevenDaysAgo.month() + 1
-      }-${sevenDaysAgo.date()}T00:00:00+00:00`
-
-      const totalWeeklyRelaysRes = await gqlClient.request(
-        WEEKLY_RELAY_COUNT_QUERY,
-        {
-          _gte: formattedTimestamp,
-        }
-      )
-
-      const {
-        relay_apps_hourly_aggregate: {
-          aggregate: {
-            sum: { total_relays: totalWeeklyRelays },
-          },
-        },
-      } = totalWeeklyRelaysRes
-      const { relays_daily: dailyRelays } = res
-
-      const processedDailyRelays = dailyRelays.reverse()
-
-      return { dailyRelays: processedDailyRelays, totalWeeklyRelays }
+      return data
     } catch (err) {
       console.log(err, 'rip')
     }
@@ -138,38 +85,36 @@ export function useTotalWeeklyRelays() {
   }
 }
 
-export function useNetworkSuccessRate() {
+export function useNetworkStats() {
   const {
-    isLoading: isSuccessRateLoading,
-    isError: isSuccessRateError,
-    data: successRateData,
-  } = useQuery('network/success-rate', async function getWeeklyRelays() {
-    const successfulPath = `${env(
-      'BACKEND_URL'
-    )}/api/network/weekly-successful-relays`
-    const totalPath = `${env('BACKEND_URL')}/api/network/total-weekly-relays`
+    isLoading: isNetworkStatsLoading,
+    isError: isNetworkStatsError,
+    data: networkStats,
+  } = useQuery(
+    'network/weekly-aggregate-stats',
+    async function getWeeklyRelays() {
+      const path = `${env('BACKEND_URL')}/api/network/weekly-aggregate-stats`
 
-    try {
-      const {
-        data: { total_relays: successfulRelays },
-      } = await axios.get(successfulPath, {
-        withCredentials: true,
-      })
-      const {
-        data: { total_relays: totalRelays },
-      } = await axios.get(totalPath, {
-        withCredentials: true,
-      })
+      try {
+        const {
+          data: {
+            successful_relays: successfulRelays,
+            total_relays: totalRelays,
+          },
+        } = await axios.get(path, {
+          withCredentials: true,
+        })
 
-      return { successfulRelays, totalRelays }
-    } catch (err) {
-      console.log(err, 'rip')
+        return { successfulRelays, totalRelays }
+      } catch (err) {
+        console.log(err, 'rip')
+      }
     }
-  })
+  )
 
   return {
-    isSuccessRateError,
-    isSuccessRateLoading,
-    successRateData,
+    isNetworkStatsLoading,
+    isNetworkStatsError,
+    networkStats,
   }
 }

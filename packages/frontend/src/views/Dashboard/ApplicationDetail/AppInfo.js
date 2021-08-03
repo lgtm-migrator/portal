@@ -15,7 +15,6 @@ import {
   LineChart,
   Link,
   Modal,
-  Pagination,
   Spacer,
   Split,
   TextCopy,
@@ -37,7 +36,6 @@ import { formatNumberToSICompact } from '../../../lib/formatting-utils'
 
 const ONE_MILLION = 1000000
 const ONE_SECOND = 1 // Data for graphs come in second
-const PER_PAGE = 10
 const SESSIONS_PER_DAY = 24
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -578,10 +576,14 @@ function SuccessRate({ previousSuccessRate = 0, successRate, totalRequests }) {
   })
   const [primarySuccessColor] = useSuccessRateColor(successRate)
   const successRateDelta = useMemo(() => {
+    const actualPreviousSuccessRate =
+      previousSuccessRate > 1.0 ? 1 : previousSuccessRate
+
     if (successRate >= 0.9999) {
       return (0).toFixed(2)
     }
-    return (((successRate - previousSuccessRate) / 1) * 100).toFixed(2)
+
+    return (((successRate - actualPreviousSuccessRate) / 1) * 100).toFixed(2)
   }, [previousSuccessRate, successRate])
 
   const mode = successRateDelta > 0 ? 'positive' : 'negative'
@@ -871,17 +873,14 @@ function UsageTrends({
 }
 
 function LatestRequests({ id, isLb }) {
-  const [page, setPage] = useState(0)
   const { within } = useViewport()
   const { isLoading: isLatestRelaysLoading, latestRelayData } = useLatestRelays(
     {
       id,
-      page,
       isLb: isLb,
     }
   )
 
-  const onPageChange = useCallback((page) => setPage(page), [])
   const [colorsByMethod] = useMemo(() => {
     if (isLatestRelaysLoading) {
       return []
@@ -934,7 +933,7 @@ function LatestRequests({ id, isLb }) {
         ]}
         status={isLatestRelaysLoading ? 'loading' : 'default'}
         entries={latestRelays}
-        renderEntry={({ bytes, method, result, elapsed_time: elapsedTime }) => {
+        renderEntry={({ bytes, method, result, elapsedTime }) => {
           return [
             <p>{method ? method : 'Unknown'}</p>,
             <p>
@@ -955,14 +954,6 @@ function LatestRequests({ id, isLb }) {
             <p>{(elapsedTime * 1000).toFixed(0)}ms</p>,
           ]
         }}
-      />
-      <Pagination
-        pages={PER_PAGE}
-        selected={page}
-        onChange={onPageChange}
-        css={`
-          grid-column: 2;
-        `}
       />
     </Box>
   )

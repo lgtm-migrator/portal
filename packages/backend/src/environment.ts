@@ -56,6 +56,15 @@ export const ENV_VARS = {
   HASURA_URL(): string {
     return process.env.HASURA_URL?.trim() ?? ''
   },
+  INFLUX_ENDPOINT(): string {
+    return process.env.INFLUX_ENDPOINT?.trim() ?? ''
+  },
+  INFLUX_ORG(): string {
+    return process.env.INFLUX_ORG?.trim() ?? ''
+  },
+  INFLUX_TOKEN(): string {
+    return process.env.INFLUX_TOKEN?.trim() ?? ''
+  },
   AUTH(): AuthKeys {
     return {
       publicSecret: process.env.JWT_PUBLIC_SECRET?.replace(/\\n/gm, '\n') ?? '',
@@ -122,6 +131,9 @@ type envVarCategory =
   | 'GODMODE_ACCOUNT'
   | 'HASURA_SECRET'
   | 'HASURA_URL'
+  | 'INFLUX_ENDPOINT'
+  | 'INFLUX_TOKEN'
+  | 'INFLUX_ORG'
   | 'PERSISTENCE'
   | 'POCKET_NETWORK'
   | 'REDIS_ENDPOINT'

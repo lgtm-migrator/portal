@@ -1,11 +1,9 @@
 import express, { Response, Request } from 'express'
 import crypto from 'crypto'
-import { GraphQLClient } from 'graphql-request'
 import { typeGuard, QueryAppResponse } from '@pokt-network/pocket-js'
 import { IAppInfo, GetApplicationQuery } from './types'
 import { cache, getResponseFromCache, LB_METRICS_TTL } from '../redis'
 import env from '../environment'
-import { getSdk } from '../graphql/types'
 import asyncMiddleware from '../middlewares/async'
 import { authenticate } from '../middlewares/passport-auth'
 import Application, { IApplication } from '../models/Application'
@@ -15,14 +13,21 @@ import { IUser } from '../models/User'
 import {
   composeDaysFromNowUtcDate,
   composeHoursFromNowUtcDate,
-  composeTodayUtcDate,
 } from '../lib/date-utils'
+import {
+  influx,
+  buildDailyAppRelaysQuery,
+  buildHourlyLatencyQuery,
+  buildLatestFilteredQueries,
+  buildSessionRelaysQuery,
+  buildSuccessfulAppRelaysQuery,
+  buildTotalAppRelaysQuery,
+} from '../lib/influx'
 import { getApp } from '../lib/pocket'
 import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
 
-const BUCKETS_PER_HOUR = 2
 const DEFAULT_GATEWAY_SETTINGS = {
   secretKey: '',
   secretKeyRequired: false,
@@ -601,26 +606,16 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const [{ _value = { _value: 0 } }] = await influx.collectRows(
+      buildTotalAppRelaysQuery({
+        publicKeys,
+        start: '-24h',
+        stop: '-0h',
       })
     )
 
-    const twentyFoursHoursAgo = composeHoursFromNowUtcDate(24)
-    const now = composeHoursFromNowUtcDate(0)
-
-    const result = await gqlClient.getTotalAppRelays({
-      _apk: publicKeys,
-      _gte: twentyFoursHoursAgo,
-      _lte: now,
-    })
-
     const processedRelaysAndLatency = {
-      total_relays: result.relay_aggregate.aggregate.count || 0,
+      total_relays: _value || 0,
     }
 
     await cache.set(
@@ -662,6 +657,7 @@ router.get(
         ],
       })
     }
+
     const cachedMetricResponse = await getResponseFromCache(
       `${lbId}-successful-relays`
     )
@@ -673,26 +669,16 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const [{ _value } = { _value: 0 }] = await influx.collectRows(
+      buildSuccessfulAppRelaysQuery({
+        publicKeys,
+        start: '-24h',
+        stop: '-0h',
       })
     )
 
-    const twentyFoursHoursAgo = composeHoursFromNowUtcDate(24)
-    const now = composeHoursFromNowUtcDate(0)
-
-    const result = await gqlClient.getSuccessfulAppRelays({
-      _apk: publicKeys,
-      _gte: twentyFoursHoursAgo,
-      _lte: now,
-    })
-
     const processedSuccessfulRelays = {
-      total_relays: result.relay_aggregate.aggregate.count || 0,
+      total_relays: _value || 0,
     }
 
     await cache.set(
@@ -745,44 +731,25 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const rawDailyRelays = await influx.collectRows(
+      buildDailyAppRelaysQuery({
+        publicKeys,
+        start: composeDaysFromNowUtcDate(7),
+        stop: composeHoursFromNowUtcDate(0),
       })
     )
 
-    const sevenDaysAgo = composeDaysFromNowUtcDate(7)
-    const dailyRelays = new Map()
-
-    const result = await gqlClient.getDailyTotalRelays({
-      _apk: publicKeys,
-      _gte: sevenDaysAgo,
-    })
-
-    for (const {
-      bucket,
-      total_relays: dailyRelayCount,
-    } of result.relay_apps_daily) {
-      if (!dailyRelays.has(bucket)) {
-        dailyRelays.set(bucket, dailyRelayCount ?? 0)
-      } else {
-        const currentCount = dailyRelays.get(bucket)
-
-        dailyRelays.set(bucket, Number(currentCount) + Number(dailyRelayCount))
+    const processedDailyRelays = rawDailyRelays.map(
+      ({ _value }: { _value: number; _time: string }, i) => {
+        return {
+          bucket: composeDaysFromNowUtcDate(7 - i),
+          dailyRelays: _value ?? 0,
+        }
       }
-    }
-
-    const processedDailyRelays = []
-
-    for (const [bucket, dailyRelayCount] of dailyRelays.entries()) {
-      processedDailyRelays.push({ bucket, dailyRelays: dailyRelayCount })
-    }
+    )
 
     const processedDailyRelaysResponse = {
-      daily_relays: processedDailyRelays.reverse(),
+      daily_relays: processedDailyRelays,
     }
 
     await cache.set(
@@ -828,30 +795,16 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const [{ _value }] = await influx.collectRows(
+      buildSessionRelaysQuery({
+        publicKeys,
+        start: '-60m',
+        stop: '-0m',
       })
     )
 
-    const today = composeTodayUtcDate()
-
-    const result = await gqlClient.getLastSessionAppRelays({
-      _apk: publicKeys,
-      _gte: today,
-      _buckets: BUCKETS_PER_HOUR,
-    })
-
-    const totalSessionRelays = result.relay_app_hourly.reduce(
-      (total, { total_relays: totalRelays }) => total + totalRelays,
-      0
-    )
-
     res.status(200).send({
-      session_relays: totalSessionRelays,
+      session_relays: _value,
     })
   })
 )
@@ -860,7 +813,7 @@ router.post(
   '/latest-relays',
   asyncMiddleware(async (req: Request, res: Response) => {
     const userId = (req.user as IUser)._id
-    const { id, limit, offset } = req.body
+    const { id } = req.body
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
 
@@ -888,35 +841,27 @@ router.post(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, id)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const rawLatestRelays = await influx.collectRows(
+      buildLatestFilteredQueries({
+        publicKeys,
+        start: '-1h',
+        stop: '-0h',
       })
     )
 
-    const result = await gqlClient.getLatestRelays({
-      _apk: publicKeys,
-      limit,
-      offset,
-    })
-
-    const relays = [...result.relay]
-
-    relays
-      .sort((a, b) => {
-        const dateA = new Date(a.timestamp)
-        const dateB = new Date(b.timestamp)
-
-        // @ts-ignore
-        return dateA - dateB
-      })
-      .reverse()
+    const processedLatestRelays = rawLatestRelays.map(
+      ({ method, bytes_200, bytes_500, elapsedTime_200, elapsedTime_500 }) => {
+        return {
+          method,
+          bytes: bytes_200 ?? bytes_500 ?? 0,
+          result: bytes_200 ? '200' : '500',
+          elapsedTime: elapsedTime_200 ?? elapsedTime_500 ?? 0,
+        }
+      }
+    )
 
     res.status(200).send({
-      session_relays: relays.slice(0, 10),
+      session_relays: processedLatestRelays,
     })
   })
 )
@@ -926,7 +871,7 @@ router.post(
   asyncMiddleware(async (req: Request, res: Response) => {
     const userId = (req.user as IUser)._id
 
-    const { id, offset } = req.body
+    const { id } = req.body
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
 
@@ -954,35 +899,36 @@ router.post(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, id)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const rawLatestRelays = await influx.collectRows(
+      buildLatestFilteredQueries({
+        publicKeys,
+        start: '-1h',
+        stop: '-0h',
+        result: '200',
       })
     )
 
-    const result = await gqlClient.getLatestSuccessfulRelays({
-      _apk: publicKeys,
-      _eq1: 200,
-      offset,
-    })
-
-    const relays = [...result.relay]
-
-    relays
-      .sort((a, b) => {
-        const dateA = new Date(a.timestamp)
-        const dateB = new Date(b.timestamp)
-
-        // @ts-ignore
-        return dateA - dateB
-      })
-      .reverse()
+    const processedLatestRelays = rawLatestRelays.map(
+      ({
+        method,
+        bytes_200,
+        bytes_500,
+        elapsedTime_200,
+        elapsedTime_500,
+        nodePublicKey,
+      }) => {
+        return {
+          bytes: bytes_200 ?? bytes_500 ?? 0,
+          elapsedTime: elapsedTime_200 ?? elapsedTime_500 ?? 0,
+          method,
+          nodePublicKey,
+          result: bytes_200 ? '200' : '500',
+        }
+      }
+    )
 
     res.status(200).send({
-      session_relays: relays.slice(0, 10),
+      session_relays: processedLatestRelays,
     })
   })
 )
@@ -991,7 +937,7 @@ router.post(
   '/latest-failing-relays',
   asyncMiddleware(async (req: Request, res: Response) => {
     const userId = (req.user as IUser)._id
-    const { id, limit, offset } = req.body
+    const { id } = req.body
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
 
@@ -1019,39 +965,36 @@ router.post(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, id)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const rawLatestRelays = await influx.collectRows(
+      buildLatestFilteredQueries({
+        publicKeys,
+        start: '-1h',
+        stop: '-0h',
+        result: '500',
       })
     )
 
-    const twoHoursAgo = composeHoursFromNowUtcDate(2)
-
-    const result = await gqlClient.getLatestFailingRelays({
-      _apk: publicKeys,
-      _eq1: 200,
-      // @ts-ignore
-      _gte: twoHoursAgo,
-      offset,
-    })
-
-    const relays = [...result.relay]
-
-    relays
-      .sort((a, b) => {
-        const dateA = new Date(a.timestamp)
-        const dateB = new Date(b.timestamp)
-
-        // @ts-ignore
-        return dateA - dateB
-      })
-      .reverse()
+    const processedLatestRelays = rawLatestRelays.map(
+      ({
+        method,
+        bytes_200,
+        bytes_500,
+        elapsedTime_200,
+        elapsedTime_500,
+        nodePublicKey,
+      }) => {
+        return {
+          bytes: bytes_200 ?? bytes_500 ?? 0,
+          elapsedTime: elapsedTime_200 ?? elapsedTime_500 ?? 0,
+          method,
+          nodePublicKey,
+          result: bytes_200 ? '200' : '500',
+        }
+      }
+    )
 
     res.status(200).send({
-      session_relays: relays.slice(0, 10),
+      session_relays: processedLatestRelays,
     })
   })
 )
@@ -1096,26 +1039,16 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const [{ _value } = { _value: 0 }] = await influx.collectRows(
+      buildTotalAppRelaysQuery({
+        publicKeys,
+        start: '-48h',
+        stop: '-24h',
       })
     )
 
-    const fourtyEightHoursAgo = composeHoursFromNowUtcDate(48)
-    const twentyFourHoursAgo = composeHoursFromNowUtcDate(24)
-
-    const result = await gqlClient.getTotalAppRelays({
-      _apk: publicKeys,
-      _gte: fourtyEightHoursAgo,
-      _lte: twentyFourHoursAgo,
-    })
-
     const processedTotalRangedRelays = {
-      total_relays: result.relay_aggregate.aggregate.count || 0,
+      total_relays: _value || 0,
     }
 
     await cache.set(
@@ -1169,26 +1102,16 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const [{ _value } = { _value: 0 }] = await influx.collectRows(
+      buildSuccessfulAppRelaysQuery({
+        publicKeys,
+        start: '-48h',
+        stop: '-24h',
       })
     )
 
-    const fourtyEightHoursAgo = composeHoursFromNowUtcDate(48)
-    const twentyFourHoursAgo = composeHoursFromNowUtcDate(24)
-
-    const result = await gqlClient.getSuccessfulAppRelays({
-      _apk: publicKeys,
-      _gte: fourtyEightHoursAgo,
-      _lte: twentyFourHoursAgo,
-    })
-
     const processedPreviousSuccessfulRelaysResponse = {
-      successful_relays: result.relay_aggregate.aggregate.count,
+      successful_relays: _value,
     }
 
     await cache.set(
@@ -1242,47 +1165,20 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const gqlClient = getSdk(
-      new GraphQLClient(env('HASURA_URL') as string, {
-        // @ts-ignore
-        headers: {
-          'x-hasura-admin-secret': env('HASURA_SECRET'),
-        },
+    const rawHourlyLatency = await influx.collectRows(
+      buildHourlyLatencyQuery({
+        publicKeys,
+        start: composeHoursFromNowUtcDate(24),
+        stop: '-0h',
       })
     )
 
-    const aDayAgo = composeHoursFromNowUtcDate(24)
-    const hourlyLatency = new Map()
-
-    const result = await gqlClient.getTotalRelayDuration({
-      _apk: publicKeys,
-      _gte: aDayAgo,
-    })
-
-    for (const {
-      bucket,
-      elapsed_time: elapsedTime,
-    } of result.relay_app_hourly) {
-      if (!hourlyLatency.has(bucket)) {
-        hourlyLatency.set(bucket, elapsedTime ?? 0)
-      } else {
-        const currentCount = hourlyLatency.get(bucket)
-
-        hourlyLatency.set(
-          bucket,
-          (Number(currentCount) + Number(elapsedTime)) / 2
-        )
-      }
-    }
-
-    const processedHourlyLatency = []
-
-    for (const [bucket, hourlyLatencyAvg] of hourlyLatency.entries()) {
-      processedHourlyLatency.push({ bucket, latency: hourlyLatencyAvg })
-    }
+    const processedHourlyLatency = rawHourlyLatency.map(
+      ({ _value, _time }) => ({ bucket: _time, latency: _value ?? 0 })
+    )
 
     const processedHourlyLatencyResponse = {
-      hourly_latency: processedHourlyLatency.reverse(),
+      hourly_latency: processedHourlyLatency,
     }
 
     await cache.set(

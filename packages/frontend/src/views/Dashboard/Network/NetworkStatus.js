@@ -19,7 +19,7 @@ import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import {
-  useNetworkSuccessRate,
+  useNetworkStats,
   useTotalWeeklyRelays,
   useNetworkSummary,
   useChains,
@@ -33,8 +33,6 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const PER_PAGE = 5
 
 function formatDailyRelaysForGraphing(dailyRelays = []) {
-  dailyRelays = dailyRelays.slice(0, -1)
-
   const labels = dailyRelays
     .map(({ bucket }) => bucket.split('T')[0])
     .map((bucket) => DAYS[new Date(bucket).getUTCDay()])
@@ -43,6 +41,8 @@ function formatDailyRelaysForGraphing(dailyRelays = []) {
     (highest, { total_relays: totalRelays }) => Math.max(highest, totalRelays),
     0
   )
+
+  console.log(highestDailyAmount)
 
   const lines = [
     {
@@ -71,9 +71,8 @@ function formatDailyRelaysForGraphing(dailyRelays = []) {
 }
 
 export default function NetworkStatus() {
+  const { isNetworkStatsLoading, networkStats } = useNetworkStats()
   const { isRelaysError, isRelaysLoading, relayData } = useTotalWeeklyRelays()
-  const { isSuccessRateLoading, successRateData } = useNetworkSuccessRate()
-
   const { isSummaryLoading, summaryData } = useNetworkSummary()
   const { isChainsLoading, chains } = useChains()
   const theme = useTheme()
@@ -84,17 +83,17 @@ export default function NetworkStatus() {
     () =>
       isRelaysLoading || isRelaysError || relayData === undefined
         ? {}
-        : formatDailyRelaysForGraphing(relayData.dailyRelays),
+        : formatDailyRelaysForGraphing(relayData),
     [isRelaysError, isRelaysLoading, relayData]
   )
 
   const loading = useMemo(
     () =>
-      isSuccessRateLoading ||
+      isNetworkStatsLoading ||
       isRelaysLoading ||
       isSummaryLoading ||
       isChainsLoading,
-    [isChainsLoading, isRelaysLoading, isSuccessRateLoading, isSummaryLoading]
+    [isChainsLoading, isRelaysLoading, isNetworkStatsLoading, isSummaryLoading]
   )
 
   return loading ? (
@@ -153,12 +152,7 @@ export default function NetworkStatus() {
                           color: ${theme.accentAlternative};
                         `}
                       >
-                        {Intl.NumberFormat().format(
-                          Math.min(
-                            successRateData.totalRelays,
-                            successRateData.successfulRelays
-                          )
-                        )}
+                        {Intl.NumberFormat().format(networkStats.totalRelays)}
                       </h4>
                       <h5
                         css={`
@@ -237,8 +231,7 @@ export default function NetworkStatus() {
                       size={20 * GU}
                       strokeWidth={GU}
                       value={
-                        successRateData.successfulRelays /
-                        successRateData.totalRelays
+                        networkStats.successfulRelays / networkStats.totalRelays
                       }
                       color={theme.accent}
                     />
@@ -250,10 +243,7 @@ export default function NetworkStatus() {
                         `}
                       >
                         {Intl.NumberFormat().format(
-                          Math.min(
-                            successRateData.successfulRelays,
-                            successRateData.totalRelays
-                          )
+                          networkStats.successfulRelays
                         )}
                       </p>
                       <p
