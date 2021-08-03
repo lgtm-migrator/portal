@@ -6,7 +6,6 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 COPY package.json $APP_HOME
-COPY yarn.lock $APP_HOME
 
 COPY . $APP_HOME
 
