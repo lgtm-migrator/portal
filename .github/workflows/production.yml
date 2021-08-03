@@ -38,6 +38,9 @@ jobs:
           envkey_DATABASE_ENCRYPTION_KEY: ${{ secrets.DATABASE_PRODUCTION_ENCRYPTION_KEY }}
           envkey_REDIS_ENDPOINT: ${{ secrets.REDIS_ENDPOINT }}
           envkey_GODMODE_ACCOUNT: ${{ secrets.GODMODE_ACCOUNT }}
+          envkey_INFLUX_ENDPOINT: ${{ secrets.INFLUX_ENDPOINT }}
+          envkey_INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
+          envkey_INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
           #envkey_POCKET_NETWORK_MAIN_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ACCOUNT }}
           #envkey_POCKET_NETWORK_MAIN_FUND_ADDRESS: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ADDRESS }}
           envkey_POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT }}
