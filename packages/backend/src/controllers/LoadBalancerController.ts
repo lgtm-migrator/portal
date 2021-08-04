@@ -606,13 +606,14 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const [{ _value = { _value: 0 } }] = await influx.collectRows(
-      buildTotalAppRelaysQuery({
-        publicKeys,
-        start: '-24h',
-        stop: '-0h',
-      })
-    )
+    const [{ _value = { _value: 0 } } = { _value: 0 }] =
+      await influx.collectRows(
+        buildTotalAppRelaysQuery({
+          publicKeys,
+          start: '-24h',
+          stop: '-0h',
+        })
+      )
 
     const processedRelaysAndLatency = {
       total_relays: _value || 0,
@@ -795,7 +796,7 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const [{ _value }] = await influx.collectRows(
+    const [{ _value } = { _value: 0 }] = await influx.collectRows(
       buildSessionRelaysQuery({
         publicKeys,
         start: '-60m',
