@@ -5,11 +5,38 @@ import { Spacer, useTheme, GU } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
 import MenuPanel from '../../components/MenuPanel/MenuPanel'
 import { AppsContextProvider, useUserApps } from '../../contexts/AppsContext'
+import { UserContextProvider, useUser } from '../../contexts/UserContext'
+import { trackUserProfile } from '../../lib/analytics'
 
 function DashboardView({ children }) {
   const location = useLocation()
   const { appsLoading, userApps } = useUserApps()
+  const { email, userLoading } = useUser()
   const theme = useTheme()
+
+  useEffect(() => {
+    function addUserProfile() {
+      if (appsLoading || userLoading) {
+        return
+      }
+
+      const formattedApps = userApps.map(({ id, isLb, name }) => ({
+        id,
+        isLb,
+        name,
+      }))
+
+      trackUserProfile({
+        email,
+        username: email,
+        custom: {
+          ...formattedApps,
+        },
+      })
+    }
+
+    addUserProfile()
+  }, [appsLoading, email, userLoading, userApps])
 
   useEffect(() => {
     document.body.scrollTop = 0
@@ -60,7 +87,9 @@ function DashboardView({ children }) {
 export default function Dashboard({ children }) {
   return (
     <AppsContextProvider>
-      <DashboardView>{children}</DashboardView>
+      <UserContextProvider>
+        <DashboardView>{children}</DashboardView>
+      </UserContextProvider>
     </AppsContextProvider>
   )
 }

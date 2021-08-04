@@ -13,3 +13,11 @@ export function trackEvent(event, options) {
     ])
   }
 }
+
+export function trackUserProfile(user) {
+  const countly = window.Countly
+
+  if (countly && countly.q) {
+    countly.q.push(['user_details', user])
+  }
+}

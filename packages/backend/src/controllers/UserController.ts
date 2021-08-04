@@ -440,6 +440,18 @@ router.post(
 
 router.use(authenticate)
 
+router.get(
+  '/user',
+  asyncMiddleware(async (req: Request, res: Response) => {
+    const user = await User.findById((req.user as IUser)._id)
+
+    res.status(200).send({
+      email: user.email,
+      id: user._id.toString(),
+    })
+  })
+)
+
 router.post(
   '/logout',
   asyncMiddleware(async (req: Request, res: Response) => {
