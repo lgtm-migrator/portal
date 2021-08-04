@@ -27,6 +27,7 @@ function DashboardView({ children }) {
       }))
 
       trackUserProfile({
+        name: email,
         email,
         username: email,
         custom: {
