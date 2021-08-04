@@ -35,7 +35,7 @@ const DEFAULT_GATEWAY_SETTINGS = {
   whitelistUserAgents: [],
 }
 const DEFAULT_TIMEOUT = 5000
-const MAX_USER_APPS = 4
+const MAX_USER_APPS = 2
 
 async function getLBPublicKeys(appIDs: string[], lbID: string) {
   const cachedPublicKeys = await getResponseFromCache(`${lbID}-pks`)
