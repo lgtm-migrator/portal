@@ -15,6 +15,7 @@ import {
 } from '@pokt-foundation/ui'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
+import { useUser } from '../../../contexts/UserContext'
 import { trackEvent } from '../../../lib/analytics'
 import { log } from '../../../lib/utils'
 import env from '../../../environment'
@@ -30,6 +31,7 @@ export default function SwitchChains({ appData }) {
   const { appId } = useParams()
   const toast = useToast()
   const queryClient = useQueryClient()
+  const { email, userLoading } = useUser()
   const { isLoading: isChainsLoading, data: chains } = useQuery(
     KNOWN_QUERY_SUFFIXES.STAKEABLE_CHAINS,
     async function getNetworkChains() {
@@ -82,6 +84,7 @@ export default function SwitchChains({ appData }) {
             newChain: selectedChain,
             oldChain: activeAppChain,
             id,
+            email,
           },
         })
 
@@ -112,10 +115,10 @@ export default function SwitchChains({ appData }) {
 
   const { chain: activeAppChain } = appData
 
-  const isSubmitDisabled = useMemo(() => isSwitchLoading || !selectedChain, [
-    isSwitchLoading,
-    selectedChain,
-  ])
+  const isSubmitDisabled = useMemo(
+    () => isSwitchLoading || !selectedChain || userLoading,
+    [isSwitchLoading, selectedChain, userLoading]
+  )
 
   return (
     <FloatUp

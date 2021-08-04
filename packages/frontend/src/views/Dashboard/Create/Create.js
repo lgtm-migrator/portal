@@ -28,6 +28,7 @@ import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUserApps } from '../../../contexts/AppsContext'
+import { useUser } from '../../../contexts/UserContext'
 import { trackEvent } from '../../../lib/analytics'
 import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
@@ -158,6 +159,7 @@ export default function Create() {
     secretKeyRequired,
   } = appConfigData
   const { isAppsLoading, userApps, userID } = useUserApps()
+  const { email, userLoading } = useUser()
   const queryClient = useQueryClient()
 
   const {
@@ -224,6 +226,7 @@ export default function Create() {
           chain: selectedNetwork,
           appName,
           id,
+          email,
         },
       })
 
@@ -260,9 +263,10 @@ export default function Create() {
     history.push('/home')
   }, [history])
 
-  const ActiveScreen = useMemo(() => SCREENS.get(screenIndex) ?? null, [
-    screenIndex,
-  ])
+  const ActiveScreen = useMemo(
+    () => SCREENS.get(screenIndex) ?? null,
+    [screenIndex]
+  )
 
   const direction = screenIndex > prevScreenIndex ? 1 : -1
   const transitionProps = useTransition(screenIndex, null, {
@@ -294,6 +298,7 @@ export default function Create() {
       isCreateSuccess ||
       !appName ||
       isAppsLoading ||
+      userLoading ||
       (userApps.length >= MAX_USER_APPS && userID !== env('GODMODE_ACCOUNT')) ||
       !selectedNetwork,
     // eslint-disable-next-line react-hooks/exhaustive-deps
