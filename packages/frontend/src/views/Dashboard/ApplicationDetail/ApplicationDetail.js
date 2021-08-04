@@ -63,10 +63,11 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
     [sessionRelayDep]
   )
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const dailyRelays = useMemo(() => dailyRelayData?.daily_relays ?? 0, [
-    dailyRelaysDep,
-  ])
+  const dailyRelays = useMemo(
+    () => dailyRelayData?.daily_relays ?? 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dailyRelaysDep]
+  )
   const previousSuccessfulRelays = useMemo(
     () => previousSuccessfulRelayData?.successful_relays ?? 0,
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,10 +78,11 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [previousRangedRelaysDep]
   )
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const hourlyLatency = useMemo(() => hourlyLatencyData?.hourly_latency ?? [], [
-    hourlyLatencyDep,
-  ])
+  const hourlyLatency = useMemo(
+    () => hourlyLatencyData?.hourly_latency ?? [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [hourlyLatencyDep]
+  )
   const { stakedTokens, maxDailyRelays } = useMemo(() => {
     return {
       stakedTokens: appOnChainData?.stake ?? 0n,
