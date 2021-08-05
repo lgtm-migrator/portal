@@ -20,11 +20,17 @@ function DashboardView({ children }) {
         return
       }
 
-      const formattedApps = userApps.map(({ id, isLb, name }) => ({
-        id,
-        isLb,
-        name,
-      }))
+      const formattedApps = userApps.map(({ chain, id, isLb, name, apps }) => {
+        const publicKeys = apps.map(({ publicKey }) => publicKey)
+
+        return {
+          chain,
+          id,
+          isLb,
+          name,
+          publicKeys,
+        }
+      })
 
       trackUserProfile({
         name: email,
