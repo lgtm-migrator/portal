@@ -21,8 +21,8 @@ export const influx = new InfluxDB({
 }).getQueryApi(env('INFLUX_ORG') as string)
 
 export const NETWORK_AGGREGATES_QUERY = `
-success = from(bucket: "mainnetRelay60m")
-|> range(start: -24h, stop: -0h)
+success = from(bucket: "mainnetRelay1d")
+|> range(start: -168h, stop: -0h)
 |> filter(fn: (r) =>
   r._measurement == "relay" and
   r._field == "count" and
@@ -35,8 +35,8 @@ success = from(bucket: "mainnetRelay60m")
 |> sum()
 |> map(fn: (r) => ({r with sync: "1", _field: "success"}))
 
-total = from(bucket: "mainnetRelay60m")
-|> range(start: -24h, stop: -0h)
+total = from(bucket: "mainnetRelay1d")
+|> range(start: -168h, stop: -0h)
 |> filter(fn: (r) =>
   r._measurement == "relay" and
   r._field == "count" and

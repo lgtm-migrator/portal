@@ -114,10 +114,8 @@ router.get(
     const cachedResponse = await getResponseFromCache('network-daily-relays')
 
     if (cachedResponse) {
-      // return res.status(200).send(JSON.parse(cachedResponse as string))
+      return res.status(200).send(JSON.parse(cachedResponse as string))
     }
-
-    console.log(composeDaysFromNowUtcDate(8), composeDaysFromNowUtcDate(1))
 
     const rawDailyRelays = await influx.collectRows(
       buildSuccessfulNetworkRelaysQuery({
@@ -125,8 +123,6 @@ router.get(
         stop: composeDaysFromNowUtcDate(1),
       })
     )
-
-    console.log(rawDailyRelays)
 
     const processedDailyRelaysResponse = rawDailyRelays.map(
       ({ _time, _value }) => ({ total_relays: _value ?? 0, bucket: _time })
