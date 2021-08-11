@@ -1,4 +1,4 @@
-export const MAX_USER_APPS = 4
+export const MAX_USER_APPS = 2
 
 /**
  * Shorten a Pocket address, `charsLength` allows to change the number of

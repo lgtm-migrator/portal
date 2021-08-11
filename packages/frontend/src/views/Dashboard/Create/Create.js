@@ -263,10 +263,9 @@ export default function Create() {
     history.push('/home')
   }, [history])
 
-  const ActiveScreen = useMemo(
-    () => SCREENS.get(screenIndex) ?? null,
-    [screenIndex]
-  )
+  const ActiveScreen = useMemo(() => SCREENS.get(screenIndex) ?? null, [
+    screenIndex,
+  ])
 
   const direction = screenIndex > prevScreenIndex ? 1 : -1
   const transitionProps = useTransition(screenIndex, null, {
