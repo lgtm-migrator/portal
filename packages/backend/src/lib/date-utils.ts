@@ -22,7 +22,13 @@ export function composeHoursFromNowUtcDate(hoursAgo: number): string {
 
   const formattedTimestamp = `${dayAgo.year()}-0${dayAgo.month() + 1}-${
     dayAgo.date() < 10 ? `0${dayAgo.date()}` : dayAgo.date()
-  }T${dayAgo.hour() + 1}:00:00+00:00`
+  }T${
+    dayAgo.hour() + 1 === 24
+      ? '00'
+      : dayAgo.hour() + 1 < 10
+      ? `0${dayAgo.hour() + 1}`
+      : dayAgo.hour() + 1
+  }:00:00+00:00`
 
   return formattedTimestamp
 }

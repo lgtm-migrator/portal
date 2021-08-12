@@ -1179,7 +1179,10 @@ router.get(
     )
 
     const processedHourlyLatencyResponse = {
-      hourly_latency: processedHourlyLatency,
+      hourly_latency: processedHourlyLatency.slice(
+        processedHourlyLatency.length - 24,
+        processedHourlyLatency.length
+      ),
     }
 
     await cache.set(
