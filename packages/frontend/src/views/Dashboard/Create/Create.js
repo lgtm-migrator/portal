@@ -724,7 +724,7 @@ function CreationDenialModal({ onClose, visible }) {
         `}
       >
         <Banner mode="warning" title="You've reached your endpoint limit">
-          Pocket Portal only allows each account to have 4 endpoints. If you
+          Pocket Portal only allows each account to have 2 endpoints. If you
           need more, please{' '}
           <Link href="mailto:sales@pokt.network">contact our team</Link> and
           we'll work out a solution for you.
