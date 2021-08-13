@@ -115,8 +115,8 @@ export const ENV_VARS = {
   REDIS_ENDPOINT(): string {
     return process.env.REDIS_ENDPOINT?.trim() ?? ''
   },
-  GODMODE_ACCOUNT(): string {
-    return process.env.GODMODE_ACCOUNT?.trim() ?? ''
+  GODMODE_ACCOUNTS(): string[] {
+    return process.env.GODMODE_ACCOUNTS?.trim().split(',') ?? []
   },
 }
 
@@ -128,7 +128,7 @@ type envVarCategory =
   | 'EMAIL_FROM'
   | 'ENABLE_WORKERS'
   | 'FRONTEND_URL'
-  | 'GODMODE_ACCOUNT'
+  | 'GODMODE_ACCOUNTS'
   | 'HASURA_SECRET'
   | 'HASURA_URL'
   | 'INFLUX_ENDPOINT'
@@ -148,7 +148,13 @@ type envVarCategory =
  */
 export default function env(
   name: envVarCategory
-): string | boolean | AuthKeys | PersistenceKeys | PocketNetworkKeys {
+):
+  | string
+  | string[]
+  | boolean
+  | AuthKeys
+  | PersistenceKeys
+  | PocketNetworkKeys {
   // @ts-ignore
   return ENV_VARS[name]()
 }

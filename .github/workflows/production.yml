@@ -38,6 +38,7 @@ jobs:
           envkey_DATABASE_ENCRYPTION_KEY: ${{ secrets.DATABASE_PRODUCTION_ENCRYPTION_KEY }}
           envkey_REDIS_ENDPOINT: ${{ secrets.REDIS_ENDPOINT }}
           envkey_GODMODE_ACCOUNT: ${{ secrets.GODMODE_ACCOUNT }}
+          envkey_GODMODE_ACCOUNTS: ${{ secrets.GODMODE_ACCOUNTS }}
           envkey_INFLUX_ENDPOINT: ${{ secrets.INFLUX_ENDPOINT }}
           envkey_INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
           envkey_INFLUX_ORG: ${{ secrets.INFLUX_ORG }}

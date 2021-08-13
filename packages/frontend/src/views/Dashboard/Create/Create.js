@@ -253,7 +253,10 @@ export default function Create() {
   const memoizableUserApps = JSON.stringify(userApps)
 
   useEffect(() => {
-    if (userApps.length >= MAX_USER_APPS && userID !== env('GODMODE_ACCOUNT')) {
+    if (
+      userApps.length >= MAX_USER_APPS &&
+      !env('GODMODE_ACCOUNTS').includes(userID)
+    ) {
       setCreationModalVisible(true)
     }
   }, [memoizableUserApps, userApps.length, userID])
@@ -263,9 +266,10 @@ export default function Create() {
     history.push('/home')
   }, [history])
 
-  const ActiveScreen = useMemo(() => SCREENS.get(screenIndex) ?? null, [
-    screenIndex,
-  ])
+  const ActiveScreen = useMemo(
+    () => SCREENS.get(screenIndex) ?? null,
+    [screenIndex]
+  )
 
   const direction = screenIndex > prevScreenIndex ? 1 : -1
   const transitionProps = useTransition(screenIndex, null, {

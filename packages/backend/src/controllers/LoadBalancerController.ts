@@ -149,7 +149,7 @@ router.post(
     const userApps = await Application.find({ user: id })
     const isNewAppRequestInvalid =
       userApps.length >= MAX_USER_APPS &&
-      id.toString() !== env('GODMODE_ACCOUNT')
+      !(env('GODMODE_ACCOUNTS') as string[]).includes(id.toString())
 
     if (isNewAppRequestInvalid) {
       throw HttpError.BAD_REQUEST({

@@ -8,8 +8,8 @@ const ENV_VARS = {
   ENABLE_A11Y() {
     return process.env.REACT_APP_ENABLE_A11Y ?? false
   },
-  GODMODE_ACCOUNT() {
-    return process.env.REACT_APP_GODMODE_ACCOUNT?.trim() ?? ''
+  GODMODE_ACCOUNTS() {
+    return process.env.REACT_APP_GODMODE_ACCOUNTS?.trim().split(',') ?? []
   },
   HASURA_SECRET() {
     return process.env.REACT_APP_HASURA_ADMIN_SECRET?.trim() ?? ''
