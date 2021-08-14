@@ -255,6 +255,7 @@ export default function Create() {
   useEffect(() => {
     if (
       userApps.length >= MAX_USER_APPS &&
+      userID &&
       !env('GODMODE_ACCOUNTS').includes(userID)
     ) {
       setCreationModalVisible(true)
@@ -302,7 +303,8 @@ export default function Create() {
       !appName ||
       isAppsLoading ||
       userLoading ||
-      (userApps.length >= MAX_USER_APPS && userID !== env('GODMODE_ACCOUNT')) ||
+      (userApps.length >= MAX_USER_APPS &&
+        !env('GODMODE_ACCOUNTS').includes(userID)) ||
       !selectedNetwork,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -315,6 +317,8 @@ export default function Create() {
       isCreateLoading,
       isCreateSuccess,
       memoizableUserApps,
+      userID,
+      userLoading,
     ]
   )
 
