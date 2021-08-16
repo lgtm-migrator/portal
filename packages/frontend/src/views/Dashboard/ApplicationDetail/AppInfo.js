@@ -1,8 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { useHistory, useRouteMatch } from 'react-router'
+import { useHistory, useParams, useRouteMatch } from 'react-router'
 import { animated, useSpring } from 'react-spring'
+import { useMutation } from 'react-query'
+import axios from 'axios'
 import * as dayjs from 'dayjs'
 import * as dayJsutcPlugin from 'dayjs/plugin/utc'
+import * as Sentry from '@sentry/react'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import {
@@ -26,13 +29,16 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import SuccessIndicator from './SuccessIndicator'
+import { ReactComponent as Delete } from '../../../assets/delete.svg'
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useLatestRelays } from '../../../hooks/application-hooks'
+import { trackEvent } from '../../../lib/analytics'
 import { prefixFromChainId } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
+import env from '../../../environment'
 
 const ONE_MILLION = 1000000
 const ONE_SECOND = 1 // Data for graphs come in second
@@ -208,12 +214,30 @@ export default function AppInfo({
   latestLatencyData,
 }) {
   const [networkModalVisible, setNetworkModalVisible] = useState(false)
-  const [networkDenialModalVisible, setNetworkDenialModalVisible] = useState(
-    false
-  )
+  const [removeModalVisible, setRemoveModalVisible] = useState(false)
+  const [networkDenialModalVisible, setNetworkDenialModalVisible] =
+    useState(false)
   const history = useHistory()
   const { url } = useRouteMatch()
+  const { appId } = useParams()
   const { within } = useViewport()
+  const theme = useTheme()
+  const { mutate: onRemoveApp } = useMutation(async function removeApp() {
+    try {
+      const path = `${env('BACKEND_URL')}/api/lb/remove/${appId}`
+
+      await axios.post(path, {}, { withCredentials: true })
+      trackEvent('portal_app_revoke', {
+        segmentation: {
+          appId,
+        },
+      })
+
+      history.push('/home')
+    } catch (err) {
+      Sentry.captureException(err)
+    }
+  })
 
   const compactMode = within(-1, 'medium')
 
@@ -241,9 +265,10 @@ export default function AppInfo({
     labels: latencyLabels = [],
     barValues = [],
     scales: latencyScales = [],
-  } = useMemo(() => formatLatencyValuesForGraphing(latestLatencyData, 1.25), [
-    latestLatencyData,
-  ])
+  } = useMemo(
+    () => formatLatencyValuesForGraphing(latestLatencyData, 1.25),
+    [latestLatencyData]
+  )
 
   const avgLatency = useMemo(() => {
     if (!latestLatencyData.length) {
@@ -279,14 +304,15 @@ export default function AppInfo({
     return currentSessionRelays >= maxDailyRelays / 24
   }, [currentSessionRelays, maxDailyRelays])
 
-  const onCloseNetworkModal = useCallback(
-    () => setNetworkModalVisible(false),
-    []
-  )
   const onCloseDenialModal = useCallback(
     () => setNetworkDenialModalVisible(false),
     []
   )
+  const onCloseNetworkModal = useCallback(
+    () => setNetworkModalVisible(false),
+    []
+  )
+  const onCloseRemoveModal = useCallback(() => setRemoveModalVisible(false), [])
 
   const onOpenModal = useCallback(() => {
     if (isSwitchable) {
@@ -295,6 +321,7 @@ export default function AppInfo({
       setNetworkDenialModalVisible(true)
     }
   }, [isSwitchable])
+  const onOpenRemoveModal = useCallback(() => setRemoveModalVisible(true), [])
 
   const onSwitchChains = useCallback(() => {
     history.push(`${url}/chains`)
@@ -412,6 +439,25 @@ export default function AppInfo({
                   id={appData.id}
                   secret={appData.gatewaySettings.secretKey}
                 />
+                <ButtonBase
+                  css={`
+                    && {
+                      margin-left: ${2 * GU}px;
+                      height: ${5 * GU}px;
+                      color: ${theme.accent};
+                      font-weight: bold;
+                    }
+                  `}
+                  onClick={onOpenRemoveModal}
+                >
+                  <Delete
+                    css={`
+                      display: inline-block;
+                      margin-right: ${1 * GU}px;
+                    `}
+                  />
+                  Remove this application
+                </ButtonBase>
               </>
             }
           />
@@ -419,6 +465,11 @@ export default function AppInfo({
             onClose={onCloseNetworkModal}
             onSwitch={onSwitchChains}
             visible={networkModalVisible}
+          />
+          <RemoveAppModal
+            onClose={onCloseRemoveModal}
+            onRemove={onRemoveApp}
+            visible={removeModalVisible}
           />
           <SwitchDenialModal
             onClose={onCloseDenialModal}
@@ -490,6 +541,51 @@ function SwitchInfoModal({ onClose, onSwitch, visible }) {
           <Spacer size={6 * GU} />
         </div>
         <Spacer size={4 * GU} />
+      </div>
+    </Modal>
+  )
+}
+
+function RemoveAppModal({ onClose, onRemove, visible }) {
+  const { within } = useViewport()
+
+  const compactMode = within(-1, 'medium')
+
+  return (
+    <Modal
+      visible={visible}
+      onClose={onClose}
+      css={`
+        & > div > div > div > div {
+          padding: 0 !important;
+        }
+      `}
+    >
+      <div
+        css={`
+          max-width: ${87 * GU}px;
+        `}
+      >
+        <Banner mode="error" title="You're about to remove this application.">
+          <p>
+            Once you remove this application from the Portal, the endpoint
+            associated with it will remain available for 24 hours before it is
+            unstaked.
+          </p>
+          <Spacer size={3 * GU} />
+          <div
+            css={`
+              display: flex;
+              ${compactMode && `flex-direction: column-reverse;`}
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <Button wide onClick={onRemove}>
+              Remove
+            </Button>
+          </div>
+        </Banner>
       </div>
     </Modal>
   )

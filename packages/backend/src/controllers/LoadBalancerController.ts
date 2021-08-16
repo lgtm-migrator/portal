@@ -566,6 +566,54 @@ router.post(
   })
 )
 
+router.post(
+  '/remove/:lbId',
+  asyncMiddleware(async (req: Request, res: Response) => {
+    const userId = (req.user as IUser)._id
+    const { lbId } = req.params
+    const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
+
+    if (!loadBalancer) {
+      throw HttpError.BAD_REQUEST({
+        errors: [
+          { id: 'NONEXISTENT_APPLICATION', message: 'Application not found' },
+        ],
+      })
+    }
+
+    if (loadBalancer.user.toString() !== userId.toString()) {
+      throw HttpError.BAD_REQUEST({
+        errors: [
+          {
+            id: 'UNAUTHORIZED_ACCESS',
+            message: 'Application does not belong to user',
+          },
+        ],
+      })
+    }
+
+    await Promise.all(
+      loadBalancer.applicationIDs.map(async function switchApp(applicationId) {
+        const application: IApplication = await Application.findById(
+          applicationId
+        )
+
+        if (!application) {
+          throw new Error('Cannot find application')
+        }
+
+        // Send it into the queue for removal categorization (see unstaker.ts)
+        application.status = APPLICATION_STATUSES.AWAITING_GRACE_PERIOD
+        application.updatedAt = new Date(Date.now())
+        await application.save()
+      })
+    )
+
+    await loadBalancer.deleteOne()
+    res.status(204).send()
+  })
+)
+
 router.get(
   '/total-relays/:lbId',
   asyncMiddleware(async (req: Request, res: Response) => {
