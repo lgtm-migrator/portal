@@ -27,7 +27,6 @@ success = from(bucket: "mainnetRelay1d")
   r._measurement == "relay" and
   r._field == "count" and
   (r.method != "synccheck" and r.method != "chaincheck" and r.method != "checks") and
-  contains(value: r["blockchain"], set: ["0001","0002","0003","0004","0005","0006","0007","0009","0010","0021","0022","0023","0024","0025","0026","0027","0028"]) and
   r.result == "200"
 )
 |> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
@@ -41,7 +40,6 @@ total = from(bucket: "mainnetRelay1d")
   r._measurement == "relay" and
   r._field == "count" and
   (r.method != "synccheck" and r.method != "chaincheck") and
-  contains(value: r["blockchain"], set: ["0001","0002","0003","0004","0005","0006","0007","0009","0010","0021","0022","0023","0024","0025","0026","0027","0028"]) and
   r.nodePublicKey !~ /^fallback/
 )
 |> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
