@@ -139,6 +139,32 @@ export async function getApplications(status: number): Promise<Application[]> {
   return applicationList
 }
 
+export async function transferToFreeTierFund({ amount, privateKey, address }) {
+  if (!amount) {
+    throw new Error("Can't transfer to free tier fund: no amount provided")
+  }
+
+  const pocketInstance = new Pocket(
+    getPocketDispatchers(),
+    undefined,
+    POCKET_CONFIGURATION
+  )
+  const pocketRpcProvider = getRPCProvider()
+
+  pocketInstance.rpc(pocketRpcProvider)
+
+  const rawTxResponse = await (
+    pocketInstance.withPrivateKey(privateKey) as ITransactionSender
+  )
+    .send(address, freeTierFundAccount, amount.toString())
+    .submit(chainId, transactionFee)
+
+  if (typeGuard(rawTxResponse, RpcError)) {
+    throw new Error(rawTxResponse.message)
+  }
+  return rawTxResponse
+}
+
 export async function transferFromFreeTierFund(
   amount: string,
   customerAddress: string
@@ -170,9 +196,9 @@ export async function transferFromFreeTierFund(
   const pocketRpcProvider = getRPCProvider()
 
   pocketInstance.rpc(pocketRpcProvider)
-  const rawTxResponse = await (pocketInstance.withPrivateKey(
-    freeTierFundAccount
-  ) as ITransactionSender)
+  const rawTxResponse = await (
+    pocketInstance.withPrivateKey(freeTierFundAccount) as ITransactionSender
+  )
     .send(freeTierFundAddress, customerAddress, totalAmount.toString())
     .submit(chainId, transactionFee)
 
@@ -191,10 +217,11 @@ export async function createUnlockedAccount(
     POCKET_CONFIGURATION
   )
   const account = await pocketInstance.keybase.createAccount(passphrase)
-  const unlockedAccountOrError = await pocketInstance.keybase.getUnlockedAccount(
-    (account as UnlockedAccount & Error).addressHex,
-    passphrase
-  )
+  const unlockedAccountOrError =
+    await pocketInstance.keybase.getUnlockedAccount(
+      (account as UnlockedAccount & Error).addressHex,
+      passphrase
+    )
 
   if (typeGuard(unlockedAccountOrError, Error)) {
     throw new Error(unlockedAccountOrError.message)
@@ -298,6 +325,36 @@ export async function createAppStakeTx(
 
   return await (senderAccount as ITransactionSender)
     .appStake(account.publicKey.toString('hex'), chains, stakeAmount.toString())
+    .createTransaction(chainId, transactionFee)
+}
+
+export async function createAppUnstakeTx(
+  passphrase: string,
+  privateKey: Buffer
+): Promise<RpcError | RawTxRequest> {
+  const pocketInstance = new Pocket(
+    getPocketDispatchers(),
+    undefined,
+    POCKET_CONFIGURATION
+  )
+  const unlockedAccount = await pocketInstance.keybase.importAccount(
+    privateKey,
+    passphrase
+  )
+
+  if (unlockedAccount instanceof Error) {
+    throw unlockedAccount
+  }
+  const senderAccount = await pocketInstance.withImportedAccount(
+    unlockedAccount.addressHex,
+    passphrase
+  )
+
+  // @ts-ignore
+  const { unlockedAccount: account } = senderAccount
+
+  return await (senderAccount as ITransactionSender)
+    .appUnstake(account.publicKey.toString('hex'))
     .createTransaction(chainId, transactionFee)
 }
 

@@ -31,6 +31,13 @@ const WHITELISTED_TEMPLATES = new Map([
     ['pocket-dashboard-password-reset', 'Pocket Portal: Reset your password'],
   ],
   ['SignUp', ['pocket-dashboard-signup', 'Pocket Portal: Sign up']],
+  [
+    'Unstake',
+    [
+      'pocket-portal-unstake-notification',
+      'Pocket Portal: Unstake Notification',
+    ],
+  ],
 ])
 
 export interface IResetPasswordTemplateData {
@@ -49,10 +56,15 @@ export interface INotificationTemplate {
   usage: string
 }
 
+export interface IUnstakeTemplate {
+  app_name: string
+}
+
 type TemplateData =
   | IResetPasswordTemplateData
   | IValidateTemplateData
   | INotificationTemplate
+  | IUnstakeTemplate
 
 export default class MailgunService {
   private mailService: Mailgun

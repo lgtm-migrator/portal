@@ -256,3 +256,18 @@ union(tables: [elapsedTime, bytes])
 |> limit(n: 5)
   `
 }
+
+export const APPLICATION_USAGE_QUERY = `
+total = from(bucket: "mainnetRelay1d")
+  |> range(start: -30d, stop: -0d)
+  |> filter(fn: (r) =>
+    r._measurement == "relay" and
+    r._field == "count" and
+    (r.method != "synccheck" and r.method != "chaincheck")
+  )
+  |> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
+  |> keep(columns: ["_value", "applicationPublicKey"])
+  |> group(columns: ["applicationPublicKey"])
+  |> sum()
+  |> yield()
+`

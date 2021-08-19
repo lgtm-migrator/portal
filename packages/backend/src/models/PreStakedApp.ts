@@ -5,8 +5,8 @@ export interface IPreStakedApp extends Document {
   chain: string
   status: string
   createdAt: Date | number
-  fundingTxHash: string
-  stakingTxHash: string
+  fundingTxHash?: string
+  stakingTxHash?: string
   freeTierApplicationAccount: IFreeTierApplicationAccount
   gatewayAAT: IGatewayAAT
 }

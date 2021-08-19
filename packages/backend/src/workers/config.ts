@@ -2,6 +2,13 @@ import { fillAppPool, stakeAppPool } from './application'
 import { getNetworkStatsCount, getNodeCountForChains } from './network'
 import { sendUsageNotifications } from './notifications'
 import {
+  categorizeAppRemoval,
+  transferSlotFunds,
+  unstakeApps,
+  stakeAppsForSlots,
+  removeFundsFromApps,
+} from './unstaker'
+import {
   ONE_MINUTES,
   FIVE_MINUTES,
   FIFTEEN_MINUTES,
@@ -115,7 +122,7 @@ function getChainsByEnvironment() {
 }
 
 export const FREE_TIER_STAKE_AMOUNT = 8000000000n
-export const SLOT_STAKE_AMOUNT = 1000n
+export const SLOT_STAKE_AMOUNT = 1000000n
 export const chains = getChainsByEnvironment()
 
 /**
@@ -155,6 +162,36 @@ export const workers = [
     name: 'Usage notification service',
     color: 'blue',
     workerFn: (ctx): Promise<void> => sendUsageNotifications(ctx),
+    recurrence: FIFTEEN_MINUTES,
+  },
+  {
+    name: 'App removal categorizing service',
+    color: 'pink',
+    workerFn: (ctx): Promise<void> => categorizeAppRemoval(ctx),
+    recurrence: FIFTEEN_MINUTES,
+  },
+  // {
+  // name: 'Unused App restaking fund transfer service',
+  // color: 'red',
+  // workerFn: (ctx): Promise<void> => transferSlotFunds(ctx),
+  // recurrence: FIFTEEN_MINUTES,
+  // },
+  // {
+  // name: 'Unused app unstaker service',
+  // color: 'yellow',
+  // workerFn: (ctx): Promise<void> => unstakeApps(ctx),
+  // recurrence: FIFTEEN_MINUTES,
+  // },
+  // {
+  // name: 'Unused app restaker (slot filler) service',
+  // color: 'brown',
+  // workerFn: (ctx): Promise<void> => stakeAppsForSlots(ctx),
+  // recurrence: FIFTEEN_MINUTES,
+  // },
+  {
+    name: 'Unused app fund removal service',
+    color: 'blue',
+    workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
     recurrence: FIFTEEN_MINUTES,
   },
 ]
