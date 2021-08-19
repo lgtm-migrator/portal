@@ -47,6 +47,18 @@ export const ENV_VARS = {
   ALLOWED_DOMAINS(): string[] {
     return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3000']
   },
+  CLOUDWATCH_GROUP_NAME(): string {
+    return process.env.CLOUDWATCH_GROUP_NAME?.trim() ?? ''
+  },
+  CLOUDWATCH_ACCESS_KEY(): string {
+    return process.env.CLOUDWATCH_ACCESS_KEY?.trim() ?? ''
+  },
+  CLOUDWATCH_SECRET_KEY(): string {
+    return process.env.CLOUDWATCH_SECRET_KEY?.trim() ?? ''
+  },
+  CLOUDWATCH_REGION(): string {
+    return process.env.CLOUDWATCH_REGION?.trim() ?? ''
+  },
   ENABLE_WORKERS(): boolean {
     return process.env.ENABLE_WORKERS === 'true' || false
   },
@@ -124,6 +136,10 @@ type envVarCategory =
   | 'prod'
   | 'ALLOWED_DOMAINS'
   | 'AUTH'
+  | 'CLOUDWATCH_ACCESS_KEY'
+  | 'CLOUDWATCH_GROUP_NAME'
+  | 'CLOUDWATCH_SECRET_KEY'
+  | 'CLOUDWATCH_REGION'
   | 'EMAIL_API_KEY'
   | 'EMAIL_FROM'
   | 'ENABLE_WORKERS'

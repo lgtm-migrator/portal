@@ -21,8 +21,6 @@ async function getApplicationAndFund({
   const { address } = app.freeTierApplicationAccount
   const { balance } = (await getBalance(address)) as QueryBalanceResponse
 
-  ctx.logger.log(`${address} balance is ${balance}`)
-
   if (balance >= FREE_TIER_STAKE_AMOUNT) {
     ctx.logger.warn(`app ${address} already had enough balance`)
     app.status = APPLICATION_STATUSES.AWAITING_FREETIER_STAKING
@@ -47,8 +45,8 @@ async function getApplicationAndFund({
   app.fundingTxHash = txHash
   app.chain = chain
 
-  ctx.logger.log(
-    `fillAppPool(): sent funds to account ${address} on tx ${txHash}`
+  ctx.logger.info(
+    `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`
   )
   await app.save()
   return true
@@ -73,7 +71,7 @@ async function stakeApplication({
     return
   }
 
-  ctx.logger.log(`Staking app ${address} for chain ${chain}`)
+  ctx.logger.info(`Staking app ${address} for chain ${chain}`)
 
   // @ts-ignore
   const decryptedPrivateKey = Application.decryptPrivateKey(privateKey)
@@ -94,8 +92,8 @@ async function stakeApplication({
   app.chain = chain
   await app.save()
 
-  ctx.logger.log(
-    `Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`
+  ctx.logger.info(
+    `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`
   )
 
   return true
@@ -115,8 +113,8 @@ export async function fillAppPool(ctx): Promise<void> {
     if (availableApps.length < limit) {
       const slotsToFill = limit - availableApps.length
 
-      ctx.logger.log(
-        `Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`
+      ctx.logger.info(
+        `fillAppPool(): Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`
       )
 
       for (let i = 0; i < slotsToFill; i++) {
@@ -133,9 +131,6 @@ export async function stakeAppPool(ctx): Promise<void> {
 
   await Promise.allSettled(
     appPool.map(async (app) => {
-      ctx.logger.log(
-        `Staking ${app.freeTierApplicationAccount.address} for ${app.chain}`
-      )
       await stakeApplication({ ctx, app, chain: app.chain })
     })
   )

@@ -53,18 +53,19 @@ userSchema.statics.comparePassword = function comparePassword(
 ) {
   return bcrypt.compare(plainPassword, userPassword)
 }
-userSchema.methods.generateVerificationToken = function generateVerificationToken() {
-  const token = jwt.sign(
-    { id: this._id },
-    (env('AUTH') as AuthKeys).privateSecret,
-    {
-      expiresIn: '10d',
-      algorithm: 'RS256',
-    }
-  )
+userSchema.methods.generateVerificationToken =
+  function generateVerificationToken() {
+    const token = jwt.sign(
+      { id: this._id },
+      (env('AUTH') as AuthKeys).privateSecret,
+      {
+        expiresIn: '10d',
+        algorithm: 'RS256',
+      }
+    )
 
-  return token
-}
+    return token
+  }
 userSchema.methods.comparePassword = function comparePassword(
   password: string
 ) {

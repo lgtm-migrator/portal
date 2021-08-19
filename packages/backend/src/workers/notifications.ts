@@ -80,9 +80,8 @@ export async function sendUsageNotifications(ctx): Promise<void> {
     } = application
     const { publicKey } = freeTierApplicationAccount
     const servedRelays = await fetchRelayData(publicKey)
-    const [thresholdKey, highestThresholdExceeded] = calculateExceededThreshold(
-      servedRelays
-    )
+    const [thresholdKey, highestThresholdExceeded] =
+      calculateExceededThreshold(servedRelays)
     const shouldSendNotification =
       highestThresholdExceeded > 0 &&
       notificationSettings[thresholdKey] &&
@@ -104,7 +103,7 @@ export async function sendUsageNotifications(ctx): Promise<void> {
         100
       ).toFixed(2)
 
-      ctx.logger.log(
+      ctx.logger.info(
         `Notifying app ${appName} (ID: ${appId}) from user ${userId} of ${totalUsage}% usage`
       )
 

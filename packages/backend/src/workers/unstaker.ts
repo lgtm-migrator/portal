@@ -41,7 +41,7 @@ async function unstakeApplication(
   )
 
   if (!txHash) {
-    ctx.logger.log(
+    ctx.logger.error(
       `UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
     )
     return
@@ -51,8 +51,8 @@ async function unstakeApplication(
   app.updatedAt = new Date(Date.now())
   await app.save()
 
-  ctx.logger.log(
-    `submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`
+  ctx.logger.info(
+    `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`
   )
 }
 
@@ -71,7 +71,7 @@ async function stakeApplication(
     return
   }
 
-  ctx.logger.log(`Staking app ${app.name} [${address}] for chain ${chain}`)
+  ctx.logger.info(`Staking app ${app.name} [${address}] for chain ${chain}`)
 
   // @ts-ignore
   const decryptedPrivateKey = Application.decryptPrivateKey(privateKey)
@@ -88,7 +88,7 @@ async function stakeApplication(
   )
 
   if (!txHash) {
-    ctx.logger.log(`stake tx was not sent for ${app.name} [${address}]`)
+    ctx.logger.info(`stake tx was not sent for ${app.name} [${address}]`)
     return
   }
 
@@ -97,7 +97,9 @@ async function stakeApplication(
 
   await app.save()
 
-  ctx.logger.log(`Sent stake tx for app ${app.name} [${address}]: ${txHash}`)
+  ctx.logger.info(
+    `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`
+  )
 }
 
 async function removeFunds({
@@ -122,11 +124,15 @@ async function removeFunds({
   })
 
   if (!txHash) {
-    ctx.logger.log(
-      `UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
+    ctx.logger.error(
+      `removeFunds(): funds transfer tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
     )
     return
   }
+
+  ctx.logger.info(
+    `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`
+  )
 
   const preStakedApp = new PreStakedApp({
     chain: app.chain,
@@ -160,7 +166,7 @@ async function markAppForRemoval({
     ? await User.findOne({ email: userID })
     : await User.findById(userID)
 
-  ctx.logger.log(
+  ctx.logger.info(
     `marked ${app.freeTierApplicationAccount.address}-${app.name} for removal`
   )
 
@@ -200,7 +206,7 @@ async function categorizeApp({
     return
   }
 
-  ctx.logger.log(`app ${app.name} [${address}] has ${stakedTokens} in balance`)
+  ctx.logger.info(`app ${app.name} [${address}] has ${stakedTokens} in balance`)
 
   const appLbs = await LoadBalancer.find({
     applicationIDs: app._id.toString(),
@@ -222,7 +228,7 @@ async function categorizeApp({
   )
 
   if (BigInt(stakedTokens) === FREE_TIER_STAKE_AMOUNT) {
-    ctx.logger.log(`moving ${app.name} [${address}] to prestake pool`)
+    ctx.logger.info(`moving ${app.name} [${address}] to prestake pool`)
     // mark for moving to pre-stake pool
     // @ts-ignore
     await moveToPreStakePool(app, ctx)
@@ -230,7 +236,7 @@ async function categorizeApp({
   }
   if (BigInt(stakedTokens) !== FREE_TIER_STAKE_AMOUNT) {
     // mark for unstaking
-    ctx.logger.log(`marking ${app.name} [${address}] for unstaking`)
+    ctx.logger.info(`marking ${app.name} [${address}] for unstaking`)
     app.status = APPLICATION_STATUSES.AWAITING_SLOT_FUNDS
     app.updatedAt = new Date(Date.now())
     await app.save()
@@ -254,7 +260,7 @@ async function moveToPreStakePool(
 
   await preStakedApp.save()
 
-  ctx.logger.log(
+  ctx.logger.info(
     `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`
   )
 }
@@ -285,7 +291,7 @@ export async function markAppsForRemoval(ctx): Promise<void> {
     appsWithoutUsage.map(async function markApp(app) {
       // @ts-ignore
       if (!app.freeTierApplicationAccount.privateKey) {
-        ctx.logger.log(
+        ctx.logger.info(
           `app ${app.name} [${app.freeTierApplicationAccountaddress}] doesn't have a private key stored`
         )
         return
@@ -295,7 +301,7 @@ export async function markAppsForRemoval(ctx): Promise<void> {
     })
   )
 
-  ctx.logger.log(`decomissioning ${appsWithoutUsage.length} apps`)
+  ctx.logger.info(`decomissioning ${appsWithoutUsage.length} apps`)
 }
 
 export async function categorizeAppRemoval(ctx): Promise<void> {
@@ -345,7 +351,7 @@ export async function transferSlotFunds(ctx): Promise<void> {
       app.status = APPLICATION_STATUSES.AWAITING_UNSTAKING
       app.updatedAt = new Date(Date.now())
 
-      ctx.logger.log(
+      ctx.logger.info(
         `fillAppPool(): sent funds to account ${address} on tx ${txHash}`
       )
       await app.save()

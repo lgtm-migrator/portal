@@ -30,6 +30,10 @@ jobs:
           envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
           envkey_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          envkey_CLOUDWATCH_GROUP_NAME: ${{ secrets.CLOUDWATCH_GROUP_NAME }}
+          envkey_CLOUDWATCH_ACCESS_KEY: ${{ secrets.CLOUDWATCH_ACCESS_KEY }}
+          envkey_CLOUDWATCH_SECRET_KEY: ${{ secrets.CLOUDWATCH_SECRET_KEY }}
+          envkey_CLOUDWATCH_REGION: ${{ secrets.CLOUDWATCH_REGION }}
           envkey_FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           envkey_ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
           envkey_ENABLE_WORKERS: ${{ secrets.ENABLE_WORKERS }}
