@@ -10,7 +10,7 @@ import { configureRoutes } from './routes'
 import { connect } from './db'
 
 const PORT = process.env.PORT || 4200
-const ALLOWED_DOMAINS = (env('ALLOWED_DOMAINS') as unknown) as string[]
+const ALLOWED_DOMAINS = env('ALLOWED_DOMAINS') as unknown as string[]
 
 if (!env('prod')) {
   ALLOWED_DOMAINS.push('http://localhost:3000')
