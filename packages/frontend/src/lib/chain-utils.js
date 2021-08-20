@@ -5,6 +5,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0004', { prefix: 'bsc-mainnet', name: 'Binance Smart Chain Mainnet' }],
   ['0005', { prefix: 'fuse-mainnet', name: 'Fuse Mainnet' }],
   ['0006', { prefix: 'solana-mainnet', name: 'Solana Mainnet' }],
+  ['000B', { prefix: 'poly-archival', name: 'Polygon (Matic) Archival' }],
   ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic) Mainnet' }],
   ['0010', { prefix: 'bsc-archival', name: 'Binance Smart Chain (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],

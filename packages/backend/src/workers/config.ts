@@ -102,6 +102,11 @@ const MAIN_CHAINS = {
     id: '0001',
     limit: 3,
   },
+  POLYGON_ARCHIVAL: {
+    ticker: 'POLY-A',
+    id: '000B',
+    limit: 5,
+  },
   POLYGON_MAINNET: {
     ticker: 'POLY',
     id: '0009',
