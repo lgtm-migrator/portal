@@ -4,7 +4,8 @@ import { keyframes } from 'styled-components/macro'
 const STROKE_WIDTH = 2
 const LOOP_DURATION = 1800
 const DONE_TRANSITION_DURATION = 400
-// circumference, found by manually incrementing it :o
+
+// "circumference, found by manually incrementing it :o"
 // That comment above was written by @bpierre,
 // and I can say I found this number in the same way :D
 const DASH_ARRAY = 1100

@@ -1,12 +1,14 @@
+import pkg from '../package.json'
+
 const ENV_VARS = {
   BACKEND_URL() {
     return process.env.REACT_APP_BACKEND_URL ?? ''
   },
   BUILD() {
-    return process.env.REACT_APP_BUILD ?? 'undefined'
+    return pkg.gitHead ?? 'undefined'
   },
   ENABLE_A11Y() {
-    return process.env.REACT_APP_ENABLE_A11Y ?? false
+    return process.env.REACT_APP_ENABLE_A11Y === 'true' ?? false
   },
   GODMODE_ACCOUNTS() {
     return process.env.REACT_APP_GODMODE_ACCOUNTS?.trim().split(',') ?? []

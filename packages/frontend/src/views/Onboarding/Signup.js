@@ -228,7 +228,7 @@ function SignupForm({
         Get started
       </h2>
       <Spacer size={4 * GU} />
-      <main
+      <div
         css={`
           position: relative;
           z-index: 2;
@@ -383,7 +383,7 @@ function SignupForm({
             </RouterLink>
           </p>
         </form>
-      </main>
+      </div>
     </>
   )
 }

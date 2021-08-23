@@ -28,15 +28,17 @@ export default function OnboardingHeader() {
           flex-grow: 1;
         `}
       >
-        <img
-          src={PortalLogo}
-          width="100%"
-          height="auto"
-          css={`
-            max-width: ${26.5 * GU}px;
-          `}
-          alt="Pocket Portal"
-        />
+        <h1>
+          <img
+            src={PortalLogo}
+            width="100%"
+            height="auto"
+            css={`
+              max-width: ${26.5 * GU}px;
+            `}
+            alt="Pocket Portal"
+          />
+        </h1>
       </a>
       {!compactMode && (
         <ul

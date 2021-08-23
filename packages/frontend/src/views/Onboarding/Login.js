@@ -12,7 +12,6 @@ import {
   textStyle,
   useTheme,
   GU,
-  RADIUS,
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
@@ -101,13 +100,12 @@ export default function Login() {
         Welcome back
       </h2>
       <Spacer size={4 * GU} />
-      <main
+      <div
         css={`
           position: relative;
           z-index: 2;
           width: 100%;
           height: auto;
-          border-radius: ${RADIUS * 2}px;
         `}
       >
         <form
@@ -205,7 +203,7 @@ export default function Login() {
             </RouterLink>
           </p>
         </form>
-      </main>
+      </div>
     </Onboarding>
   )
 }

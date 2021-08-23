@@ -1,15 +1,15 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { useViewport } from 'use-viewport'
-import { ErrorBoundary } from '@sentry/react'
 import 'styled-components/macro'
 import { useTheme } from '@pokt-foundation/ui'
+import { ErrorBoundary } from '@sentry/react'
+import ApplicationDetail from './Dashboard/ApplicationDetail/ApplicationDetail'
 import Create from './Dashboard/Create/Create'
 import Dashboard from './Dashboard/Dashboard'
+import NetworkStatus from './Dashboard/Network/NetworkStatus'
 import Fallback from './Fallback'
 import ForgotPassword from './Onboarding/ForgotPassword'
-import NetworkStatus from './Dashboard/Network/NetworkStatus'
-import ApplicationDetail from './Dashboard/ApplicationDetail/ApplicationDetail'
 import NewPassword from './Onboarding/NewPassword'
 import Login from './Onboarding/Login'
 import Signup from './Onboarding/Signup'
@@ -62,9 +62,6 @@ export default function DashboardRoutes() {
           </Route>
           <Route exact path={`/newpassword`}>
             <NewPassword />
-          </Route>
-          <Route exact path={`/fallback`}>
-            <Fallback />
           </Route>
           <Dashboard>
             <Route exact path={`/home`}>

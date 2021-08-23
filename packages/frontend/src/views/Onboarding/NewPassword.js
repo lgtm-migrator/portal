@@ -185,7 +185,7 @@ function ResetPasswordForm({
         Reset Password
       </h2>
       <Spacer size={4 * GU} />
-      <main
+      <div
         css={`
           position: relative;
           z-index: 2;
@@ -274,7 +274,7 @@ function ResetPasswordForm({
         >
           Set new password
         </Button>
-      </main>
+      </div>
     </>
   )
 }

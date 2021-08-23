@@ -69,7 +69,7 @@ export default function Validate() {
           : 'Account Verification Failed'}
       </h2>
       <Spacer size={4 * GU} />
-      <main
+      <div
         css={`
           position: relative;
           z-index: 2;
@@ -141,7 +141,7 @@ export default function Validate() {
             </Button>
           </>
         )}
-      </main>
+      </div>
     </Onboarding>
   )
 }

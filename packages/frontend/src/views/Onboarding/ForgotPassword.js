@@ -61,7 +61,7 @@ export default function ForgotPassword() {
         Reset Password
       </h2>
       <Spacer size={4 * GU} />
-      <main
+      <div
         css={`
           position: relative;
           z-index: 2;
@@ -107,7 +107,7 @@ export default function ForgotPassword() {
         >
           Reset Password
         </Button>
-      </main>
+      </div>
     </Onboarding>
   )
 }

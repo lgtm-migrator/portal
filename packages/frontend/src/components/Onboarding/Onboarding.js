@@ -57,7 +57,7 @@ export default function Onboarding({ children }) {
             height: 100%;
           `}
         >
-          <div
+          <main
             css={`
               grid-column-start: 1;
               align-self: center;
@@ -70,12 +70,13 @@ export default function Onboarding({ children }) {
           >
             <Spacer size={3 * GU} />
             {children}
-          </div>
+          </main>
         </div>
         {!compactMode && (
           <img
             src={PortalLogo}
-            alt="Portal Logo"
+            alt=""
+            role="presentation"
             css={`
               grid-column-start: 2;
               align-self: start;
