@@ -163,12 +163,12 @@ export const workers = [
     workerFn: (ctx): Promise<void> => getNodeCountForChains(ctx),
     recurrence: SIXTY_MINUTES,
   },
-  {
-    name: 'Usage notification service',
-    color: 'blue',
-    workerFn: (ctx): Promise<void> => sendUsageNotifications(ctx),
-    recurrence: FIFTEEN_MINUTES,
-  },
+  // {
+  // name: 'Usage notification service',
+  // color: 'blue',
+  // workerFn: (ctx): Promise<void> => sendUsageNotifications(ctx),
+  // recurrence: FIFTEEN_MINUTES,
+  // },
   {
     name: 'App removal categorizing service',
     color: 'pink',
