@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import env from '../environment'
+import { getPriorityLevelByChain } from '../lib/chain-utils'
 
 export function useNetworkSummary() {
   const {
@@ -47,7 +48,12 @@ export function useChains() {
         data: { chains },
       } = res
 
-      return chains
+      return chains.sort((a, b) => {
+        const priorityA = getPriorityLevelByChain(a.id)
+        const priorityB = getPriorityLevelByChain(b.id)
+
+        return priorityA - priorityB
+      })
     } catch (err) {
       console.log('?', err)
     }

@@ -33,3 +33,12 @@ export function getServiceLevelByChain(chainId) {
   }
   return 'Beta'
 }
+
+export function getPriorityLevelByChain(chainId) {
+  if (PRODUCTION_CHAINS.includes(chainId)) {
+    return 0
+  } else if (ALPHA_CHAINS.includes(chainId)) {
+    return 2
+  }
+  return 1
+}
