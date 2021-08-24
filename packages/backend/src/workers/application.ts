@@ -53,7 +53,7 @@ async function getApplicationAndFund({
       address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,
-      status,
+      status: APPLICATION_STATUSES.AWAITING_FREETIER_STAKING,
       txHash,
       type: 'transfer',
       kind: 'txLog',
@@ -110,7 +110,7 @@ async function stakeApplication({
       address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,
-      status,
+      status: APPLICATION_STATUSES.SWAPPABLE,
       txHash,
       type: 'stake',
       kind: 'txLog',
@@ -135,7 +135,12 @@ export async function fillAppPool(ctx): Promise<void> {
       const slotsToFill = limit - availableApps.length
 
       ctx.logger.info(
-        `fillAppPool(): Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`
+        `fillAppPool(): Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`,
+        {
+          name: ctx.name,
+          chain: id,
+          kind: 'txLog',
+        }
       )
 
       for (let i = 0; i < slotsToFill; i++) {
