@@ -16,7 +16,7 @@ export function startWorkers(): void {
       )
 
       try {
-        await workerFn({ logger })
+        await workerFn({ logger, name })
 
         endTime = Date.now()
         const endInUtc = new Date(endTime).toUTCString()
@@ -26,7 +26,9 @@ export function startWorkers(): void {
           `[portal-workers] Worker ${name} exited successfully at ${endInUtc}, took ${elapsedTime} seconds`
         )
       } catch (err) {
-        logger.error(`Worker ${name} exited with an error.`)
+        logger.error(`Worker ${name} exited with an error.`, {
+          error: err.message,
+        })
         // TODO: Send metrics to sentry
         logger.error(err.message)
       }

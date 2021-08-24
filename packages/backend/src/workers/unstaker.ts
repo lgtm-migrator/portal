@@ -55,6 +55,7 @@ async function unstakeApplication(
   ctx.logger.info(
     `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`,
     {
+      name: ctx.name,
       address,
       kind: 'txLog',
       status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
@@ -108,6 +109,7 @@ async function stakeApplication(
   ctx.logger.info(
     `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`,
     {
+      name: ctx.name,
       address,
       amount: SLOT_STAKE_AMOUNT.toString(),
       kind: 'txLog',
@@ -149,6 +151,7 @@ async function removeFunds({
   ctx.logger.info(
     `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`,
     {
+      name: ctx.name,
       address,
       amount: balanceBn.toString(),
       kind: 'txLog',
@@ -287,6 +290,7 @@ async function moveToPreStakePool(
   ctx.logger.info(
     `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
     {
+      name: ctx.name,
       address: app.freeTierApplicationAccount.address,
       chain: app.chain,
       type: 'removal',
@@ -384,6 +388,7 @@ export async function transferSlotFunds(ctx): Promise<void> {
       ctx.logger.info(
         `fillAppPool(): sent funds to account ${address} on tx ${txHash}`,
         {
+          name: ctx.name,
           address,
           amount: SLOT_STAKE_AMOUNT.toString(),
           kind: 'txLog',

@@ -36,7 +36,7 @@ async function getApplicationAndFund({
   )
 
   if (!txHash) {
-    ctx.logger.warn(
+    ctx.logger.error(
       `Funds were not sent for app ${app.freeTierApplicationAccount.address}! This is an issue with connecting to the network with PocketJS.`
     )
     return false
@@ -49,6 +49,7 @@ async function getApplicationAndFund({
   ctx.logger.info(
     `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`,
     {
+      name: ctx.name,
       address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,
@@ -105,6 +106,7 @@ async function stakeApplication({
   ctx.logger.info(
     `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`,
     {
+      name: ctx.name,
       address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,

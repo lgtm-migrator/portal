@@ -4,6 +4,7 @@ import env from '../environment'
 import { getUTCTimestamp } from './date-utils'
 
 export interface txLog {
+  name: string
   address: string
   amount?: string
   chain?: string

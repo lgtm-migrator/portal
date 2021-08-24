@@ -1,6 +1,4 @@
 import { fillAppPool, stakeAppPool } from './application'
-import { getNetworkStatsCount, getNodeCountForChains } from './network'
-import { sendUsageNotifications } from './notifications'
 import {
   categorizeAppRemoval,
   transferSlotFunds,
@@ -140,28 +138,16 @@ export const chains = getChainsByEnvironment()
  */
 export const workers = [
   {
-    name: 'App pool filler',
+    name: 'APP_POOL_FILLER',
     color: 'green',
     workerFn: (ctx): Promise<void> => fillAppPool(ctx),
     recurrence: ONE_MINUTES,
   },
   {
-    name: 'App pool staker',
+    name: 'APP_POOL_STAKER',
     color: 'green',
     workerFn: (ctx): Promise<void> => stakeAppPool(ctx),
     recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'Network stats counter',
-    color: 'yellow',
-    workerFn: (ctx): Promise<void> => getNetworkStatsCount(ctx),
-    recurrence: SIXTY_MINUTES,
-  },
-  {
-    name: 'Nodes per chain counter',
-    color: 'yellow',
-    workerFn: (ctx): Promise<void> => getNodeCountForChains(ctx),
-    recurrence: SIXTY_MINUTES,
   },
   // {
   // name: 'Usage notification service',
@@ -170,31 +156,31 @@ export const workers = [
   // recurrence: FIFTEEN_MINUTES,
   // },
   {
-    name: 'App removal categorizing service',
+    name: 'APP_REMOVAL_CATEGORIZER',
     color: 'pink',
     workerFn: (ctx): Promise<void> => categorizeAppRemoval(ctx),
     recurrence: FIFTEEN_MINUTES,
   },
-  // {
-  // name: 'Unused App restaking fund transfer service',
-  // color: 'red',
-  // workerFn: (ctx): Promise<void> => transferSlotFunds(ctx),
-  // recurrence: FIFTEEN_MINUTES,
-  // },
-  // {
-  // name: 'Unused app unstaker service',
-  // color: 'yellow',
-  // workerFn: (ctx): Promise<void> => unstakeApps(ctx),
-  // recurrence: FIFTEEN_MINUTES,
-  // },
-  // {
-  // name: 'Unused app restaker (slot filler) service',
-  // color: 'brown',
-  // workerFn: (ctx): Promise<void> => stakeAppsForSlots(ctx),
-  // recurrence: FIFTEEN_MINUTES,
-  // },
   {
-    name: 'Unused app fund removal service',
+    name: 'APP_RESTAKING_FUNDS_SERVICE',
+    color: 'red',
+    workerFn: (ctx): Promise<void> => transferSlotFunds(ctx),
+    recurrence: FIFTEEN_MINUTES,
+  },
+  {
+    name: 'APP_UNUSED_UNSTAKER_SERVICE',
+    color: 'yellow',
+    workerFn: (ctx): Promise<void> => unstakeApps(ctx),
+    recurrence: FIFTEEN_MINUTES,
+  },
+  {
+    name: 'APP_SLOT_RESTAKER_SERVICE',
+    color: 'brown',
+    workerFn: (ctx): Promise<void> => stakeAppsForSlots(ctx),
+    recurrence: FIFTEEN_MINUTES,
+  },
+  {
+    name: 'APP_FUND_REMOVAL_SERVICE',
     color: 'blue',
     workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
     recurrence: FIFTEEN_MINUTES,
