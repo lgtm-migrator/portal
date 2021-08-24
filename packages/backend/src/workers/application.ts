@@ -137,7 +137,7 @@ export async function fillAppPool(ctx): Promise<void> {
       ctx.logger.info(
         `fillAppPool(): Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`,
         {
-          name: ctx.name,
+          workerName: ctx.name,
           chain: id,
           kind: 'txLog',
         }

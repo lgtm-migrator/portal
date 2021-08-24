@@ -414,7 +414,11 @@ export async function unstakeApps(ctx): Promise<void> {
 
       // For TX propagation purposes, we wait a bit in between sending an unstake tx and a stake tx.
       // This way they're included in the same (or subsequent) block, and we don't leave the gap open for too long.
-      const isGracePeriodOver = now.diff(updatedAt, 'minute') >= 10
+      const isGracePeriodOver = now.diff(updatedAt, 'm') >= 10
+
+      ctx.logger.info(
+        `unstakeApps(): grace period diff is ${now.diff(updatedAt, 'm')} `
+      )
 
       if (!isGracePeriodOver) {
         return
