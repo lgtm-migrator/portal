@@ -345,16 +345,13 @@ export async function createAppUnstakeTx(
   if (unlockedAccount instanceof Error) {
     throw unlockedAccount
   }
-  const senderAccount = await pocketInstance.withImportedAccount(
+  const senderAccount = (await pocketInstance.withImportedAccount(
     unlockedAccount.addressHex,
     passphrase
-  )
-
-  // @ts-ignore
-  const { unlockedAccount: account } = senderAccount
+  )) as ITransactionSender
 
   return await (senderAccount as ITransactionSender)
-    .appUnstake(account.publicKey.toString('hex'))
+    .appUnstake(unlockedAccount.addressHex)
     .createTransaction(chainId, transactionFee)
 }
 
