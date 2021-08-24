@@ -55,8 +55,8 @@ async function unstakeApplication(
   ctx.logger.info(
     `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`,
     {
-      name: ctx.name,
-      address,
+      workerName: ctx.name,
+      account: address,
       kind: 'txLog',
       status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
       txHash,
@@ -109,8 +109,8 @@ async function stakeApplication(
   ctx.logger.info(
     `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`,
     {
-      name: ctx.name,
-      address,
+      workerName: ctx.name,
+      account: address,
       amount: SLOT_STAKE_AMOUNT.toString(),
       kind: 'txLog',
       status: APPLICATION_STATUSES.AWAITING_FUNDS_REMOVAL,
@@ -151,8 +151,8 @@ async function removeFunds({
   ctx.logger.info(
     `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`,
     {
-      name: ctx.name,
-      address,
+      workerName: ctx.name,
+      account: address,
       amount: balanceBn.toString(),
       kind: 'txLog',
       status: APPLICATION_STATUSES.READY,
@@ -290,8 +290,8 @@ async function moveToPreStakePool(
   ctx.logger.info(
     `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
     {
-      name: ctx.name,
-      address: app.freeTierApplicationAccount.address,
+      workerName: ctx.name,
+      account: app.freeTierApplicationAccount.address,
       chain: app.chain,
       type: 'removal',
       status: APPLICATION_STATUSES.SWAPPABLE,
@@ -388,8 +388,8 @@ export async function transferSlotFunds(ctx): Promise<void> {
       ctx.logger.info(
         `fillAppPool(): sent funds to account ${address} on tx ${txHash}`,
         {
-          name: ctx.name,
-          address,
+          workerName: ctx.name,
+          account: address,
           amount: SLOT_STAKE_AMOUNT.toString(),
           kind: 'txLog',
           status: APPLICATION_STATUSES.AWAITING_UNSTAKING,

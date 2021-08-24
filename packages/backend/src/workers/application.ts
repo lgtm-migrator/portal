@@ -49,8 +49,8 @@ async function getApplicationAndFund({
   ctx.logger.info(
     `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`,
     {
-      name: ctx.name,
-      address,
+      workerName: ctx.name,
+      account: address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,
       status: APPLICATION_STATUSES.AWAITING_FREETIER_STAKING,
@@ -106,8 +106,8 @@ async function stakeApplication({
   ctx.logger.info(
     `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`,
     {
-      name: ctx.name,
-      address,
+      workerName: ctx.name,
+      account: address,
       amount: FREE_TIER_STAKE_AMOUNT.toString(),
       chain,
       status: APPLICATION_STATUSES.SWAPPABLE,
