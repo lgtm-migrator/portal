@@ -18,7 +18,19 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0028', { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)' }],
 ])
 
-export const PRODUCTION_CHAINS = ['0001', '0005', '0021', '0022', '0028']
+export const PRODUCTION_CHAINS = [
+  '0001',
+  '0004',
+  '0005',
+  '0009',
+  '000B',
+  '0021',
+  '0022',
+  '0023',
+  '0025',
+  '0026',
+  '0028',
+]
 export const ALPHA_CHAINS = []
 
 export function prefixFromChainId(chainId) {
