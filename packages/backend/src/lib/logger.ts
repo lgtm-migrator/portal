@@ -8,10 +8,9 @@ export interface txLog {
   amount?: string
   chain?: string
   kind: 'txLog'
-  message?: string
   status: string
-  txHash: string
-  type: 'transfer' | 'stake' | 'unstake'
+  txHash?: string
+  type: 'transfer' | 'stake' | 'unstake' | 'removal'
 }
 
 const { createLogger, format, transports } = winston

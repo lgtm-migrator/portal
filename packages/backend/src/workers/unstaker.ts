@@ -152,7 +152,7 @@ async function removeFunds({
       address,
       amount: balanceBn.toString(),
       kind: 'txLog',
-      status: 'MOVED_TO_PRESTAKEAPPPOOL',
+      status: APPLICATION_STATUSES.READY,
       txHash,
       type: 'transfer',
     } as txLog
@@ -285,7 +285,13 @@ async function moveToPreStakePool(
   await preStakedApp.save()
 
   ctx.logger.info(
-    `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`
+    `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
+    {
+      address: app.freeTierApplicationAccount.address,
+      chain: app.chain,
+      type: 'removal',
+      status: APPLICATION_STATUSES.SWAPPABLE,
+    } as txLog
   )
 }
 
