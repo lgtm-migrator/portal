@@ -1,9 +1,37 @@
 import winston from 'winston'
 import WinstonCloudWatch from 'winston-cloudwatch'
 import env from '../environment'
+import { getUTCTimestamp } from './date-utils'
 
-const logger = winston.createLogger({
-  transports: [new winston.transports.Console()],
+export interface txLog {
+  address: string
+  amount?: string
+  chain?: string
+  kind: 'txLog'
+  message?: string
+  status: string
+  txHash: string
+  type: 'transfer' | 'stake' | 'unstake'
+}
+
+const { createLogger, format, transports } = winston
+
+const logFormat = format.combine(
+  format.colorize(),
+  format.simple(),
+  format.timestamp({
+    format: 'YYYY-MM-DD HH:mm:ss.SSS',
+  })
+)
+
+const logger = createLogger({
+  transports: [
+    new transports.Console({
+      level: 'debug',
+      handleExceptions: true,
+      format: logFormat,
+    }),
+  ],
 })
 
 if (env('prod')) {
@@ -17,6 +45,16 @@ if (env('prod')) {
       awsRegion: env('CLOUDWATCH_REGION') as string,
       jsonMessage: true,
       level: 'verbose',
+      messageFormatter: (logObject: txLog | unknown) => {
+        if (!logObject.hasOwnProperty('kind')) {
+          return JSON.stringify(logObject)
+        }
+
+        return JSON.stringify({
+          timestamp: getUTCTimestamp(),
+          ...(logObject as txLog),
+        })
+      },
     })
   )
 }

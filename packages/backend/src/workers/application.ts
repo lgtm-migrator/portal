@@ -2,6 +2,7 @@ import { QueryBalanceResponse, RawTxRequest } from '@pokt-network/pocket-js'
 import Application from '../models/Application'
 import PreStakedApp, { IPreStakedApp } from '../models/PreStakedApp'
 import { chains, FREE_TIER_STAKE_AMOUNT } from './config'
+import { txLog } from '../lib/logger'
 import {
   createAppStakeTx,
   getBalance,
@@ -46,7 +47,16 @@ async function getApplicationAndFund({
   app.chain = chain
 
   ctx.logger.info(
-    `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`
+    `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`,
+    {
+      address,
+      amount: FREE_TIER_STAKE_AMOUNT.toString(),
+      chain,
+      status,
+      txHash,
+      type: 'transfer',
+      kind: 'txLog',
+    } as txLog
   )
   await app.save()
   return true
@@ -93,7 +103,16 @@ async function stakeApplication({
   await app.save()
 
   ctx.logger.info(
-    `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`
+    `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`,
+    {
+      address,
+      amount: FREE_TIER_STAKE_AMOUNT.toString(),
+      chain,
+      status,
+      txHash,
+      type: 'stake',
+      kind: 'txLog',
+    } as txLog
   )
 
   return true

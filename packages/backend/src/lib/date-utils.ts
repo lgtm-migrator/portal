@@ -1,6 +1,12 @@
 import dayjs from 'dayjs'
 import dayJsutcPlugin from 'dayjs/plugin/utc'
 
+export function getUTCTimestamp(): string {
+  const timestamp = new Date()
+
+  return timestamp.toISOString()
+}
+
 export function composeDaysFromNowUtcDate(daysAgo: number): string {
   dayjs.extend(dayJsutcPlugin)
 

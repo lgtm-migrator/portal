@@ -162,7 +162,7 @@ export async function transferToFreeTierFund({ amount, privateKey, address }) {
   if (typeGuard(rawTxResponse, RpcError)) {
     throw new Error(rawTxResponse.message)
   }
-  return rawTxResponse
+  return rawTxResponse.hash
 }
 
 export async function transferFromFreeTierFund(

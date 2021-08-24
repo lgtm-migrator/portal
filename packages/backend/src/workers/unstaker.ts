@@ -10,6 +10,7 @@ import Application, { IApplication } from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
 import PreStakedApp from '../models/PreStakedApp'
 import User from '../models/User'
+import { txLog } from '../lib/logger'
 import { influx, APPLICATION_USAGE_QUERY } from '../lib/influx'
 import {
   createAppStakeTx,
@@ -52,7 +53,14 @@ async function unstakeApplication(
   await app.save()
 
   ctx.logger.info(
-    `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`
+    `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`,
+    {
+      address,
+      kind: 'txLog',
+      status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
+      txHash,
+      type: 'unstake',
+    } as txLog
   )
 }
 
@@ -88,7 +96,7 @@ async function stakeApplication(
   )
 
   if (!txHash) {
-    ctx.logger.info(`stake tx was not sent for ${app.name} [${address}]`)
+    ctx.logger.warn(`stake tx was not sent for ${app.name} [${address}]`)
     return
   }
 
@@ -98,7 +106,15 @@ async function stakeApplication(
   await app.save()
 
   ctx.logger.info(
-    `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`
+    `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`,
+    {
+      address,
+      amount: SLOT_STAKE_AMOUNT.toString(),
+      kind: 'txLog',
+      status: APPLICATION_STATUSES.AWAITING_FUNDS_REMOVAL,
+      txHash,
+      type: 'stake',
+    } as txLog
   )
 }
 
@@ -131,7 +147,15 @@ async function removeFunds({
   }
 
   ctx.logger.info(
-    `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`
+    `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`,
+    {
+      address,
+      amount: balanceBn.toString(),
+      kind: 'txLog',
+      status: 'MOVED_TO_PRESTAKEAPPPOOL',
+      txHash,
+      type: 'transfer',
+    } as txLog
   )
 
   const preStakedApp = new PreStakedApp({
@@ -352,7 +376,15 @@ export async function transferSlotFunds(ctx): Promise<void> {
       app.updatedAt = new Date(Date.now())
 
       ctx.logger.info(
-        `fillAppPool(): sent funds to account ${address} on tx ${txHash}`
+        `fillAppPool(): sent funds to account ${address} on tx ${txHash}`,
+        {
+          address,
+          amount: SLOT_STAKE_AMOUNT.toString(),
+          kind: 'txLog',
+          status: APPLICATION_STATUSES.AWAITING_UNSTAKING,
+          txHash,
+          type: 'transfer',
+        } as txLog
       )
       await app.save()
     })
