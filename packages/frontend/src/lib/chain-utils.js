@@ -29,6 +29,7 @@ export const PRODUCTION_CHAINS = [
   '0023',
   '0025',
   '0026',
+  '0027',
   '0028',
 ]
 export const ALPHA_CHAINS = []

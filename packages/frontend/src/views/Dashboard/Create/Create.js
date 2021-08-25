@@ -29,10 +29,11 @@ import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUserApps } from '../../../contexts/AppsContext'
 import { useUser } from '../../../contexts/UserContext'
-import { trackEvent } from '../../../lib/analytics'
-import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
+import { PRODUCTION_CHAINS } from '../../../lib/chain-utils'
+import { getPriorityLevelByChain } from '../../../lib/chain-utils'
 import { log } from '../../../lib/utils'
+import { trackEvent } from '../../../lib/analytics'
 import env from '../../../environment'
 import {
   KNOWN_MUTATION_SUFFIXES,
@@ -180,7 +181,12 @@ export default function Create() {
           data: { chains },
         } = res
 
-        return chains
+        return chains.sort((a, b) => {
+          const priorityA = getPriorityLevelByChain(a.id)
+          const priorityB = getPriorityLevelByChain(b.id)
+
+          return priorityA - priorityB
+        })
       } catch (err) {
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
