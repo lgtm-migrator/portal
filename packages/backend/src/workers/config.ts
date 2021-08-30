@@ -85,6 +85,11 @@ const MAIN_CHAINS = {
     id: '0025',
     limit: 8,
   },
+  ETHEREUM_ROPSTEN_FULL: {
+    ticker: 'ETH',
+    id: '0023',
+    limit: 5,
+  },
   ETHEREUM_XDAI_FULL: {
     ticker: 'POA',
     id: '0027',
