@@ -246,6 +246,8 @@ function MenuPanelGroup({ active, activeIndex, appsLoading, instances }) {
               (v) =>
                 `${childInstances.length * (CHILD_INSTANCE_HEIGHT + GU) * v}px`
             ),
+            maxHeight: '400px',
+            overflowY: 'scroll',
           }}
         >
           {childInstances.map(({ id, label }, index) => (
