@@ -20,6 +20,7 @@ const CHAIN_ID_PREFIXES = new Map([
 
 export const PRODUCTION_CHAINS = [
   '0001',
+  '0003',
   '0004',
   '0005',
   '0009',
