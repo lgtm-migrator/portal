@@ -135,11 +135,6 @@ export const chains = getChainsByEnvironment()
 
 /**
  * Holds the workers configuration.
- *
- * each type (category) of worker is color coded:
- * app-related workers (staking, unstaking, notifications) are colored green
- * network-related workers (counters) are colored yellow
- * misc workers are colored cyan
  */
 export const workers = [
   {
@@ -154,12 +149,6 @@ export const workers = [
     workerFn: (ctx): Promise<void> => stakeAppPool(ctx),
     recurrence: FIVE_MINUTES,
   },
-  // {
-  // name: 'Usage notification service',
-  // color: 'blue',
-  // workerFn: (ctx): Promise<void> => sendUsageNotifications(ctx),
-  // recurrence: FIFTEEN_MINUTES,
-  // },
   {
     name: 'APP_REMOVAL_CATEGORIZER',
     color: 'pink',
