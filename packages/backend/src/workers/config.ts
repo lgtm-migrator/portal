@@ -58,7 +58,7 @@ const MAIN_CHAINS = {
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',
-    limit: 8,
+    limit: 10,
   },
   ETHEREUM_KOVAN_FULL: {
     ticker: 'POA',
