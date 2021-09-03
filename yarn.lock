@@ -2742,10 +2742,10 @@
     "@tendermint/belt" "0.2.1"
     "@tendermint/types" "0.1.1"
 
-"@pokt-network/pocket-js@0.6.12-rc":
-  version "0.6.12-rc"
-  resolved "https://registry.yarnpkg.com/@pokt-network/pocket-js/-/pocket-js-0.6.12-rc.tgz#227350e76c259d1e41676632bc62c142a34cc8ba"
-  integrity sha512-qgyzEMaxpr7Fh5XvO9MzL7S9RWS9QyOJNhq86REG2sYgiyl0MgDdYvRm/fvPcCkjkZAJyNKuKKedPGGsro3/ag==
+"@pokt-network/pocket-js@^0.6.16-rc":
+  version "0.6.16-rc"
+  resolved "https://registry.yarnpkg.com/@pokt-network/pocket-js/-/pocket-js-0.6.16-rc.tgz#19fa0158332f7fd264fd74ab3a1c1c3a87bbf810"
+  integrity sha512-kyeK0mKMTU/k17sAduD3WkySk6FzobCVIYESd5opoecz+H/n0CM5e09XG19G4LYfDDUWhjw5aRfINWJevrFH0g==
   dependencies:
     "@pokt-network/aat-js" "0.1.1-rc"
     "@pokt-network/amino-js" "0.7.5-alpha.1"
