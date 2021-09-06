@@ -517,6 +517,8 @@ function BasicSetup({
                     css={`
                       display: flex;
                       flex-direction: row;
+                      justify-content: center;
+                      align-items: center;
                     `}
                   >
                     <p>
