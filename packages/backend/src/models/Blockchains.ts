@@ -2,25 +2,26 @@ import { Schema, Model, model, Document } from 'mongoose'
 
 export interface IChain extends Document {
   _id: string
-  networkID: string
-  network?: string
-  ticker: string
-  name: string
+  appCount: number
   description: string
   hash: string
+  name: string
+  network?: string
+  networkID: string
   nodeCount: number
-  appCount: number
+  ticker: string
 }
 
 const chainSchema = new Schema(
   {
     _id: String,
-    networkID: String,
-    ticker: String,
-    name: String,
+    appCount: Number,
     description: String,
     hash: String,
+    name: String,
+    networkID: String,
     nodeCount: Number,
+    ticker: String,
   },
   { collection: 'Blockchains' }
 )
