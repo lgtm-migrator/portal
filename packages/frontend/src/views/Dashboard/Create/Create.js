@@ -568,19 +568,6 @@ function BasicSetup({
                 ${textStyle('body4')}
               `}
             >
-              Your application will receive up to 1M free daily relays
-              subsidized by Pocket Network Inc. For more information read our{' '}
-              <Link href="https://www.pokt.network/site-terms-of-use">
-                Site Terms of Use
-              </Link>
-              .
-            </p>
-            <Spacer size={2 * GU} />
-            <p
-              css={`
-                ${textStyle('body4')}
-              `}
-            >
               If you are looking to stake your own POKT or you need more relays
               for your application please{' '}
               <Link href="mailto:sales@pokt.network">contact us</Link> and our
