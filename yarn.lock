@@ -2695,10 +2695,10 @@
     dotenv "^8.2.0"
     graphql-request "^3.4.0"
 
-"@pokt-foundation/ui@^0.2.0-alpha.4":
-  version "0.2.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/@pokt-foundation/ui/-/ui-0.2.0-alpha.4.tgz#bca4c92f1ef36a9ce792845339f51d9395fcd3dd"
-  integrity sha512-2G6818V73ubJ9+k3RB8KRm4X0ucaobMSYaka3sMJUKsnwyx5MO33UIfSwi+NBzTHG3YM2aTqi8tBpzPfhEBUkQ==
+"@pokt-foundation/ui@^0.2.0-alpha.5":
+  version "0.2.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/@pokt-foundation/ui/-/ui-0.2.0-alpha.5.tgz#088fb4e643a722025b3da956cbb249060741c59a"
+  integrity sha512-5IM0GpELI4XEq+A5u7WWvoV3V+vEZXjl7Z8SUmVRO0uqYf5fzKriQAT6o6m/bi5CHl8W0AIrjHmE2LlyHED7eA==
   dependencies:
     "@babel/runtime" "^7.3.1"
     "@fontsource/manrope" "^4.4.5"

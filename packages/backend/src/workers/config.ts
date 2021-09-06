@@ -1,4 +1,5 @@
 import { fillAppPool, stakeAppPool } from './application'
+import { getAppsPerChain } from './network'
 import {
   categorizeAppRemoval,
   transferSlotFunds,
@@ -6,12 +7,7 @@ import {
   stakeAppsForSlots,
   removeFundsFromApps,
 } from './unstaker'
-import {
-  ONE_MINUTES,
-  FIVE_MINUTES,
-  FIFTEEN_MINUTES,
-  SIXTY_MINUTES,
-} from './utils'
+import { ONE_MINUTES, FIVE_MINUTES, SIXTY_MINUTES } from './utils'
 
 const TEST_ONLY_CHAINS = {
   POCKET_TESTNET: {
@@ -137,6 +133,12 @@ export const chains = getChainsByEnvironment()
  * Holds the workers configuration.
  */
 export const workers = [
+  {
+    name: 'APP_PER_CHAIN_COUNTER',
+    color: 'green',
+    workerFn: (ctx): Promise<void> => getAppsPerChain(ctx),
+    recurrence: SIXTY_MINUTES,
+  },
   {
     name: 'APP_POOL_FILLER',
     color: 'green',

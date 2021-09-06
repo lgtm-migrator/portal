@@ -8,7 +8,8 @@ export interface IChain extends Document {
   name: string
   description: string
   hash: string
-  nodeCount: string
+  nodeCount: number
+  appCount: number
 }
 
 const chainSchema = new Schema(

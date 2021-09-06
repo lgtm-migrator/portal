@@ -1,6 +1,5 @@
 /* global BigInt */
 import {
-  Application,
   Configuration,
   HttpRpcProvider,
   Node,
@@ -15,6 +14,7 @@ import {
   typeGuard,
   UnlockedAccount,
   RawTxRequest,
+  QueryAppsResponse,
 } from '@pokt-network/pocket-js'
 import env, { PocketNetworkKeys } from '../environment'
 
@@ -103,43 +103,29 @@ export async function getNodes(status: number): Promise<Node[]> {
   return nodesResponse.nodes
 }
 
-export async function getApplications(status: number): Promise<Application[]> {
-  let page = 1
-  const applicationList = []
+export async function getApplications(status = 2): Promise<QueryAppsResponse> {
+  const page = 1
+  const perPage = 3000
+
   const pocketRpcProvider = getRPCProvider()
-  const perPage = 100
   const pocketInstance = new Pocket(
     getPocketDispatchers(),
     undefined,
     POCKET_CONFIGURATION
   )
-  const applicationsResponse = await pocketInstance
+
+  const applicationsResponse = (await pocketInstance
     .rpc(pocketRpcProvider)
-    .query.getApps(status, BigInt(0), undefined, page, perPage)
+    .query.getApps(status, BigInt(0), '', page, perPage)) as QueryAppsResponse
 
-  if (applicationsResponse instanceof RpcError) {
-    return []
-  }
-  const totalPages = applicationsResponse.totalPages
-
-  while (page <= totalPages) {
-    const response = await pocketInstance
-      .rpc(pocketRpcProvider)
-      .query.getApps(status, BigInt(0), undefined, page, perPage)
-
-    page++
-    if (response instanceof RpcError) {
-      page = totalPages
-      return
-    }
-    response.applications.forEach((app) => {
-      applicationList.push(app)
-    })
-  }
-  return applicationList
+  return applicationsResponse
 }
 
-export async function transferToFreeTierFund({ amount, privateKey, address }) {
+export async function transferToFreeTierFund({
+  amount,
+  privateKey,
+  address,
+}): Promise<string> {
   if (!amount) {
     throw new Error("Can't transfer to free tier fund: no amount provided")
   }

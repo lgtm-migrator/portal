@@ -70,18 +70,20 @@ router.get(
     const processedChains = chains.filter((_, i) => existentChains[i])
     const formattedChains = processedChains.map(function processChain({
       _id,
-      ticker,
-      network,
+      appCount,
       description,
+      network,
       nodeCount,
+      ticker,
     }) {
       return {
-        id: _id,
-        ticker,
-        network,
+        appCount,
         description,
-        nodeCount,
+        id: _id,
         isAvailableForStaking: true,
+        network,
+        nodeCount,
+        ticker,
       }
     })
 

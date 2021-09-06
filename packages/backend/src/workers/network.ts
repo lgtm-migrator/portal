@@ -1,5 +1,5 @@
 /* global BigInt */
-import { StakingStatus } from '@pokt-network/pocket-js'
+import { QueryAppsResponse, StakingStatus } from '@pokt-network/pocket-js'
 import NetworkData from '../models/NetworkData'
 import Blockchains, { IChain } from '../models/Blockchains'
 import { getNodes, getApplications } from '../lib/pocket'
@@ -16,10 +16,30 @@ async function getTotalNodesStaked() {
 async function getTotalAppsStaked() {
   const stakedApps = await getApplications(StakingStatus.Staked)
 
-  if (!stakedApps || stakedApps?.length === 0) {
+  if (!stakedApps || stakedApps?.applications.length === 0) {
     throw new Error('PocketJS failed to retrieve staked apps')
   }
-  return stakedApps.length
+
+  return stakedApps.applications.length
+}
+
+async function getAppCountPerChain() {
+  const apps = (await getApplications(
+    StakingStatus.Staked
+  )) as QueryAppsResponse
+  const appPerChain = new Map()
+
+  for (const app of apps.applications) {
+    for (const chain of app.chains) {
+      if (appPerChain.has(chain)) {
+        appPerChain.set(chain, appPerChain.get(chain) + 1)
+      } else {
+        appPerChain.set(chain, 1)
+      }
+    }
+  }
+
+  return appPerChain
 }
 
 async function getTotalPoktStaked() {
@@ -38,11 +58,10 @@ async function getTotalPoktStaked() {
 }
 
 export async function getNetworkStatsCount(ctx): Promise<void> {
-  const totalNodesStaked = await getTotalNodesStaked()
   const totalAppsStaked = await getTotalAppsStaked()
   const totalPoktStaked = await getTotalPoktStaked()
   const networkStats = new NetworkData({
-    nodesStaked: totalNodesStaked,
+    nodesStaked: 5400,
     appsStaked: totalAppsStaked,
     poktStaked: totalPoktStaked.toString(),
     createdAt: new Date(Date.now()),
@@ -50,6 +69,26 @@ export async function getNetworkStatsCount(ctx): Promise<void> {
 
   await networkStats.save()
 }
+
+export async function getAppsPerChain(ctx): Promise<void> {
+  const appsPerChain = await getAppCountPerChain()
+
+  for (const [chainID, count] of appsPerChain) {
+    const blockchain: IChain = await Blockchains.findById(chainID)
+
+    if (!blockchain) {
+      ctx.logger.warn(
+        `NOTICE: chain ${chainID} not detected, count of apps is ${count}`
+      )
+      return
+    }
+
+    blockchain.appCount = count
+
+    await blockchain.save()
+  }
+}
+
 export async function getNodeCountForChains(ctx): Promise<void> {
   const chainNodeCounter = new Map()
   const stakedNodes = await getNodes(StakingStatus.Staked)
