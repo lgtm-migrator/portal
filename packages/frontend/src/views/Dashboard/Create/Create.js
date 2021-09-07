@@ -171,7 +171,7 @@ export default function Create() {
   } = useQuery(
     KNOWN_QUERY_SUFFIXES.STAKEABLE_CHAINS,
     async function getNetworkChains() {
-      const path = `${env('BACKEND_URL')}/api/network/chains`
+      const path = `${env('BACKEND_URL')}/api/network/stakeable-chains`
 
       try {
         const res = await axios.get(path, {
