@@ -10,6 +10,9 @@ import {
   transferFromFreeTierFund,
 } from '../lib/pocket'
 import { APPLICATION_STATUSES } from '../application-statuses'
+import env, { PocketNetworkKeys } from '../environment'
+
+const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
 
 async function getApplicationAndFund({
   chain,
@@ -121,6 +124,17 @@ async function stakeApplication({
 }
 
 export async function fillAppPool(ctx): Promise<void> {
+  const { balance } = (await getBalance(
+    freeTierFundAddress
+  )) as QueryBalanceResponse
+
+  if (balance < FREE_TIER_STAKE_AMOUNT) {
+    ctx.logger.warn(
+      `fillAppPool(): Free tier fund wallet has run out of balance`
+    )
+    return
+  }
+
   const appPool = await PreStakedApp.find({
     $or: [
       { status: APPLICATION_STATUSES.SWAPPABLE },

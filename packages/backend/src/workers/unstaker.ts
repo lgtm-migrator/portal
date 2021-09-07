@@ -22,6 +22,9 @@ import {
   transferToFreeTierFund,
 } from '../lib/pocket'
 import MailgunService from '../services/MailgunService'
+import env, { PocketNetworkKeys } from '../environment'
+
+const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
 
 async function unstakeApplication(
   app: typeof Application & IApplication,
@@ -362,6 +365,17 @@ export async function categorizeAppRemoval(ctx): Promise<void> {
 }
 
 export async function transferSlotFunds(ctx): Promise<void> {
+  const { balance } = (await getBalance(
+    freeTierFundAddress
+  )) as QueryBalanceResponse
+
+  if (balance < FREE_TIER_STAKE_AMOUNT) {
+    ctx.logger.warn(
+      `fillAppPool(): Free tier fund wallet has run out of balance`
+    )
+    return
+  }
+
   const apps = await Application.find({
     status: APPLICATION_STATUSES.AWAITING_SLOT_FUNDS,
   }).limit(10)
