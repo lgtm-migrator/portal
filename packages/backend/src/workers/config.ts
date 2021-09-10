@@ -111,6 +111,11 @@ const MAIN_CHAINS = {
     id: '0009',
     limit: 8,
   },
+  SOLANA_MAINNET: {
+    ticker: 'SOL',
+    id: '0006',
+    limit: 5,
+  },
 }
 
 function getChainsByEnvironment() {
