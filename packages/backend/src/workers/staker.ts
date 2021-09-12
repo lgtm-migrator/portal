@@ -150,7 +150,7 @@ export async function createAppForSlots(ctx): Promise<void> {
   const slotsToFill = Math.max(0, TOTAL_APP_SLOTS - stakedApps)
 
   if (slotsToFill === 0) {
-    ctx.logger.log('createAppForSlots(): no slots to fill.')
+    ctx.logger.info('createAppForSlots(): no slots to fill.')
   }
 
   if (balance < BigInt(slotsToFill)) {
@@ -160,7 +160,7 @@ export async function createAppForSlots(ctx): Promise<void> {
     return
   }
 
-  ctx.logger.log(
+  ctx.logger.info(
     `createAppForSlots(): filling ${slotsToFill.toString()} slots.`
   )
 
