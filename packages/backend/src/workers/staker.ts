@@ -49,6 +49,8 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
     },
   })
 
+  await preStakedApp.save()
+
   ctx.logger.info(
     `Created app ${account.addressHex.toString()} with pk ${account.publicKey.toString(
       'hex'
@@ -80,7 +82,6 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
       kind: 'txLog',
     } as txLog
   )
-  await preStakedApp.save()
 
   return true
 }
