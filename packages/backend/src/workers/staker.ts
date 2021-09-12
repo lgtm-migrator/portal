@@ -99,7 +99,7 @@ async function fillAppSlot({
 
   if (balance < SLOT_STAKE_AMOUNT) {
     ctx.logger.warn(
-      `NOTICE! app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
+      `NOTICE! slot app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
     )
     return
   }
@@ -153,7 +153,14 @@ export async function createAppForSlots(ctx): Promise<void> {
     freeTierFundAddress
   )) as QueryBalanceResponse
 
-  const slotsToFill = Math.max(0, TOTAL_APP_SLOTS - stakedApps)
+  const futureSlotApps = await PreStakedApp.find({
+    status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
+  })
+
+  const slotsToFill = Math.max(
+    0,
+    TOTAL_APP_SLOTS - stakedApps - futureSlotApps.length
+  )
 
   if (slotsToFill === 0) {
     ctx.logger.info('createAppForSlots(): no slots to fill.')
