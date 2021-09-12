@@ -165,6 +165,7 @@ export async function createAppForSlots(ctx): Promise<void> {
 
   if (slotsToFill === 0) {
     ctx.logger.info('createAppForSlots(): no slots to fill.')
+    return
   }
 
   if (balance < BigInt(slotsToFill)) {
