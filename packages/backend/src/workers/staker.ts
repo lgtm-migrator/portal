@@ -160,7 +160,9 @@ export async function createAppForSlots(ctx): Promise<void> {
     return
   }
 
-  ctx.logger.log(`createAppForSlots(): filling ${slotsToFill} slots.`)
+  ctx.logger.log(
+    `createAppForSlots(): filling ${slotsToFill.toString()} slots.`
+  )
 
   for (let i = 0; i < slotsToFill; i++) {
     await createApplicationAndFund({ ctx })
