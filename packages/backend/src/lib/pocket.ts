@@ -55,6 +55,8 @@ export const POKT_DENOMINATIONS = {
   upokt: 6,
 }
 
+export const TOTAL_APP_SLOTS = 2000
+
 function getPocketDispatchers() {
   return DEFAULT_DISPATCHER_LIST
 }

@@ -1,5 +1,6 @@
 import { fillAppPool, stakeAppPool } from './application'
 import { getAppsPerChain } from './network'
+import { createAppForSlots, stakeAppSlots } from './staker'
 import {
   categorizeAppRemoval,
   transferSlotFunds,
@@ -184,6 +185,18 @@ export const workers = [
     name: 'APP_FUND_REMOVAL_SERVICE',
     color: 'blue',
     workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
+    recurrence: FIVE_MINUTES,
+  },
+  {
+    name: 'APP_SLOT_CREATOR_SERVICE',
+    color: 'green',
+    workerFn: (ctx): Promise<void> => createAppForSlots(ctx),
+    recurrence: FIVE_MINUTES,
+  },
+  {
+    name: 'APP_SLOT_STAKER_SERVICE',
+    color: 'green',
+    workerFn: (ctx): Promise<void> => stakeAppSlots(ctx),
     recurrence: FIVE_MINUTES,
   },
 ]

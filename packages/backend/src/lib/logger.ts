@@ -11,7 +11,7 @@ export interface txLog {
   kind: 'txLog'
   status: string
   txHash?: string
-  type: 'transfer' | 'stake' | 'unstake' | 'removal'
+  type: 'transfer' | 'stake' | 'slot_stake' | 'unstake' | 'removal'
 }
 
 const { createLogger, format, transports } = winston
