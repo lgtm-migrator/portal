@@ -39,37 +39,39 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
     chain: '0021',
     status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
     freeTierApplicationAccount: {
-      address: account.address.toString(),
+      address: account.addressHex.toString(),
       // @ts-ignore
       privateKey: Application.encryptPrivateKey(
         account.encryptedPrivateKeyHex.toString()
       ),
-      publicKey: account.publicKey.toString(),
+      publicKey: account.publicKey.toString('hex'),
       passPhrase: generatedPassphrase,
     },
   })
 
   ctx.logger.info(
-    `Created app ${account.address.toString()} with pk ${account.publicKey.toString()}`
+    `Created app ${account.addressHex.toString()} with pk ${account.publicKey.toString(
+      'hex'
+    )}`
   )
 
   const txHash = await transferFromFreeTierFund(
     (SLOT_STAKE_AMOUNT + 20000n).toString(),
-    account.address.toString()
+    account.addressHex.toString()
   )
 
   if (!txHash) {
     ctx.logger.error(
-      `Funds were not sent for app ${account.address.toString()}! This is an issue with connecting to the network with PocketJS.`
+      `Funds were not sent for app ${account.addressHex.toString()}! This is an issue with connecting to the network with PocketJS.`
     )
     return false
   }
 
   ctx.logger.info(
-    `createApplicationAndFund(): sent funds (${SLOT_STAKE_AMOUNT.toString()} POKT) to app ${account.address.toString()} on tx ${txHash}`,
+    `createApplicationAndFund(): sent funds (${SLOT_STAKE_AMOUNT.toString()} POKT) to app ${account.addressHex.toString()} on tx ${txHash}`,
     {
       workerName: ctx.name,
-      account: account.address.toString(),
+      account: account.addressHex.toString(),
       amount: SLOT_STAKE_AMOUNT.toString(),
       chain: '0021',
       status: APPLICATION_STATUSES.AWAITING_SLOT_STAKING,
