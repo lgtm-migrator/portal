@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import {
   QueryBalanceResponse,
   RawTxRequest,
+  RpcError,
   StakingStatus,
   typeGuard,
 } from '@pokt-network/pocket-js'
@@ -25,7 +26,7 @@ const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
 
 async function createApplicationAndFund({ ctx }: { ctx: any }) {
   const pocket = await getPocketInstance()
-  const generatedPassphrase = crypto.randomBytes(32).toString()
+  const generatedPassphrase = crypto.randomBytes(32).toString('hex')
   const account = await pocket.keybase.createAccount(generatedPassphrase)
 
   if (typeGuard(account, Error)) {
@@ -116,10 +117,20 @@ async function fillAppSlot({
     [chain],
     SLOT_STAKE_AMOUNT.toString()
   )
+
+  if (typeGuard(stakeTxToSend, RpcError)) {
+    ctx.logger.error(`${stakeTxToSend.toJSON}`)
+    throw stakeTxToSend
+  }
+
+  ctx.logger.info(`Crafted tx: ${stakeTxToSend.toJSON()}`)
+
   const txHash = await submitRawTransaction(
     address,
     (stakeTxToSend as RawTxRequest).txHex
   )
+
+  ctx.logger.info(`tx hash: ${txHash}`)
 
   app.status = APPLICATION_STATUSES.READY
   app.stakingTxHash = txHash
