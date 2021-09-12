@@ -49,6 +49,10 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
     },
   })
 
+  ctx.logger.info(
+    `Created app ${account.address.toString()} with pk ${account.publicKey.toString()}`
+  )
+
   const txHash = await transferFromFreeTierFund(
     (SLOT_STAKE_AMOUNT + 20000n).toString(),
     account.address.toString()
