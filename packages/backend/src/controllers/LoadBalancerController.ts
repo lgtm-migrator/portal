@@ -22,6 +22,7 @@ import {
   buildSessionRelaysQuery,
   buildSuccessfulAppRelaysQuery,
   buildTotalAppRelaysQuery,
+  buildOriginClassificationQuery,
 } from '../lib/influx'
 import { getApp } from '../lib/pocket'
 import HttpError from '../errors/http-error'
@@ -1241,6 +1242,87 @@ router.get(
     )
 
     res.status(200).send(processedHourlyLatencyResponse)
+  })
+)
+
+router.get(
+  '/origin-classification/:lbID',
+  asyncMiddleware(async (req: Request, res: Response) => {
+    const userId = (req.user as IUser)._id
+    const { lbID } = req.params
+
+    const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)
+
+    if (!loadBalancer) {
+      throw HttpError.BAD_REQUEST({
+        errors: [
+          {
+            id: 'NONEXISTENT_LOADBALANCER',
+            message: 'User does not have an active Load Balancer',
+          },
+        ],
+      })
+    }
+    if (loadBalancer.user.toString() !== userId.toString()) {
+      throw HttpError.FORBIDDEN({
+        errors: [
+          {
+            id: 'UNAUTHORIZED_ACCESS',
+            message: 'User does not have access to this load balancer',
+          },
+        ],
+      })
+    }
+
+    const cachedMetricResponse = await getResponseFromCache(
+      `${lbID}-origin-classification`
+    )
+
+    if (cachedMetricResponse) {
+      return res.status(200).send(JSON.parse(cachedMetricResponse as string))
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLBPublicKeys(appIds, lbID)
+
+    const rawOriginClassification = await influx.collectRows(
+      buildOriginClassificationQuery({
+        publicKeys,
+        start: composeHoursFromNowUtcDate(24),
+        stop: '-0h',
+      })
+    )
+
+    const countByOrigin = new Map<string, number>()
+
+    rawOriginClassification.map(({ _value, origin }) => {
+      if (countByOrigin.has(origin)) {
+        countByOrigin.set(origin, countByOrigin.get(origin) + _value)
+      } else {
+        countByOrigin.set(origin, _value)
+      }
+    })
+
+    const processedOriginClassification = []
+
+    for (const [origin, count] of countByOrigin) {
+      processedOriginClassification.push({ origin, count: Math.floor(count) })
+    }
+
+    const processedOriginClassificationResponse = {
+      origin_classification: processedOriginClassification.sort(
+        (a, b) => b.count - a.count
+      ),
+    }
+
+    await cache.set(
+      `${lbID}-origin-classification`,
+      JSON.stringify(processedOriginClassificationResponse),
+      'EX',
+      LB_METRICS_TTL
+    )
+
+    res.status(200).send(processedOriginClassificationResponse)
   })
 )
 

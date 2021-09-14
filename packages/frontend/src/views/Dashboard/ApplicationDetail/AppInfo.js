@@ -39,6 +39,7 @@ import { prefixFromChainId } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
 import env from '../../../environment'
+import { OriginClassification } from '../../../components/OriginClassification/OriginClassification'
 
 const ONE_MILLION = 1000000
 const ONE_SECOND = 1 // Data for graphs come in second
@@ -409,7 +410,10 @@ export default function AppInfo({
                   sessionRelays={currentSessionRelays}
                 />
                 <Spacer size={3 * GU} />
-                <LatestRequests id={appData.id} isLb={appData.isLb} />
+                <OriginClassification
+                  id={appData.id}
+                  maxRelays={maxDailyRelays}
+                />
               </>
             }
             secondary={
@@ -964,93 +968,6 @@ function UsageTrends({
           />
         </div>
       </div>
-    </Box>
-  )
-}
-
-function LatestRequests({ id, isLb }) {
-  const { within } = useViewport()
-  const { isLoading: isLatestRelaysLoading, latestRelayData } = useLatestRelays(
-    {
-      id,
-      isLb: isLb,
-    }
-  )
-
-  const [colorsByMethod] = useMemo(() => {
-    if (isLatestRelaysLoading) {
-      return []
-    }
-    const latestRequests = latestRelayData
-    const colorsByMethod = new Map()
-    const countByColor = new Map()
-    let id = 0
-
-    for (const { method } of latestRequests) {
-      if (!colorsByMethod.has(method)) {
-        colorsByMethod.set(method, HIGHLIGHT_COLORS[id])
-        if (id < HIGHLIGHT_COLORS.length - 1) {
-          id++
-        }
-      }
-
-      const methodColor = colorsByMethod.get(method)
-
-      countByColor.has(methodColor)
-        ? countByColor.set(methodColor, countByColor.get(methodColor) + 1)
-        : countByColor.set(methodColor, 1)
-    }
-
-    const colorValues = [...colorsByMethod.values()]
-
-    return [colorsByMethod, countByColor, colorValues]
-  }, [isLatestRelaysLoading, latestRelayData])
-
-  const compactMode = within(-1, 'medium')
-
-  const latestRelays = useMemo(() => {
-    return latestRelayData ? latestRelayData : []
-  }, [latestRelayData])
-
-  return (
-    <Box
-      title="Latest requests"
-      css={`
-        padding-bottom: ${4 * GU}px;
-      `}
-    >
-      <DataView
-        mode={compactMode ? 'list' : 'table'}
-        fields={[
-          { label: 'Request Type' },
-          { label: 'Data transferred', align: 'left' },
-          { label: 'Result', align: 'left' },
-          { label: 'Time Elapsed', align: 'left' },
-        ]}
-        status={isLatestRelaysLoading ? 'loading' : 'default'}
-        entries={latestRelays}
-        renderEntry={({ bytes, method, result, elapsedTime }) => {
-          return [
-            <p>{method ? method : 'Unknown'}</p>,
-            <p>
-              <span
-                css={`
-                  display: inline-block;
-                  width: ${1.5 * GU}px;
-                  height: ${1.5 * GU}px;
-                  border-radius: 50% 50%;
-                  background: ${colorsByMethod.get(method) ?? FALLBACK_COLOR};
-                  box-shadow: ${colorsByMethod.get(method) ?? FALLBACK_COLOR}
-                    0px 2px 8px 0px;
-                `}
-              />
-              &nbsp;{bytes}B
-            </p>,
-            <p>{result}</p>,
-            <p>{(elapsedTime * 1000).toFixed(0)}ms</p>,
-          ]
-        }}
-      />
     </Box>
   )
 }

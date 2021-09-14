@@ -67,6 +67,49 @@ export function useUserApplications() {
   }
 }
 
+export function useOriginClassification({ id }) {
+  const {
+    isLoading,
+    isError,
+    data: originData,
+  } = useQuery(
+    [KNOWN_QUERY_SUFFIXES.ORIGIN_CLASSIFICATION, id],
+    async function getOriginClassification() {
+      if (!id) {
+        return []
+      }
+      const path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
+
+      try {
+        const { data } = await axios.get(path, {
+          withCredentials: true,
+        })
+
+        return data.origin_classification
+      } catch (err) {
+        if (sentryEnabled) {
+          Sentry.configureScope((scope) => {
+            scope.setTransactionName(
+              `QUERY ${KNOWN_QUERY_SUFFIXES.ORIGIN_CLASSIFICATION}`
+            )
+          })
+          Sentry.captureException(err)
+        }
+        throw err
+      }
+    },
+    {
+      keepPreviousData: true,
+    }
+  )
+
+  return {
+    isLoading,
+    isError,
+    originData,
+  }
+}
+
 export function useLatestRelays({
   id = '',
   page = 0,

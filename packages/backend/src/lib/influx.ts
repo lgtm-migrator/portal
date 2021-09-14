@@ -257,6 +257,32 @@ union(tables: [elapsedTime, bytes])
   `
 }
 
+export function buildOriginClassificationQuery({
+  publicKeys,
+  start,
+  stop,
+}: FilteredAppQueryParams): string {
+  const formattedPublicKeys = publicKeys
+    .map(
+      (pk, i) =>
+        `r["applicationPublicKey"] == "${pk}" ${
+          i !== publicKeys.length - 1 ? 'or ' : ''
+        }`
+    )
+    .join('')
+
+  return `
+from(bucket: "mainnetOrigin60m")
+  |> range(start: ${start}, stop: ${stop})
+  |> filter(fn: (r) => r["_measurement"] == "origin")
+  |> filter(fn: (r) => r["_field"] == "count")
+  |> filter(fn: (r) => ${formattedPublicKeys})
+  |> group(columns: ["origin"])
+  |> aggregateWindow(every: 24h, fn: mean, createEmpty: false)
+  |> yield(name: "mean")
+  `
+}
+
 export const APPLICATION_USAGE_QUERY = `
 total = from(bucket: "mainnetRelay1d")
   |> range(start: -30d, stop: -0d)
