@@ -14,7 +14,6 @@ import {
   Button,
   ButtonBase,
   CircleGraph,
-  DataView,
   LineChart,
   Link,
   Modal,
@@ -33,7 +32,6 @@ import { ReactComponent as Delete } from '../../../assets/delete.svg'
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
-import { useLatestRelays } from '../../../hooks/application-hooks'
 import { trackEvent } from '../../../lib/analytics'
 import { prefixFromChainId } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
@@ -47,8 +45,6 @@ const SESSIONS_PER_DAY = 24
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-const HIGHLIGHT_COLORS = ['#D27E31', '#55B02B', '#BB31D2', '#31ABD2', '#D2CC31']
-
 const DEFAULT_EMPTY_RELAYS = [
   {
     dailyRelays: 0,
@@ -57,8 +53,6 @@ const DEFAULT_EMPTY_RELAYS = [
     dailyRelays: 0,
   },
 ]
-
-const FALLBACK_COLOR = '#C4C4C4'
 
 function useUsageColor(usage) {
   const theme = useTheme()
