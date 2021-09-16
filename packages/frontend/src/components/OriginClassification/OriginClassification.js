@@ -128,7 +128,7 @@ export function OriginClassification({ id, maxRelays }) {
       )}
       <DataView
         mode={compactMode ? 'list' : 'table'}
-        fields={[{ label: 'Origin' }, { label: 'Amount', align: 'left' }]}
+        fields={[{ label: 'Origin' }, { label: 'Relays', align: 'left' }]}
         status={isLoading ? 'loading' : 'default'}
         entries={originClassification}
         renderEntry={({ origin, count }, index) => {
