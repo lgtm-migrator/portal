@@ -15,10 +15,11 @@ import {
 import IconApp from './IconApp'
 import IconNetwork from './IconNetwork'
 import PortalLogo from '../../assets/portal_logo.svg'
-import { log, shorten } from '../../lib/utils'
+import { lerp } from '../../lib/math-utils'
+import { shorten } from '../../lib/utils'
 
 const CHILD_INSTANCE_HEIGHT = 6 * GU
-
+const MENU_PANEL_WIDTH = 18 * GU
 const MENU_ROUTES = [
   {
     icon: IconNetwork,
@@ -31,7 +32,6 @@ const MENU_ROUTES = [
     label: 'Apps',
   },
 ]
-
 const CREATE_APP_ROUTE = [
   {
     id: '/create',
@@ -54,12 +54,20 @@ function useActiveRouteName() {
   }
 }
 
-export default function MenuPanel({ appsLoading = true, userApps = [] }) {
+export default function MenuPanel({
+  appsLoading = true,
+  onMenuPanelClose,
+  opened,
+  userApps = [],
+}) {
   const theme = useTheme()
   const { within } = useViewport()
   const { activeId } = useActiveRouteName()
-
   const compactMode = within(-1, 'medium')
+
+  const { menuPanelProgress } = useSpring({
+    menuPanelProgress: !compactMode || opened ? 1 : 0,
+  })
 
   const instanceGroups = useMemo(() => {
     const groups = [[MENU_ROUTES[0]]]
@@ -74,10 +82,12 @@ export default function MenuPanel({ appsLoading = true, userApps = [] }) {
       }))
     )
 
-    groups[1].push(...CREATE_APP_ROUTE)
+    if (!compactMode) {
+      groups[1].push(...CREATE_APP_ROUTE)
+    }
 
     return groups
-  }, [userApps])
+  }, [compactMode, userApps])
 
   const renderInstanceGroup = useCallback(
     (group) => {
@@ -97,19 +107,55 @@ export default function MenuPanel({ appsLoading = true, userApps = [] }) {
     [activeId, appsLoading]
   )
 
+  console.log(opened)
+
   return (
-    !compactMode && (
-      <div
+    <div
+      css={`
+        ${compactMode &&
+        `
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          z-index: 3;
+          ${!opened ? 'pointer-events: none' : ''}
+        `}
+      `}
+    >
+      {compactMode && (
+        <animated.div
+          onClick={onMenuPanelClose}
+          css={`
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background: ${theme.overlay.alpha(0.9)};
+            ${!opened ? 'pointer-events: none' : ''}
+          `}
+          style={{
+            opacity: menuPanelProgress,
+          }}
+        />
+      )}
+      <animated.div
         css={`
-          width: ${18 * GU}px;
+          width: ${MENU_PANEL_WIDTH}px;
           height: 100vh;
           padding: ${2 * GU}px 0;
           flex-grow: 0;
         `}
+        style={{
+          position: compactMode ? 'absolute' : 'relative',
+          transform: menuPanelProgress.interpolate(
+            (v) =>
+              `translate3d(
+                    ${lerp(v, -MENU_PANEL_WIDTH, 0)}px, 0, 0)`
+          ),
+        }}
       >
         <div
           css={`
-            width: ${17 * GU}px;
+            width: ${MENU_PANEL_WIDTH}px;
             height: 100vh;
             position: fixed;
             top: 0;
@@ -145,8 +191,8 @@ export default function MenuPanel({ appsLoading = true, userApps = [] }) {
           <Spacer size={5 * GU} />
           {instanceGroups.map((group) => renderInstanceGroup(group))}
         </div>
-      </div>
-    )
+      </animated.div>
+    </div>
   )
 }
 
@@ -197,8 +243,6 @@ function MenuPanelGroup({ active, activeIndex, appsLoading, instances }) {
     },
     -1
   )
-
-  log(activeIndex, childInstances, 'activeIndeex')
 
   return (
     <div

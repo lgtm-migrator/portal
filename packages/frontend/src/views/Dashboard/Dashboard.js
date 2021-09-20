@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import { Spacer, useTheme, GU } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
@@ -13,6 +14,15 @@ function DashboardView({ children }) {
   const { appsLoading, userApps } = useUserApps()
   const { email, userLoading } = useUser()
   const theme = useTheme()
+  const { below } = useViewport()
+
+  const compactMode = below('medium')
+  const [menuPanelOpen, setMenuPanelOpen] = useState(!compactMode)
+
+  const toggleMenuPanel = useCallback(() => setMenuPanelOpen((v) => !v), [])
+  const closeMenuPanel = useCallback(() => {
+    setMenuPanelOpen(() => false)
+  }, [])
 
   useEffect(() => {
     function addUserProfile() {
@@ -67,7 +77,12 @@ function DashboardView({ children }) {
         overflow-x: hidden;
       `}
     >
-      <MenuPanel appsLoading={appsLoading} userApps={userApps} />
+      <MenuPanel
+        appsLoading={appsLoading}
+        onMenuPanelClose={closeMenuPanel}
+        opened={menuPanelOpen}
+        userApps={userApps}
+      />
       <main
         css={`
           height: auto;
@@ -76,15 +91,32 @@ function DashboardView({ children }) {
           flex-grow: 1;
           max-width: 1152px;
           margin: 0 auto;
-          padding-left: ${2 * GU}px;
-          padding-right: ${2 * GU}px;
+          ${!compactMode &&
+          `
+            padding-left: ${2 * GU}px;
+            padding-right: ${2 * GU}px;
+          `}
           -ms-overflow-style: none; /* IE and Edge */
           scrollbar-width: none; /* Firefox */
         `}
       >
-        <NavigationBar applications={userApps} />
+        <NavigationBar
+          applications={userApps}
+          toggleMenuPanel={toggleMenuPanel}
+        />
         <Spacer size={5 * GU} />
-        {children}
+        {compactMode ? (
+          <div
+            css={`
+              padding-left: ${2 * GU}px;
+              padding-right: ${2 * GU}px;
+            `}
+          >
+            {children}
+          </div>
+        ) : (
+          <>{children}</>
+        )}
         <Spacer size={2 * GU} />
       </main>
     </div>

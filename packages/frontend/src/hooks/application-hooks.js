@@ -16,37 +16,19 @@ export function useUserApplications() {
   } = useQuery(
     KNOWN_QUERY_SUFFIXES.USER_APPS,
     async function getUserApplications() {
-      const appPath = `${env('BACKEND_URL')}/api/applications`
       const lbPath = `${env('BACKEND_URL')}/api/lb`
 
       try {
-        const { data: appData } = await axios.get(appPath, {
-          withCredentials: true,
-        })
         const { data: lbData } = await axios.get(lbPath, {
           withCredentials: true,
         })
 
-        const userApps = appData.map(({ ...rest }) => ({
-          isLb: false,
-          ...rest,
-        }))
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
           ...rest,
         }))
 
-        const filteredApps = userApps.filter((app) => {
-          for (const { apps } of userLbs) {
-            if (apps.find((lbApp) => lbApp.appId === app.id)) {
-              return false
-            }
-          }
-
-          return true
-        })
-
-        return [...userLbs, ...filteredApps]
+        return [...userLbs]
       } catch (err) {
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {

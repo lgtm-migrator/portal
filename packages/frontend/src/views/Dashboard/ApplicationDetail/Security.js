@@ -144,11 +144,9 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                       ${textStyle('body2')}
                     `}
                   >
-                    Set up usage alerts to be warned when you are approaching
-                    your relay limits. The Portal automatically redirects all
-                    surplus relays to our backup infrastructure. If you want all
-                    relays to be unstoppable, stay under your limit or contact
-                    the team to up your stake.
+                    To maximize the security of your application, you should
+                    activate the private secret key for all requests and enable
+                    the use of whitelist user agents and origins.
                   </p>
                 </Box>
                 <Spacer size={3 * GU} />

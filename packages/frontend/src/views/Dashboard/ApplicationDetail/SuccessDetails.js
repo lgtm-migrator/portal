@@ -42,7 +42,6 @@ export default function SuccessDetails({
   weeklyRelayData,
 }) {
   const [activeKey, setActiveKey] = useState(SUCCESSFUL_RELAYS_KEY)
-  const history = useHistory()
   const theme = useTheme()
   const toast = useToast()
   const { within } = useViewport()
@@ -140,6 +139,12 @@ export default function SuccessDetails({
         <Split
           primary={
             <>
+              {compactMode && (
+                <>
+                  <NavigationOptions />
+                  <Spacer size={3 * GU} />
+                </>
+              )}
               <Box padding={[3 * GU, 4 * GU, 3 * GU, 4 * GU]}>
                 <div
                   css={`
@@ -220,6 +225,7 @@ export default function SuccessDetails({
                       </h2>
                     </div>
                   </Inline>
+                  {compactMode && <Spacer size={3 * GU} />}
                   <Inline>
                     <CircleGraph
                       value={Math.max(0, failureRate)}
@@ -260,7 +266,7 @@ export default function SuccessDetails({
                   </Inline>
                 </div>
               </Box>
-              <Spacer size={2 * GU} />
+              <Spacer size={3 * GU} />
               <Box padding={[0, 0, 0, 0]}>
                 <div
                   css={`
@@ -281,7 +287,7 @@ export default function SuccessDetails({
                   >
                     Failed requests
                   </Tab>
-                  <Spacer size={2 * GU} />
+                  <Spacer size={3 * GU} />
                 </div>
                 <Spacer size={5 * GU} />
                 <DataView
@@ -330,10 +336,13 @@ export default function SuccessDetails({
           }
           secondary={
             <>
-              <Button wide mode="strong" onClick={() => history.goBack()}>
-                Back to application
-              </Button>
-              <Spacer size={2 * GU} />
+              {!compactMode && (
+                <>
+                  <NavigationOptions />
+
+                  <Spacer size={2 * GU} />
+                </>
+              )}
               <AppStatus
                 maxDailyRelays={maxDailyRelays}
                 stakedTokens={stakedTokens}
@@ -343,6 +352,16 @@ export default function SuccessDetails({
         />
       )}
     />
+  )
+}
+
+function NavigationOptions() {
+  const history = useHistory()
+
+  return (
+    <Button wide mode="strong" onClick={() => history.goBack()}>
+      Back to application
+    </Button>
   )
 }
 

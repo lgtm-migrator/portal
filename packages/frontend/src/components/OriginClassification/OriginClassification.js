@@ -1,6 +1,13 @@
 import React, { useMemo } from 'react'
 import { useViewport } from 'use-viewport'
-import { DataView, Spacer, textStyle, useTheme, GU } from '@pokt-foundation/ui'
+import {
+  DataView,
+  Link,
+  Spacer,
+  textStyle,
+  useTheme,
+  GU,
+} from '@pokt-foundation/ui'
 import Box from '../Box/Box'
 import { useOriginClassification } from '../../hooks/application-hooks'
 import 'styled-components/macro'
@@ -17,12 +24,23 @@ export function OriginClassification({ id, maxRelays }) {
   const compactMode = within(-1, 'medium')
 
   const originClassification = useMemo(() => {
-    return originData ? originData : []
+    if (!originData) {
+      return []
+    }
+    return originData
   }, [originData])
 
   const totalRelays = originClassification.reduce((acc, { count = 0 }) => {
     return acc + count
   }, 0)
+
+  const processedOriginClassification = useMemo(() => {
+    return originClassification.map(({ origin, count }) => ({
+      origin,
+      count,
+      percentage: count / totalRelays,
+    }))
+  }, [originClassification, totalRelays])
 
   return (
     <Box
@@ -128,12 +146,42 @@ export function OriginClassification({ id, maxRelays }) {
       )}
       <DataView
         mode={compactMode ? 'list' : 'table'}
-        fields={[{ label: 'Origin' }, { label: 'Relays', align: 'left' }]}
+        fields={[
+          { label: 'Origin' },
+          { label: 'Relays', align: 'right' },
+          { label: 'Usage %' },
+        ]}
         status={isLoading ? 'loading' : 'default'}
-        entries={originClassification}
-        renderEntry={({ origin, count }, index) => {
+        entries={processedOriginClassification}
+        renderEntry={({ origin, count, percentage }, index) => {
           return [
-            <p>{origin ? origin : 'Unknown'}</p>,
+            <p
+              css={`
+                display: inline-block;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              `}
+            >
+              {origin ? (
+                <Link
+                  href={origin}
+                  css={`
+                    && {
+                      max-width: 200px;
+                      overflow: hidden;
+                      white-space: nowrap;
+                      text-overflow: ellipsis;
+                    }
+                  `}
+                >
+                  {origin}
+                </Link>
+              ) : (
+                'Unknown'
+              )}
+            </p>,
+            <p>{count}</p>,
             <p>
               <span
                 css={`
@@ -150,7 +198,7 @@ export function OriginClassification({ id, maxRelays }) {
                     0px 2px 8px 0px;
                 `}
               />
-              &nbsp;{count}
+              &nbsp;{percentage.toFixed(2)} %
             </p>,
           ]
         }}

@@ -6,17 +6,20 @@ import { useViewport } from 'use-viewport'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
 import {
+  Button,
   ButtonBase,
   DiscButton,
   IconCog,
   IconPerson,
   Link,
   Popover,
+  Spacer,
   textStyle,
   useTheme,
   GU,
   RADIUS,
 } from '@pokt-foundation/ui'
+import IconMenu from '../../components/MenuPanel/IconMenu'
 import env from '../../environment'
 import { shorten } from '../../lib/utils'
 import { sentryEnabled } from '../../sentry'
@@ -59,7 +62,7 @@ function useRouteTitle(applications = []) {
   return DEFAULT_TITLE
 }
 
-export default function NavigationBar({ applications = [] }) {
+export default function NavigationBar({ applications = [], toggleMenuPanel }) {
   const history = useHistory()
   const title = useRouteTitle(applications)
   const theme = useTheme()
@@ -83,8 +86,44 @@ export default function NavigationBar({ applications = [] }) {
       throw err
     }
   })
+  const { below } = useViewport()
+  const compact = below('medium')
 
-  return (
+  return compact ? (
+    <>
+      <div
+        css={`
+          display: flex;
+          flex-direction: row;
+          background: linear-gradient(
+            180deg,
+            ${theme.surfaceGradient1} 0%,
+            ${theme.surfaceGradient2} 100%
+          );
+          width: 100%;
+          height: ${7.5 * GU}px;
+          justify-content: space-between;
+          align-items: center;
+          padding-left: ${3 * GU}px;
+          padding-right: ${3 * GU}px;
+        `}
+      >
+        <MenuPanelButton onClick={toggleMenuPanel} />
+        <SettingsButton onLogout={onLogout} />
+      </div>
+      <Spacer size={1 * GU} />
+      <h1
+        css={`
+          display: inline-block;
+          flex-grow: 1;
+          ${textStyle('title2')}
+          padding-left: ${3 * GU}px;
+        `}
+      >
+        <span>{title}</span>
+      </h1>
+    </>
+  ) : (
     <nav
       css={`
         display: flex;
@@ -140,12 +179,20 @@ export default function NavigationBar({ applications = [] }) {
   )
 }
 
+function MenuPanelButton({ onClick }) {
+  return (
+    <Button icon={IconMenu} display="all" mode="strong" onClick={onClick}>
+      <IconMenu />
+    </Button>
+  )
+}
+
 function SettingsButton({ onLogout }) {
   const theme = useTheme()
-  const { below } = useViewport()
-
   const [opened, setOpened] = useState(false)
   const containerRef = useRef()
+  const { below } = useViewport()
+  const compact = below('medium')
 
   const handleToggle = useCallback(() => setOpened((opened) => !opened), [])
   const handleClose = useCallback(() => setOpened(false), [])
@@ -210,6 +257,13 @@ function SettingsButton({ onLogout }) {
           >
             Preferences
           </li>
+          {compact && (
+            <Item
+              href="https://discord.com/invite/uYs6Esum3r"
+              icon={IconCog}
+              label="Community"
+            />
+          )}
           <Item onClick={() => onLogout()} icon={IconCog} label="Logout" />
         </ul>
       </Popover>
@@ -217,7 +271,7 @@ function SettingsButton({ onLogout }) {
   )
 }
 
-function Item({ icon, label, onClick }) {
+function Item({ href = '', icon, label, onClick }) {
   const theme = useTheme()
 
   return (
@@ -230,6 +284,7 @@ function Item({ icon, label, onClick }) {
     >
       <ButtonBase
         onClick={onClick}
+        href={href}
         label={label}
         css={`
           width: 100%;

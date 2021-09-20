@@ -169,6 +169,15 @@ export default function Notifications({
         <Split
           primary={
             <>
+              {compactMode && (
+                <>
+                  <NavigationOptions
+                    onChangeSave={mutate}
+                    disabled={isSubmitDisabled}
+                  />
+                  <Spacer size={2 * GU} />
+                </>
+              )}
               <Box>
                 <p
                   css={`
@@ -176,7 +185,10 @@ export default function Notifications({
                   `}
                 >
                   Set up usage alerts to be warned when you are approaching your
-                  relay limits, to prevent any service interruption.
+                  relay limits. The Portal automatically redirects all surplus
+                  relays to our backup infrastructure. If you want all relays to
+                  be unstoppable, stay under your limit or contact the team to
+                  up your stake.
                 </p>
               </Box>
               <Spacer size={2 * GU} />
@@ -338,19 +350,15 @@ export default function Notifications({
           }
           secondary={
             <>
-              <Button
-                wide
-                mode="strong"
-                onClick={mutate}
-                disabled={isSubmitDisabled}
-              >
-                Save changes
-              </Button>
-              <Spacer size={2 * GU} />
-              <Button wide onClick={() => history.goBack()}>
-                Back to application
-              </Button>
-              <Spacer size={2 * GU} />
+              {!compactMode && (
+                <>
+                  <NavigationOptions
+                    onChangeSave={mutate}
+                    disabled={isSubmitDisabled}
+                  />
+                  <Spacer size={2 * GU} />
+                </>
+              )}
               <Box title="Activate alerts">
                 <p
                   css={`
@@ -394,6 +402,22 @@ export default function Notifications({
         />
       )}
     />
+  )
+}
+
+function NavigationOptions({ onChangeSave, disabled }) {
+  const history = useHistory()
+
+  return (
+    <>
+      <Button wide mode="strong" onClick={onChangeSave} disabled={disabled}>
+        Save changes
+      </Button>
+      <Spacer size={2 * GU} />
+      <Button wide onClick={() => history.goBack()}>
+        Back to application
+      </Button>
+    </>
   )
 }
 

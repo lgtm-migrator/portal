@@ -106,7 +106,7 @@ export function buildSuccessfulAppRelaysQuery({
   stop,
 }: AppQueryParams): string {
   return `
-successful_relays = from(bucket: "mainnetRelay60m")
+successful_relays = from(bucket: "mainnetRelayApp60m")
   |> range(start: ${start}, stop: ${stop})
   |> filter(fn: (r) =>
     r._measurement == "relay" and
@@ -131,7 +131,7 @@ export function buildTotalAppRelaysQuery({
   stop,
 }: AppQueryParams): string {
   return `
-total_relays = from(bucket: "mainnetRelay60m")
+total_relays = from(bucket: "mainnetRelayApp60m")
   |> range(start: ${start}, stop: ${stop})
   |> filter(fn: (r) =>
     r._measurement == "relay" and
@@ -156,7 +156,7 @@ export function buildSessionRelaysQuery({
   stop,
 }: AppQueryParams): string {
   return `
-from(bucket: "mainnetRelay10m")
+from(bucket: "mainnetRelayApp10m")
   |> range(start: ${start}, stop: ${stop})
   |> filter(fn: (r) =>
     r._measurement == "relay" and
@@ -180,7 +180,7 @@ export function buildDailyAppRelaysQuery({
   stop,
 }: AppQueryParams): string {
   return `
-from(bucket: "mainnetRelay1d")
+from(bucket: "mainnetRelayApp60m")
 |> range(start: ${start}, stop: ${stop})
 |> filter(fn: (r) =>
   r._measurement == "relay" and
@@ -191,6 +191,7 @@ from(bucket: "mainnetRelay1d")
   )}) and
   r.result == "200"
 )
+|> aggregateWindow(every: 24h, fn: mean, createEmpty: false)
 |> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
 |> keep(columns: ["_time", "_value"])
 |> aggregateWindow(every: 1d, fn: sum)
@@ -203,7 +204,7 @@ export function buildHourlyLatencyQuery({
   stop,
 }: AppQueryParams): string {
   return `
-from(bucket: "mainnetRelay60m")
+from(bucket: "mainnetRelayApp60m")
   |> range(start: ${start}, stop: ${stop})
 |> filter(fn: (r) =>
   r._measurement == "relay" and

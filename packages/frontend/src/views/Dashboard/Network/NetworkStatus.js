@@ -214,7 +214,7 @@ export default function NetworkStatus() {
                     }}
                   />
                 </Box>
-                <Spacer size={3 * GU} />
+                {!compactMode && <Spacer size={3 * GU} />}
               </>
             }
             secondary={
@@ -232,7 +232,7 @@ export default function NetworkStatus() {
                     `}
                   >
                     <CircleGraph
-                      size={20 * GU}
+                      size={compactMode ? 18 * GU : 20 * GU}
                       strokeWidth={GU}
                       value={
                         networkStats.successfulRelays / networkStats.totalRelays

@@ -329,6 +329,15 @@ export default function AppInfo({
           <Split
             primary={
               <>
+                {compactMode && (
+                  <>
+                    <NavigationOptions
+                      onOpenModal={onOpenModal}
+                      baseUrl={url}
+                    />
+                    <Spacer size={3 * GU} />
+                  </>
+                )}
                 <EndpointDetails
                   chainId={appData.chain}
                   appId={appData.id}
@@ -388,6 +397,7 @@ export default function AppInfo({
                     successRate={successRate}
                     totalRequests={weeklyRelayData.total_relays}
                   />
+                  {compactMode && <Spacer size={2 * GU} />}
                   <AvgLatency
                     avgLatency={avgLatency}
                     chartLines={barValues}
@@ -412,21 +422,15 @@ export default function AppInfo({
             }
             secondary={
               <>
-                <Button mode="strong" wide onClick={onOpenModal}>
-                  Switch chains
-                </Button>
-                <Spacer size={2 * GU} />
-                <Button wide onClick={() => history.push(`${url}/security`)}>
-                  App Security
-                </Button>
-                <Spacer size={2 * GU} />
-                <Button
-                  wide
-                  onClick={() => history.push(`${url}/notifications`)}
-                >
-                  Notification Setup
-                </Button>
-                <Spacer size={3 * GU} />
+                {!compactMode && (
+                  <>
+                    <NavigationOptions
+                      baseUrl={url}
+                      onOpenModal={onOpenModal}
+                    />
+                    <Spacer size={3 * GU} />
+                  </>
+                )}
                 <AppStatus
                   stakedTokens={stakedTokens}
                   maxDailyRelays={maxDailyRelays}
@@ -476,6 +480,33 @@ export default function AppInfo({
         </>
       )}
     />
+  )
+}
+
+function NavigationOptions({ baseUrl, onOpenModal }) {
+  const history = useHistory()
+  const { within } = useViewport()
+
+  const compactMode = within(-1, 'medium')
+
+  return (
+    <>
+      {!compactMode && (
+        <>
+          <Button mode="strong" wide onClick={onOpenModal}>
+            Switch chains
+          </Button>
+          <Spacer size={2 * GU} />
+          <Button wide onClick={() => history.push(`${baseUrl}/security`)}>
+            App Security
+          </Button>
+        </>
+      )}
+      <Spacer size={2 * GU} />
+      <Button wide onClick={() => history.push(`${baseUrl}/notifications`)}>
+        Notification Setup
+      </Button>
+    </>
   )
 }
 
@@ -936,12 +967,14 @@ function UsageTrends({
               Relays this session
             </span>
           </h4>
+          {compactMode && <Spacer size={3 * GU} />}
         </div>
         <div
           css={`
             ${!compactMode && `grid-column: 2;`}
           `}
         >
+          {compactMode && <Spacer size={3 * GU} />}
           <h3
             css={`
               ${textStyle('title2')}
