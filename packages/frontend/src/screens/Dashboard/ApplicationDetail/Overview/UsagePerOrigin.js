@@ -8,14 +8,13 @@ import {
   useTheme,
   GU,
 } from '@pokt-foundation/ui'
-import Box from '../Box/Box'
+import Box from '../../../../components/Box/Box'
 import { useOriginClassification } from '../../hooks/application-hooks'
 import 'styled-components/macro'
 
 const HIGHLIGHT_COLORS = ['#D27E31', '#55B02B', '#BB31D2', '#31ABD2', '#D2CC31']
 
-export function OriginClassification({ id, maxRelays }) {
-  const theme = useTheme()
+export default function UsagePerOrigin({ id, maxRelays }) {
   const { within } = useViewport()
   const { isLoading, originData } = useOriginClassification({
     id,
@@ -23,24 +22,24 @@ export function OriginClassification({ id, maxRelays }) {
 
   const compactMode = within(-1, 'medium')
 
-  const originClassification = useMemo(() => {
+  const usagePerOrigin = useMemo(() => {
     if (!originData) {
       return []
     }
     return originData
   }, [originData])
 
-  const totalRelays = originClassification.reduce((acc, { count = 0 }) => {
+  const totalRelays = usagePerOrigin.reduce((acc, { count = 0 }) => {
     return acc + count
   }, 0)
 
   const processedOriginClassification = useMemo(() => {
-    return originClassification.map(({ origin, count }) => ({
+    return usagePerOrigin.map(({ origin, count }) => ({
       origin,
       count,
       percentage: count / totalRelays,
     }))
-  }, [originClassification, totalRelays])
+  }, [usagePerOrigin, totalRelays])
 
   return (
     <Box
@@ -75,58 +74,11 @@ export function OriginClassification({ id, maxRelays }) {
             </p>
           </div>
           <Spacer size={GU / 2} />
-          <div
-            css={`
-              position: relative;
-              width: 100%;
-              height: ${1 * GU}px;
-            `}
-          >
-            <div
-              css={`
-                position: absolute;
-                top: -${GU / 2}px;
-                left: ${(totalRelays / maxRelays) * 100}%;
-                width: ${GU / 4}px;
-                height: ${GU * 1.5}px;
-                background: ${theme.accentAlternative};
-                &:before {
-                  content: '${Math.floor((totalRelays / maxRelays) * 100)}%';
-                  color: ${theme.accentAlternative};
-                  position: absolute;
-                  top: -${GU * 3}px;
-                  left: -${GU}px;
-                }
-              `}
-            />
-            <div
-              css={`
-                display: flex;
-                width: 100%;
-                overflow: hidden;
-                height: ${1 * GU}px;
-                background: #32404f;
-                border-radius: ${2.5 * GU}px;
-                div {
-                  height: ${1 * GU}px;
-                }
-              `}
-            >
-              {originClassification.map(({ origin, count }, index) => {
-                return (
-                  <div
-                    key={index}
-                    title={origin}
-                    style={{
-                      width: `${(count / maxRelays) * 100}%`,
-                      background:
-                        HIGHLIGHT_COLORS[index % HIGHLIGHT_COLORS.length],
-                    }}
-                  />
-                )
-              })}
-            </div>
-          </div>
+          <UsageBar
+            maxRelays={maxRelays}
+            totalRelays={totalRelays}
+            usagePerOrigin={usagePerOrigin}
+          />
           <Spacer size={GU / 2} />
           <p
             css={`
@@ -204,5 +156,63 @@ export function OriginClassification({ id, maxRelays }) {
         }}
       />
     </Box>
+  )
+}
+
+function UsageBar({ maxRelays, totalRelays, usagePerOrigin }) {
+  const theme = useTheme()
+
+  return (
+    <div
+      css={`
+        position: relative;
+        width: 100%;
+        height: ${1 * GU}px;
+      `}
+    >
+      <div
+        css={`
+          position: absolute;
+          top: -${GU / 2}px;
+          left: ${(totalRelays / maxRelays) * 100}%;
+          width: ${GU / 4}px;
+          height: ${GU * 1.5}px;
+          background: ${theme.accentAlternative};
+          &:before {
+            content: '${Math.floor((totalRelays / maxRelays) * 100)}%';
+            color: ${theme.accentAlternative};
+            position: absolute;
+            top: -${GU * 3}px;
+            left: -${GU}px;
+          }
+        `}
+      />
+      <div
+        css={`
+          display: flex;
+          width: 100%;
+          overflow: hidden;
+          height: ${1 * GU}px;
+          background: #32404f;
+          border-radius: ${2.5 * GU}px;
+          div {
+            height: ${1 * GU}px;
+          }
+        `}
+      >
+        {usagePerOrigin.map(({ origin, count }, index) => {
+          return (
+            <div
+              key={index}
+              title={origin}
+              style={{
+                width: `${(count / maxRelays) * 100}%`,
+                background: HIGHLIGHT_COLORS[index % HIGHLIGHT_COLORS.length],
+              }}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }

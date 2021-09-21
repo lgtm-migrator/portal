@@ -19,14 +19,14 @@ import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import {
-  useNetworkStats,
-  useTotalWeeklyRelays,
-  useNetworkSummary,
   useChains,
+  useNetworkStats,
+  useNetworkSummary,
+  useTotalWeeklyRelays,
 } from '../../../hooks/network-hooks'
+import Economics from '../../../assets/economics.jpg'
 import { getServiceLevelByChain } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
-import Economics from '../../../assets/economics.jpg'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 

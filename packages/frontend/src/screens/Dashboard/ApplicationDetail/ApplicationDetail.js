@@ -3,9 +3,9 @@ import { Switch, Route, useParams, useRouteMatch } from 'react-router'
 import 'styled-components/macro'
 import { Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
-import AppInfo from '../../Dashboard/ApplicationDetail/AppInfo'
 import Chains from '../../Dashboard/ApplicationDetail/Chains'
 import Notifications from '../../Dashboard/ApplicationDetail/Notifications'
+import Overview from '../../Dashboard/ApplicationDetail/Overview/Overview'
 import Security from '../../Dashboard/ApplicationDetail/Security'
 import SuccessDetails from '../../Dashboard/ApplicationDetail/SuccessDetails'
 import { useAppMetrics } from '../../../hooks/useAppMetrics'
@@ -38,8 +38,8 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
     activeApplication,
   })
   const [
-    { data: totalRelays },
-    { data: successfulRelays },
+    { data: totalRelaysData },
+    { data: successfulRelaysData },
     { data: dailyRelayData },
     { data: sessionRelayData },
     { data: previousSuccessfulRelayData },
@@ -54,6 +54,8 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
     previousSuccessfulRelayData
   )
   const previousRangedRelaysDep = JSON.stringify(previousRangedRelayData)
+  const successfulRelaysDep = JSON.stringify(successfulRelaysData)
+  const totalRelaysDep = JSON.stringify(totalRelaysData)
   const hourlyLatencyDep = JSON.stringify(hourlyLatencyData)
   const appOnChainDep = JSON.stringify(appOnChainData)
 
@@ -78,6 +80,16 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [previousRangedRelaysDep]
   )
+  const totalRelays = useMemo(
+    () => totalRelaysData?.total_relays ?? 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [totalRelaysDep]
+  )
+  const successfulRelays = useMemo(
+    () => successfulRelaysData?.total_relays ?? 0,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [successfulRelaysDep]
+  )
   const hourlyLatency = useMemo(
     () => hourlyLatencyData?.hourly_latency ?? [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,17 +108,17 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
   ) : (
     <Switch>
       <Route exact path={path}>
-        <AppInfo
+        <Overview
           appData={activeApplication}
           currentSessionRelays={currentSessionRelays}
-          dailyRelayData={dailyRelays}
+          dailyRelays={dailyRelays}
+          hourlyLatency={hourlyLatency}
           maxDailyRelays={maxDailyRelays}
-          previousSuccessfulRelays={previousSuccessfulRelays}
           previousRelays={previousRangedRelays}
+          previousSuccessfulRelays={previousSuccessfulRelays}
           stakedTokens={stakedTokens}
-          successfulRelayData={successfulRelays}
-          weeklyRelayData={totalRelays}
-          latestLatencyData={hourlyLatency}
+          successfulRelays={successfulRelays}
+          totalRelays={totalRelays}
         />
       </Route>
       <Route path={`${path}/security`}>
@@ -123,8 +135,8 @@ function ApplicationDetail({ activeApplication, refetchActiveAppData }) {
           isLb={activeApplication.isLb}
           maxDailyRelays={maxDailyRelays}
           stakedTokens={stakedTokens}
-          successfulRelayData={successfulRelays}
-          weeklyRelayData={totalRelays}
+          successfulRelays={successfulRelays}
+          totalRelays={totalRelays}
         />
       </Route>
       <Route path={`${path}/notifications`}>

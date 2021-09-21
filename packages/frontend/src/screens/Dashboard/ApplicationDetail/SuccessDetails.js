@@ -38,8 +38,8 @@ export default function SuccessDetails({
   isLb,
   maxDailyRelays,
   stakedTokens,
-  successfulRelayData,
-  weeklyRelayData,
+  successfulRelays,
+  totalRelays,
 }) {
   const [activeKey, setActiveKey] = useState(SUCCESSFUL_RELAYS_KEY)
   const theme = useTheme()
@@ -111,16 +111,13 @@ export default function SuccessDetails({
   )
   const onFailedClick = useCallback(() => setActiveKey(FAILED_RELAYS_KEY), [])
   const successRate = useMemo(() => {
-    return weeklyRelayData.total_relays === 0
-      ? 0
-      : successfulRelayData.total_relays / weeklyRelayData.total_relays
-  }, [weeklyRelayData, successfulRelayData])
+    return totalRelays === 0 ? 0 : successfulRelays / totalRelays
+  }, [totalRelays, successfulRelays])
   const failureRate = useMemo(() => {
-    return weeklyRelayData.total_relays === 0
+    return totalRelays === 0
       ? 0
-      : (weeklyRelayData.total_relays - successfulRelayData.total_relays) /
-          weeklyRelayData.total_relays
-  }, [successfulRelayData, weeklyRelayData])
+      : (totalRelays - successfulRelays) / totalRelays
+  }, [successfulRelays, totalRelays])
 
   const displayData = useMemo(() => {
     if (activeKey === SUCCESSFUL_RELAYS_KEY) {
@@ -129,8 +126,6 @@ export default function SuccessDetails({
       return data?.failedRelays ?? []
     }
   }, [activeKey, data])
-
-  log(weeklyRelayData.total_relays - successfulRelayData.total_relays)
 
   return (
     <FloatUp
@@ -170,7 +165,7 @@ export default function SuccessDetails({
                         ${textStyle('title1')}
                       `}
                     >
-                      {Intl.NumberFormat().format(weeklyRelayData.total_relays)}
+                      {Intl.NumberFormat().format(totalRelays)}
                       <span
                         css={`
                           display: block;
@@ -202,10 +197,7 @@ export default function SuccessDetails({
                         `}
                       >
                         {Intl.NumberFormat().format(
-                          Math.min(
-                            successfulRelayData.total_relays,
-                            weeklyRelayData.total_relays
-                          )
+                          Math.min(successfulRelays, totalRelays)
                         )}
                         <span
                           css={`
@@ -240,11 +232,7 @@ export default function SuccessDetails({
                         `}
                       >
                         {Intl.NumberFormat().format(
-                          Math.max(
-                            weeklyRelayData.total_relays -
-                              successfulRelayData.total_relays,
-                            0
-                          )
+                          Math.max(totalRelays - successfulRelays, 0)
                         )}
                         <span
                           css={`
