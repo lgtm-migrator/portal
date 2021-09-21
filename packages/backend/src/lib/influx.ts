@@ -180,7 +180,7 @@ export function buildDailyAppRelaysQuery({
   stop,
 }: AppQueryParams): string {
   return `
-from(bucket: "mainnetRelayApp60m")
+from(bucket: "mainnetRelayApp1d")
 |> range(start: ${start}, stop: ${stop})
 |> filter(fn: (r) =>
   r._measurement == "relay" and
