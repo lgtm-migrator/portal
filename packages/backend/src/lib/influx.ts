@@ -21,7 +21,7 @@ export const influx = new InfluxDB({
 }).getQueryApi(env('INFLUX_ORG') as string)
 
 export const NETWORK_AGGREGATES_QUERY = `
-success = from(bucket: "mainnetRelay1d")
+success = from(bucket: "mainnetRelayApp1d")
 |> range(start: -168h, stop: -0h)
 |> filter(fn: (r) =>
   r._measurement == "relay" and
@@ -34,7 +34,7 @@ success = from(bucket: "mainnetRelay1d")
 |> sum()
 |> map(fn: (r) => ({r with sync: "1", _field: "success"}))
 
-total = from(bucket: "mainnetRelay1d")
+total = from(bucket: "mainnetRelayApp1d")
 |> range(start: -168h, stop: -0h)
 |> filter(fn: (r) =>
   r._measurement == "relay" and
@@ -66,7 +66,7 @@ union(
 `
 
 export const DAILY_NETWORK_RELAYS_QUERY = `
-from(bucket: "mainnetRelay60m")
+from(bucket: "mainnetRelayApp60m")
   |> range(start: -7d, stop: -0d)
   |> filter(fn: (r) =>
     r._measurement == "relay" and
@@ -85,7 +85,7 @@ export function buildSuccessfulNetworkRelaysQuery({
   stop,
 }: QueryParams): string {
   return `
-from(bucket: "mainnetRelay1d")
+from(bucket: "mainnetRelayApp1d")
   |> range(start: ${start}, stop: ${stop})
   |> filter(fn: (r) =>
     r._measurement == "relay" and
@@ -285,7 +285,7 @@ from(bucket: "mainnetOrigin60m")
 }
 
 export const APPLICATION_USAGE_QUERY = `
-total = from(bucket: "mainnetRelay1d")
+total = from(bucket: "mainnetRelayApp1d")
   |> range(start: -30d, stop: -0d)
   |> filter(fn: (r) =>
     r._measurement == "relay" and
