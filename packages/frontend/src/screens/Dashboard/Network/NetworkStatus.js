@@ -6,6 +6,7 @@ import {
   ButtonBase,
   CircleGraph,
   DataView,
+  Help,
   LineChart,
   Spacer,
   Split,
@@ -25,7 +26,11 @@ import {
   useTotalWeeklyRelays,
 } from '../../../hooks/network-hooks'
 import Economics from '../../../assets/economics.jpg'
-import { getServiceLevelByChain } from '../../../lib/chain-utils'
+import {
+  getServiceLevelByChain,
+  ALPHA_CHAINS,
+  PRODUCTION_CHAINS,
+} from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -209,7 +214,29 @@ export default function NetworkStatus() {
                           {description || network}
                         </p>,
                         <p>{id}</p>,
-                        <p>{getServiceLevelByChain(id)}</p>,
+                        <div
+                          css={`
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: center;
+                            align-items: center;
+                          `}
+                        >
+                          <p>{getServiceLevelByChain(id)}</p>
+                          <Spacer size={1 * GU} />
+                          <Help hint="What is this?">
+                            {PRODUCTION_CHAINS.includes(id)
+                              ? 'Production RelayChainIDs are very stable and thoroughly tested.'
+                              : ''}
+                            {ALPHA_CHAINS.includes(id)
+                              ? 'Alpha RelayChainIDs are in the earliest phase of node onboarding and testing. Users may encounter issues, higher than production latency, or some quality of service issues. '
+                              : ''}
+                            {!PRODUCTION_CHAINS.includes(id) &&
+                            !ALPHA_CHAINS.includes(id)
+                              ? 'Beta RelayChainIDs are in the process of being externally tested. Users may encounter edge case issues, higher than production latency, or some brief quality of service issues. '
+                              : ''}
+                          </Help>
+                        </div>,
                       ]
                     }}
                   />
