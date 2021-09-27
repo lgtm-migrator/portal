@@ -7,7 +7,7 @@ import { prefixFromChainId } from '../../../../lib/chain-utils'
 export default function EndpointDetails({ appData }) {
   const toast = useToast()
 
-  const { chainId, appId, isLb } = appData
+  const { chain: chainId, id: appId, isLb } = appData
   const { prefix, name } = prefixFromChainId(chainId)
 
   const endpoint = useMemo(

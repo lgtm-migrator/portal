@@ -9,7 +9,7 @@ import {
   GU,
 } from '@pokt-foundation/ui'
 import Box from '../../../../components/Box/Box'
-import { useOriginClassification } from '../../hooks/application-hooks'
+import { useOriginClassification } from '../../../../hooks/application-hooks'
 import 'styled-components/macro'
 
 const HIGHLIGHT_COLORS = ['#D27E31', '#55B02B', '#BB31D2', '#31ABD2', '#D2CC31']

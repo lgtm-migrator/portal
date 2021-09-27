@@ -23,7 +23,7 @@ import {
   SwitchInfoModal,
 } from './ActionModals'
 import EndpointDetails from './EndpointDetails'
-import GatewayPanel from './GatewayPanel'
+import GatewayPanel, { AddressPanel } from './GatewayPanel'
 import LatencyPanel from './LatencyPanel'
 import SuccessPanel from './SuccessPanel'
 import UsagePanel from './UsagePanel'
@@ -331,6 +331,8 @@ export default function Overview({
                   id={appData.id}
                   secret={appData.gatewaySettings.secretKey}
                 />
+                <Spacer size={3 * GU} />
+                <AddressPanel apps={appData.apps} />
                 <ButtonBase
                   css={`
                     && {
