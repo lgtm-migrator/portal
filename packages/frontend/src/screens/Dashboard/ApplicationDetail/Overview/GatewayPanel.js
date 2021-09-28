@@ -78,7 +78,7 @@ export default function GatewayPanel({ apps, id, secret }) {
 }
 
 export function AddressPanel({ apps }) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const [mode, setMode] = useState('normal')
   const theme = useTheme()
   const toast = useToast()
