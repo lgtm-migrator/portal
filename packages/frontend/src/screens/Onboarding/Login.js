@@ -173,7 +173,7 @@ export default function Login() {
           <Spacer size={3 * GU} />
           <Button
             type="submit"
-            mode="strong"
+            mode="primary"
             disabled={isSubmitDisabled}
             onClick={(e) => {
               e.preventDefault()

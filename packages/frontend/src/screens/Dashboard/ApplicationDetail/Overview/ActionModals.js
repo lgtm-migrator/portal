@@ -12,6 +12,7 @@ export function SwitchInfoModal({ onClose, onSwitch, visible }) {
     <Modal
       visible={visible}
       onClose={onClose}
+      width={compactMode ? '300px' : '696px'}
       css={`
         & > div > div > div > div {
           padding: 0 !important;
@@ -32,37 +33,37 @@ export function SwitchInfoModal({ onClose, onSwitch, visible }) {
             to update it across your apps to maintain service. The previous
             endpoint will remain available for 24 hours before it is unstaked.
           </p>
+          <Spacer size={3 * GU} />
+          <p
+            css={`
+              ${!compactMode && `text-align: center;`}
+            `}
+          >
+            Do you want to continue?
+          </p>
+          <Spacer size={5 * GU} />
+          <div
+            css={`
+              display: flex;
+              ${compactMode && `flex-direction: column-reverse;`}
+              justify-content: center;
+              align-items: center;
+              padding-left: ${2 * GU}px;
+              padding-right: ${2 * GU}px;
+            `}
+          >
+            <Spacer size={6 * GU} />
+            <Button onClick={onClose} wide>
+              Cancel
+            </Button>
+            <Spacer size={6 * GU} />
+            <Button mode="primary" wide onClick={onSwitch}>
+              Switch chains
+            </Button>
+            <Spacer size={6 * GU} />
+          </div>
+          <Spacer size={3 * GU} />
         </Banner>
-        <Spacer size={3 * GU} />
-        <p
-          css={`
-            ${!compactMode && `text-align: center;`}
-          `}
-        >
-          Do you want to continue?
-        </p>
-        <Spacer size={3 * GU} />
-        <div
-          css={`
-            display: flex;
-            ${compactMode && `flex-direction: column-reverse;`}
-            justify-content: center;
-            align-items: center;
-            padding-left: ${2 * GU}px;
-            padding-right: ${2 * GU}px;
-          `}
-        >
-          <Spacer size={6 * GU} />
-          <Button onClick={onClose} wide>
-            Cancel
-          </Button>
-          <Spacer size={6 * GU} />
-          <Button mode="strong" wide onClick={onSwitch}>
-            Switch chains
-          </Button>
-          <Spacer size={6 * GU} />
-        </div>
-        <Spacer size={4 * GU} />
       </div>
     </Modal>
   )
@@ -77,6 +78,7 @@ export function RemoveAppModal({ onClose, onRemove, visible }) {
     <Modal
       visible={visible}
       onClose={onClose}
+      width={compactMode ? '300px' : '696px'}
       css={`
         & > div > div > div > div {
           padding: 0 !important;
@@ -99,11 +101,28 @@ export function RemoveAppModal({ onClose, onRemove, visible }) {
             css={`
               display: flex;
               ${compactMode && `flex-direction: column-reverse;`}
-              justify-content: center;
-              align-items: center;
             `}
           >
-            <Button wide onClick={onRemove}>
+            <Button
+              onClick={onClose}
+              css={`
+                && {
+                  width: ${29 * GU}px;
+                }
+              `}
+            >
+              Cancel
+            </Button>
+            <Spacer size={6 * GU} />
+            <Button
+              mode="primary"
+              onClick={onRemove}
+              css={`
+                && {
+                  width: ${29 * GU}px;
+                }
+              `}
+            >
               Remove
             </Button>
           </div>
@@ -114,10 +133,15 @@ export function RemoveAppModal({ onClose, onRemove, visible }) {
 }
 
 export function SwitchDenialModal({ onClose, visible }) {
+  const { within } = useViewport()
+
+  const compactMode = within(-1, 'medium')
+
   return (
     <Modal
       visible={visible}
       onClose={onClose}
+      width={compactMode ? '300px' : '696px'}
       css={`
         & > div > div > div > div {
           padding: 0 !important;

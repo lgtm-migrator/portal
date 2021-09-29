@@ -181,7 +181,7 @@ export default function NavigationBar({ applications = [], toggleMenuPanel }) {
 
 function MenuPanelButton({ onClick }) {
   return (
-    <Button icon={IconMenu} display="all" mode="strong" onClick={onClick}>
+    <Button icon={IconMenu} display="all" mode="primary" onClick={onClick}>
       <IconMenu />
     </Button>
   )

@@ -410,7 +410,7 @@ function NavigationOptions({ onChangeSave, disabled }) {
 
   return (
     <>
-      <Button wide mode="strong" onClick={onChangeSave} disabled={disabled}>
+      <Button wide mode="primary" onClick={onChangeSave} disabled={disabled}>
         Save changes
       </Button>
       <Spacer size={2 * GU} />

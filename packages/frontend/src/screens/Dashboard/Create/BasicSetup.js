@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import {
   Button,
@@ -15,6 +16,7 @@ import {
 } from '@pokt-foundation/ui'
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
+import { getImageForChain } from '../../../known-chains/known-chains'
 import { ALPHA_CHAINS, PRODUCTION_CHAINS } from '../../../lib/chain-utils'
 import {
   FREE_TIER_MAX_RELAYS,
@@ -30,6 +32,8 @@ export default function BasicSetup({
   chains,
 }) {
   const [chainName, setChainName] = useState('')
+  const { within } = useViewport()
+  const compactMode = within(-1, 'medium')
 
   const onSetChainName = useCallback((e) => {
     setChainName(e.target.value)
@@ -142,52 +146,77 @@ export default function BasicSetup({
                     <IconSearch />
                   </div>
                 }
-                adornmentPosition="end"
+                adornmentPosition="start"
                 wide
               />
               <Spacer size={2 * GU} />
               <DataView
-                fields={['', 'Network', 'Apps', 'Status']}
+                fields={['', '', 'Network', 'Apps', 'Status']}
                 entries={filteredChains}
                 renderEntry={({
                   appCount,
                   description,
                   id,
                   isAvailableForStaking,
-                }) => [
-                  <Switch
-                    onChange={() => onSwitchClick(id)}
-                    checked={data.selectedNetwork === id}
-                    disabled={!isAvailableForStaking}
-                  />,
-                  <p>{description}</p>,
-                  <p>{appCount}</p>,
-                  <div
-                    css={`
-                      display: flex;
-                      flex-direction: row;
-                      justify-content: center;
-                      align-items: center;
-                    `}
-                  >
-                    <p>
-                      {PRODUCTION_CHAINS.includes(id) ? 'Production' : 'Beta'}
-                    </p>
-                    <Spacer size={1 * GU} />
-                    <Help hint="What is this?">
-                      {PRODUCTION_CHAINS.includes(id)
-                        ? 'Production RelayChainIDs are very stable and thoroughly tested.'
-                        : ''}
-                      {ALPHA_CHAINS.includes(id)
-                        ? 'Alpha RelayChainIDs are in the earliest phase of node onboarding and testing. Users may encounter issues, higher than production latency, or some quality of service issues. '
-                        : ''}
-                      {!PRODUCTION_CHAINS.includes(id) &&
-                      !ALPHA_CHAINS.includes(id)
-                        ? 'Beta RelayChainIDs are in the process of being externally tested. Users may encounter edge case issues, higher than production latency, or some brief quality of service issues. '
-                        : ''}
-                    </Help>
-                  </div>,
-                ]}
+                }) => {
+                  const chainImage = getImageForChain(description)
+
+                  return [
+                    <Switch
+                      onChange={() => onSwitchClick(id)}
+                      checked={data.selectedNetwork === id}
+                      disabled={!isAvailableForStaking}
+                    />,
+                    <div
+                      css={`
+                        height: 100%;
+                        width: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                      `}
+                    >
+                      <img
+                        src={chainImage}
+                        css={`
+                          max-height: ${2 * GU}px;
+                          max-width: auto;
+                        `}
+                        alt=""
+                      />
+                    </div>,
+                    <p>{description}</p>,
+                    <p>{appCount}</p>,
+                    <div
+                      css={`
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+                        align-items: center;
+                      `}
+                    >
+                      <p>
+                        {PRODUCTION_CHAINS.includes(id) ? 'Production' : 'Beta'}
+                      </p>
+                      <Spacer size={1 * GU} />
+                      <Help
+                        hint="What is this?"
+                        placement={compactMode ? 'auto' : 'right'}
+                      >
+                        {PRODUCTION_CHAINS.includes(id)
+                          ? 'Production RelayChainIDs are very stable and thoroughly tested.'
+                          : ''}
+                        {ALPHA_CHAINS.includes(id)
+                          ? 'Alpha RelayChainIDs are in the earliest phase of node onboarding and testing. Users may encounter issues, higher than production latency, or some quality of service issues. '
+                          : ''}
+                        {!PRODUCTION_CHAINS.includes(id) &&
+                        !ALPHA_CHAINS.includes(id)
+                          ? 'Beta RelayChainIDs are in the process of being externally tested. Users may encounter edge case issues, higher than production latency, or some brief quality of service issues. '
+                          : ''}
+                      </Help>
+                    </div>,
+                  ]
+                }}
               />
             </Box>
           </>
@@ -198,7 +227,7 @@ export default function BasicSetup({
               wide
               onClick={onCreateApp}
               disabled={isCreateDisabled}
-              mode="strong"
+              mode="primary"
             >
               Launch Application
             </Button>

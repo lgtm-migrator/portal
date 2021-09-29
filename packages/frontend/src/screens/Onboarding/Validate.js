@@ -106,7 +106,7 @@ export default function Validate() {
             </p>
             <Spacer size={3 * GU} />
             <Button
-              mode="strong"
+              mode="primary"
               onClick={goToLogin}
               css={`
                 && {
@@ -129,7 +129,7 @@ export default function Validate() {
             </p>
             <Spacer size={4 * GU} />
             <Button
-              mode="strong"
+              mode="primary"
               onClick={goToLogin}
               css={`
                 && {

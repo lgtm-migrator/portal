@@ -240,6 +240,8 @@ function MenuPanelGroup({ active, activeIndex, appsLoading, instances }) {
       if (activeIndex !== -1) {
         return activeIndex
       }
+
+      return -1
     },
     -1
   )

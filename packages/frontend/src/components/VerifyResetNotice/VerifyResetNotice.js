@@ -55,7 +55,7 @@ export default function VerifyNotice({ email, mode = 'verify' }) {
       </Paragraph>
       <Spacer size={3 * GU} />
       <Button
-        mode="strong"
+        mode="primary"
         css={`
           && {
             width: ${22 * GU}px;

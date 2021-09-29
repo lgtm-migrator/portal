@@ -268,7 +268,7 @@ function ResetPasswordForm({
           css={`
             margin-bottom: ${2 * GU}px;
           `}
-          mode="strong"
+          mode="primary"
           disabled={isSubmitDisabled}
           onClick={mutate}
         >
@@ -304,7 +304,7 @@ function ResetSuccessful() {
       </p>
       <Spacer size={3 * GU} />
       <Button
-        mode="strong"
+        mode="primary"
         onClick={goToLogin}
         css={`
           && {

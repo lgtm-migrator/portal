@@ -353,7 +353,7 @@ function SignupForm({
           </label>
           <Button
             type="submit"
-            mode="strong"
+            mode="primary"
             disabled={isSubmitDisabled}
             onClick={(e) => {
               e.preventDefault()

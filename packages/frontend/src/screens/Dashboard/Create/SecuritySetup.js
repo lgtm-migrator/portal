@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react'
+import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import {
   Button,
@@ -24,6 +25,8 @@ import {
 export default function SecuritySetup({ data, decrementScreen, updateData }) {
   const [userAgent, setUserAgent] = useState('')
   const [origin, setOrigin] = useState('')
+  const { within } = useViewport()
+  const compactMode = within(-1, 'medium')
 
   const onWhitelistedUserAgentDelete = useCallback(
     (userAgent) => {
@@ -124,7 +127,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
                   Secret key required
                 </h3>
                 <Spacer size={1 * GU} />
-                <Help hint="What is this?">
+                <Help
+                  hint="What is this?"
+                  placement={compactMode ? 'auto' : 'right'}
+                >
                   Turn this on if you want to have an extra layer of security
                   for all of your requests. You'll have to send a password with
                   each request that we will verify. You'll have access to this

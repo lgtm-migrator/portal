@@ -155,7 +155,7 @@ export default function SwitchChains({ appData }) {
             <>
               <Button
                 wide
-                mode="strong"
+                mode="primary"
                 disabled={isSubmitDisabled}
                 onClick={mutate}
               >

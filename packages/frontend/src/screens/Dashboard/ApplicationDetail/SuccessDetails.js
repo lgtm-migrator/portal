@@ -347,7 +347,7 @@ function NavigationOptions() {
   const history = useHistory()
 
   return (
-    <Button wide mode="strong" onClick={() => history.goBack()}>
+    <Button wide mode="primary" onClick={() => history.goBack()}>
       Back to application
     </Button>
   )

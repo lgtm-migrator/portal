@@ -101,7 +101,7 @@ export default function ForgotPassword() {
             margin-bottom: ${2 * GU}px;
             width: ${22 * GU}px;
           `}
-          mode="strong"
+          mode="primary"
           disabled={isLoading}
           onClick={(e) => mutate(e)}
         >

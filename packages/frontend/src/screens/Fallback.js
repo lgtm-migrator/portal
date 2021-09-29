@@ -1,7 +1,13 @@
 import React from 'react'
 import 'styled-components/macro'
-import { Button, GU, Link, Spacer, textStyle } from '@pokt-foundation/ui'
-import Box from '../components/Box/Box'
+import {
+  Banner,
+  Button,
+  GU,
+  Link,
+  Spacer,
+  textStyle,
+} from '@pokt-foundation/ui'
 
 export default function Fallback() {
   return (
@@ -16,30 +22,46 @@ export default function Fallback() {
         padding: ${2 * GU}px;
       `}
     >
-      <Box
-        title="An error has ocurred."
+      <div
         css={`
           max-width: ${87 * GU}px;
-          background: #192332;
         `}
       >
-        <p
-          css={`
-            ${textStyle('body2')}
-            color: #fff;
-          `}
-        >
-          Oh no, the Portal has inexplicably closed! Click Reload to try opening
-          it again. If this issue persists,&nbsp;
-          <Link href="https://discord.gg/uCZZkHTQjV">
-            contact us on Discord.
-          </Link>
-        </p>
-        <Spacer size={2 * GU} />
-        <Button wide onClick={() => window.location.reload()}>
-          Reload
-        </Button>
-      </Box>
+        <Banner mode="error" title="Something went wrong">
+          <p
+            css={`
+              ${textStyle('body2')}
+              color: #fff;
+            `}
+          >
+            Oh no, the Portal has inexplicably closed! Click Reload to try
+            opening it again. If this issue persists,&nbsp;
+            <Link href="https://discord.gg/uCZZkHTQjV">
+              contact us on Discord.
+            </Link>
+          </p>
+          <Spacer size={5 * GU} />
+          <div
+            css={`
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <Button
+              onClick={() => window.location.reload()}
+              css={`
+                && {
+                  width: ${27 * GU}px;
+                }
+              `}
+            >
+              Reload
+            </Button>
+          </div>
+        </Banner>
+      </div>
     </div>
   )
 }

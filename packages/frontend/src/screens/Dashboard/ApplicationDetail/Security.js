@@ -28,11 +28,6 @@ import {
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 
-const ADDORNMENT_SETTINGS = {
-  width: 36,
-  padding: 4,
-}
-
 export default function Security({ appData, stakedTokens, maxDailyRelays }) {
   const [origin, setOrigin] = useState('')
   const [origins, setOrigins] = useState([])
@@ -193,7 +188,14 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                     value={userAgent}
                     onChange={(e) => setUserAgent(e.target.value)}
                     adornment={
-                      <ButtonBase onClick={setWhitelistedUserAgent}>
+                      <ButtonBase
+                        onClick={setWhitelistedUserAgent}
+                        css={`
+                          && {
+                            display: flex;
+                          }
+                        `}
+                      >
                         <IconPlus />
                       </ButtonBase>
                     }
@@ -215,7 +217,6 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                           onCopy={() => onDeleteUserAgentClick(agent)}
                           value={agent}
                           adornment={<IconCross />}
-                          adornmentSettings={ADDORNMENT_SETTINGS}
                           css={`
                             width: 100%;
                             padding-left: 0;
@@ -238,11 +239,17 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                     value={origin}
                     onChange={(e) => setOrigin(e.target.value)}
                     adornment={
-                      <ButtonBase onClick={setWhitelistedOrigin}>
+                      <ButtonBase
+                        onClick={setWhitelistedOrigin}
+                        css={`
+                          && {
+                            display: flex;
+                          }
+                        `}
+                      >
                         <IconPlus />
                       </ButtonBase>
                     }
-                    adornmentSettings={ADDORNMENT_SETTINGS}
                     adornmentPosition="end"
                   />
                   <ul
@@ -273,7 +280,7 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
             }
             secondary={
               <>
-                <Button wide mode="strong" onClick={mutate}>
+                <Button wide mode="primary" onClick={mutate}>
                   Save Changes
                 </Button>
                 <Spacer size={2 * GU} />

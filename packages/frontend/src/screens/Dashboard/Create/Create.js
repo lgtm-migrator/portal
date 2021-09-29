@@ -11,7 +11,7 @@ import SecuritySetup from './SecuritySetup'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUser } from '../../../contexts/UserContext'
 import { useUserApps } from '../../../contexts/AppsContext'
-import { getPriorityLevelByChain } from '../../../lib/chain-utils'
+import { processChains } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
 import { log } from '../../../lib/utils'
 import { trackEvent } from '../../../lib/analytics'
@@ -159,12 +159,7 @@ export default function Create() {
           data: { chains },
         } = res
 
-        return chains.sort((a, b) => {
-          const priorityA = getPriorityLevelByChain(a.id)
-          const priorityB = getPriorityLevelByChain(b.id)
-
-          return priorityA - priorityB
-        })
+        return processChains(chains)
       } catch (err) {
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
@@ -240,7 +235,8 @@ export default function Create() {
     if (
       userApps.length >= MAX_USER_APPS &&
       userID &&
-      !env('GODMODE_ACCOUNTS').includes(userID)
+      !env('GODMODE_ACCOUNTS').includes(userID) &&
+      env('PROD')
     ) {
       setCreationModalVisible(true)
     }

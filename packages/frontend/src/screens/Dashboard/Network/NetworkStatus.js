@@ -19,6 +19,7 @@ import VisuallyHidden from '@reach/visually-hidden'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
+import { getImageForChain } from '../../../known-chains/known-chains'
 import {
   useChains,
   useNetworkStats,
@@ -195,15 +196,39 @@ export default function NetworkStatus() {
                 <Box title="Available Networks">
                   <DataView
                     fields={[
+                      { label: ' ', align: 'start' },
                       { label: 'Network', align: 'start' },
+                      { label: 'Apps', align: 'start' },
                       { label: 'ID', align: 'start' },
                       { label: 'Status', align: 'start' },
                     ]}
                     entries={chains}
                     mode={compactMode ? 'list' : 'table'}
                     entriesPerPage={PER_PAGE}
-                    renderEntry={({ description, id, network }) => {
+                    renderEntry={({ appCount, description, id, network }) => {
+                      console.log(description)
+
+                      const chainImage = getImageForChain(description)
+
                       return [
+                        <div
+                          css={`
+                            height: 100%;
+                            width: 100%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                          `}
+                        >
+                          <img
+                            src={chainImage}
+                            css={`
+                              max-height: ${2 * GU}px;
+                              max-width: auto;
+                            `}
+                            alt=""
+                          />
+                        </div>,
                         <p
                           css={`
                             overflow-wrap: break-word;
@@ -213,6 +238,7 @@ export default function NetworkStatus() {
                         >
                           {description || network}
                         </p>,
+                        <p>{appCount}</p>,
                         <p>{id}</p>,
                         <div
                           css={`
@@ -224,7 +250,10 @@ export default function NetworkStatus() {
                         >
                           <p>{getServiceLevelByChain(id)}</p>
                           <Spacer size={1 * GU} />
-                          <Help hint="What is this?">
+                          <Help
+                            hint="What is this?"
+                            placement={compactMode ? 'auto' : 'right'}
+                          >
                             {PRODUCTION_CHAINS.includes(id)
                               ? 'Production RelayChainIDs are very stable and thoroughly tested.'
                               : ''}
@@ -385,7 +414,7 @@ function EconomicsSection() {
       <VisuallyHidden>Pocket Economics for App Developers</VisuallyHidden>
       <ButtonBase
         href="https://medium.com/pocket-network/pocket-economics-for-app-developers-487a6ce290c2"
-        mode="strong"
+        mode="primary"
         css={`
           && {
             position: absolute;

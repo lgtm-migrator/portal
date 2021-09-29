@@ -385,7 +385,7 @@ function NavigationOptions({ baseUrl, onOpenModal }) {
     <>
       {!compactMode && (
         <>
-          <Button mode="strong" wide onClick={onOpenModal}>
+          <Button mode="primary" wide onClick={onOpenModal}>
             Switch chains
           </Button>
           <Spacer size={2 * GU} />

@@ -43,7 +43,7 @@ export default function GatewayPanel({ apps, id, secret }) {
             margin-bottom: ${2 * GU}px;
           `}
         >
-          Gateway ID
+          Portal ID
         </h3>
         <TextCopy
           value={id}
@@ -142,7 +142,7 @@ export function AddressPanel({ apps }) {
               margin-bottom: ${2 * GU}px;
             `}
           >
-            App address{apps.length > 1 ? 'es' : ''}
+            POKT App Address{apps.length > 1 ? 'es' : ''}
           </h3>
           <h3
             css={`

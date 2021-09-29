@@ -56,3 +56,24 @@ export function getPriorityLevelByChain(chainId) {
   }
   return 1
 }
+
+export function processChains(chains) {
+  return chains
+    .sort((a, b) => {
+      const chainA = a.description.toUpperCase()
+      const chainB = b.description.toUpperCase()
+
+      if (chainA < chainB) {
+        return -1
+      } else if (chainA > chainB) {
+        return 1
+      }
+      return 0
+    })
+    .sort((a, b) => {
+      const priorityA = getPriorityLevelByChain(a.id)
+      const priorityB = getPriorityLevelByChain(b.id)
+
+      return priorityA - priorityB
+    })
+}
