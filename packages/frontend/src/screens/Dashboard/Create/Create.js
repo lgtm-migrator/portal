@@ -132,10 +132,10 @@ export default function Create() {
   } = useConfigureState()
   const {
     appName,
+    secretKeyRequired,
     selectedNetwork,
     whitelistOrigins,
     whitelistUserAgents,
-    secretKeyRequired,
   } = appConfigData
   const { isAppsLoading, userApps, userID } = useUserApps()
   const { email, userLoading } = useUser()
