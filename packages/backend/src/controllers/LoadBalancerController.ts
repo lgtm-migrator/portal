@@ -194,8 +194,8 @@ router.post(
         signedUp: false,
         quarter: false,
         half: false,
-        threeQuarters: false,
-        full: false,
+        threeQuarters: true,
+        full: true,
       },
     })
 

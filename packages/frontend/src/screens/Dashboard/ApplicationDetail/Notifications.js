@@ -211,7 +211,7 @@ export default function Notifications({
                       ${textStyle('title2')}
                     `}
                   >
-                    Weekly bandwidth usage
+                    Weekly Bandwidth Usage
                   </h2>
                   {compactMode && <Spacer size={1 * GU} />}
                   <h3
@@ -222,7 +222,7 @@ export default function Notifications({
                     Max relays per day: {maxRelays}
                   </h3>
                 </div>
-                <Spacer size={2 * GU} />
+                <Spacer size={compactMode ? 2 * GU : 5.5 * GU} />
                 <Inline>
                   <GraphContainer>
                     <CircleGraph
@@ -230,32 +230,20 @@ export default function Notifications({
                       size={GRAPH_SIZE}
                       color={averageUsageColor}
                     />
-                    <Spacer size={2 * GU} />
+                    <Spacer size={1 * GU} />
                     <Stack
                       css={`
                         display: flex;
                         flex-direction: column;
                       `}
                     >
-                      <h3
-                        css={`
-                          ${textStyle('body3')}
-                        `}
-                      >
-                        <span
-                          css={`
-                            display: block;
-                            ${textStyle('title3')}
-                            font-weight: 700;
-                          `}
-                        >
-                          AVG usage
-                        </span>
+                      <Title>
+                        <CenteredContainer>Max Usage</CenteredContainer>
                         {Intl.NumberFormat().format(
                           totalDailyRelays.toFixed(0)
                         )}{' '}
                         Relays
-                      </h3>
+                      </Title>
                     </Stack>
                   </GraphContainer>
                   <Spacer size={2 * GU} />
@@ -272,23 +260,10 @@ export default function Notifications({
                         flex-direction: column;
                       `}
                     >
-                      <h3
-                        css={`
-                          ${textStyle('body3')}
-                          text-align: center;
-                        `}
-                      >
-                        <span
-                          css={`
-                            display: block;
-                            ${textStyle('title3')}
-                            font-weight: 700;
-                          `}
-                        >
-                          Max usage
-                        </span>
+                      <Title>
+                        <CenteredContainer>Max Usage</CenteredContainer>
                         {Intl.NumberFormat().format(highestDailyAmount)} Relays
-                      </h3>
+                      </Title>
                     </Stack>
                   </GraphContainer>
                   <Spacer size={2 * GU} />
@@ -305,26 +280,18 @@ export default function Notifications({
                         flex-direction: column;
                       `}
                     >
-                      <h3
+                      <Title
                         css={`
                           ${textStyle('body3')}
                         `}
                       >
-                        <span
-                          css={`
-                            display: block;
-                            ${textStyle('title3')}
-                            font-weight: 700;
-                          `}
-                        >
-                          Min usage
-                        </span>
+                        <CenteredContainer>Min Usage</CenteredContainer>
                         {Intl.NumberFormat().format(lowestDailyAmount)} Relays
-                      </h3>
+                      </Title>
                     </Stack>
                   </GraphContainer>
                 </Inline>
-                <Spacer size={2 * GU} />
+                <Spacer size={5 * GU} />
                 <p
                   css={`
                     ${textStyle('body4')}
@@ -359,7 +326,7 @@ export default function Notifications({
                   <Spacer size={2 * GU} />
                 </>
               )}
-              <Box title="Activate alerts">
+              <Box title="Activate Alerts">
                 <p
                   css={`
                     ${textStyle('body2')}
@@ -502,11 +469,14 @@ function Inline({ children }) {
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
+        align-items: flex-start;
         flex-wrap: wrap;
+        max-width: ${66 * GU}px;
+        margin: 0 auto;
         ${compactMode &&
         `
           flex-direction: column;
-          align-items: flex-start;
+          align-items: ${compactMode ? `center` : `flex-start`};
         `}
       `}
     >
@@ -515,12 +485,25 @@ function Inline({ children }) {
   )
 }
 
+const Title = Styled.h3`
+  width: 100%;
+  ${textStyle('body3')}
+  text-align: center;
+`
+
+const CenteredContainer = Styled.span`
+  display: block;
+  ${textStyle('title3')}
+  font-weight: 700;
+`
+
 const GraphContainer = Styled.div`
   display: flex;
   flex-direction: column;
 `
 
 const Stack = Styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
