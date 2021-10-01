@@ -365,7 +365,7 @@ export default function NetworkStatus() {
                       >
                         Nodes Staked
                       </h2>{' '}
-                      <span>{5400}+</span>
+                      <span>{7000}+</span>
                     </li>
                     <Spacer size={2 * GU} />
                     <li>
@@ -377,7 +377,7 @@ export default function NetworkStatus() {
                       >
                         POKT Staked
                       </h2>{' '}
-                      <span>{242.99}m</span>
+                      <span>{12}m+</span>
                     </li>
                   </ul>
                 </Box>
