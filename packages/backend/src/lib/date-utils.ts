@@ -12,13 +12,7 @@ export function composeDaysFromNowUtcDate(daysAgo: number): string {
 
   const dateDaysAgo = dayjs.utc().subtract(daysAgo, 'day')
 
-  const formattedTimestamp = `${dateDaysAgo.year()}-0${
-    dateDaysAgo.month() + 1
-  }-${
-    dateDaysAgo.date() < 10 ? `0${dateDaysAgo.date()}` : dateDaysAgo.date()
-  }T00:00:00+00:00`
-
-  return formattedTimestamp
+  return dateDaysAgo.format()
 }
 
 export function composeHoursFromNowUtcDate(hoursAgo: number): string {
@@ -26,17 +20,7 @@ export function composeHoursFromNowUtcDate(hoursAgo: number): string {
 
   const dayAgo = dayjs.utc().subtract(hoursAgo, 'hour')
 
-  const formattedTimestamp = `${dayAgo.year()}-0${dayAgo.month() + 1}-${
-    dayAgo.date() < 10 ? `0${dayAgo.date()}` : dayAgo.date()
-  }T${
-    dayAgo.hour() + 1 === 24
-      ? '00'
-      : dayAgo.hour() + 1 < 10
-      ? `0${dayAgo.hour() + 1}`
-      : dayAgo.hour() + 1
-  }:00:00+00:00`
-
-  return formattedTimestamp
+  return dayAgo.format()
 }
 
 export function composeTodayUtcDate(): string {
