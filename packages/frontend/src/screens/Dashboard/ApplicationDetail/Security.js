@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useMutation, useQueryClient } from 'react-query'
 import axios from 'axios'
@@ -34,6 +34,7 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
   const [secretKeyRequired, setSecretKeyRequired] = useState(false)
   const [userAgent, setUserAgent] = useState('')
   const [userAgents, setUserAgents] = useState([])
+  const [hasChanged, setHasChanged] = useState(false)
   const history = useHistory()
   const toast = useToast()
   const queryClient = useQueryClient()
@@ -103,28 +104,35 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
   })
 
   const onSecretKeyRequiredChange = useCallback(() => {
+    setHasChanged(true)
     setSecretKeyRequired((r) => !r)
   }, [])
   const setWhitelistedUserAgent = useCallback(() => {
     if (userAgent) {
+      setHasChanged(true)
       setUserAgents((userAgents) => [...userAgents, userAgent])
     }
     setUserAgent('')
   }, [userAgent])
   const setWhitelistedOrigin = useCallback(() => {
     if (origin) {
+      setHasChanged(true)
       setOrigins((origins) => [...origins, origin])
     }
     setOrigin('')
   }, [origin])
   const onDeleteUserAgentClick = useCallback((userAgent) => {
+    setHasChanged(true)
     setUserAgents((userAgents) => [
       ...userAgents.filter((u) => u !== userAgent),
     ])
   }, [])
   const onDeleteOriginClick = useCallback((origin) => {
+    setHasChanged(true)
     setOrigins((origins) => [...origins.filter((o) => o !== origin)])
   }, [])
+
+  const isSaveDisabled = useMemo(() => !hasChanged, [hasChanged])
 
   return (
     <FloatUp
@@ -280,7 +288,12 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
             }
             secondary={
               <>
-                <Button wide mode="primary" onClick={mutate}>
+                <Button
+                  wide
+                  mode="primary"
+                  disabled={isSaveDisabled}
+                  onClick={mutate}
+                >
                   Save Changes
                 </Button>
                 <Spacer size={2 * GU} />

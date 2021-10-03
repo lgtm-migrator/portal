@@ -196,7 +196,6 @@ export default function NetworkStatus() {
                 <Box title="Available Networks">
                   <DataView
                     fields={[
-                      { label: ' ', align: 'start' },
                       { label: 'Network', align: 'start' },
                       { label: 'Apps', align: 'start' },
                       { label: 'ID', align: 'start' },
@@ -206,17 +205,15 @@ export default function NetworkStatus() {
                     mode={compactMode ? 'list' : 'table'}
                     entriesPerPage={PER_PAGE}
                     renderEntry={({ appCount, description, id, network }) => {
-                      console.log(description)
-
                       const chainImage = getImageForChain(description)
 
                       return [
                         <div
                           css={`
                             height: 100%;
-                            width: 100%;
+                            width: ${35 * GU}px;
                             display: flex;
-                            justify-content: center;
+                            justify-content: flex-start;
                             align-items: center;
                           `}
                         >
@@ -228,17 +225,18 @@ export default function NetworkStatus() {
                             `}
                             alt=""
                           />
+                          <Spacer size={2 * GU} />
+                          <p
+                            css={`
+                              overflow-wrap: break-word;
+                              word-break: break-word;
+                              hyphens: auto;
+                            `}
+                          >
+                            {description || network}
+                          </p>
                         </div>,
-                        <p
-                          css={`
-                            overflow-wrap: break-word;
-                            word-break: break-word;
-                            hyphens: auto;
-                          `}
-                        >
-                          {description || network}
-                        </p>,
-                        <p>{appCount}</p>,
+                        <p>{appCount ?? 0}</p>,
                         <p>{id}</p>,
                         <div
                           css={`

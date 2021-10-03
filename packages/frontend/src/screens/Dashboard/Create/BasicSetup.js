@@ -146,12 +146,17 @@ export default function BasicSetup({
                     <IconSearch />
                   </div>
                 }
-                adornmentPosition="start"
+                adornmentPosition="end"
                 wide
               />
               <Spacer size={2 * GU} />
               <DataView
-                fields={['', '', 'Network', 'Apps', 'Status']}
+                fields={[
+                  '',
+                  { label: 'Network', align: 'start' },
+                  { label: 'Apps', align: 'start' },
+                  { label: 'Status', align: 'start' },
+                ]}
                 entries={filteredChains}
                 renderEntry={({
                   appCount,
@@ -170,9 +175,9 @@ export default function BasicSetup({
                     <div
                       css={`
                         height: 100%;
-                        width: 100%;
+                        width: ${35 * GU}px;
                         display: flex;
-                        justify-content: center;
+                        justify-content: flex-start;
                         align-items: center;
                       `}
                     >
@@ -184,9 +189,18 @@ export default function BasicSetup({
                         `}
                         alt=""
                       />
+                      <Spacer size={2 * GU} />
+                      <p
+                        css={`
+                          overflow-wrap: break-word;
+                          word-break: break-word;
+                          hyphens: auto;
+                        `}
+                      >
+                        {description}
+                      </p>
                     </div>,
-                    <p>{description}</p>,
-                    <p>{appCount}</p>,
+                    <p>{appCount ?? 0}</p>,
                     <div
                       css={`
                         display: flex;

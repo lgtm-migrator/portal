@@ -61,6 +61,9 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
     [updateData]
   )
   const setWhitelistedUserAgent = useCallback(() => {
+    if (!userAgent) {
+      return
+    }
     const whitelistedUserAgents = data.whitelistUserAgents ?? []
 
     if (whitelistedUserAgents.indexOf(userAgent) !== -1) {
@@ -71,9 +74,13 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
       type: 'UPDATE_WHITELISTED_USER_AGENTS',
       payload: [...whitelistedUserAgents, userAgent],
     })
+    setUserAgent('')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, updateData, userAgent])
   const setWhitelistedOrigin = useCallback(() => {
+    if (!origin) {
+      return
+    }
     const whitelistedOrigins = data.whitelistOrigins ?? []
 
     if (whitelistedOrigins.indexOf(origin) !== -1) {
@@ -84,6 +91,7 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
       type: 'UPDATE_WHITELISTED_ORIGINS',
       payload: [...whitelistedOrigins, origin],
     })
+    setOrigin('')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, origin, updateData])
 
@@ -92,17 +100,15 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
       <Split
         primary={
           <>
-            <Box>
-              <p
-                css={`
-                  ${textStyle('body2')}
-                  margin-bottom: ${2 * GU}px;
-                `}
-              >
-                To maximize security for your application, you may add an
-                additional secret key and/or whitelist user agents and origins.
-              </p>
-            </Box>
+            <p
+              css={`
+                ${textStyle('body2')}
+                margin-bottom: ${2 * GU}px;
+              `}
+            >
+              To maximize security for your application, you may add an
+              additional secret key and/or whitelist user agents and origins.
+            </p>
             <Spacer size={3 * GU} />
             <Box
               css={`
@@ -149,7 +155,7 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
             </Box>
             <Spacer size={3 * GU} />
             <Box
-              title="Whitelisted user-agents"
+              title="Whitelisted User-Agents"
               css={`
                 h3 {
                   margin-bottom: ${1 * GU}px;
@@ -166,6 +172,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
                     <IconPlus />
                   </ButtonBase>
                 }
+                adornmentSettings={{
+                  width: 4.5 * GU,
+                  padding: GU,
+                }}
                 adornmentPosition="end"
               />
               <ul
@@ -193,7 +203,7 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
               </ul>
             </Box>
             <Box
-              title="Whitelisted origins"
+              title="Whitelisted Origins"
               css={`
                 h3 {
                   margin-bottom: ${1 * GU}px;
@@ -209,6 +219,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
                     <IconPlus />
                   </ButtonBase>
                 }
+                adornmentSettings={{
+                  width: 4.5 * GU,
+                  padding: GU,
+                }}
                 adornmentPosition="end"
               />
               <ul

@@ -12,11 +12,11 @@ import {
   Spacer,
   Split,
   Switch,
+  color,
   textStyle,
   useTheme,
   useToast,
   GU,
-  color,
 } from '@pokt-foundation/ui'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
@@ -34,8 +34,8 @@ const GRAPH_SIZE = 130
 const DEFAULT_PERCENTAGES = {
   quarter: false,
   half: false,
-  threeQuarters: false,
-  full: false,
+  threeQuarters: true,
+  full: true,
 }
 
 function useUsageColor(usage) {
@@ -178,19 +178,17 @@ export default function Notifications({
                   <Spacer size={2 * GU} />
                 </>
               )}
-              <Box>
-                <p
-                  css={`
-                    ${textStyle('body2')}
-                  `}
-                >
-                  Set up usage alerts to be warned when you are approaching your
-                  relay limits. The Portal automatically redirects all surplus
-                  relays to our backup infrastructure. If you want all relays to
-                  be unstoppable, stay under your limit or contact the team to
-                  up your stake.
-                </p>
-              </Box>
+              <p
+                css={`
+                  ${textStyle('body2')}
+                `}
+              >
+                Set up usage alerts to be warned when you are approaching your
+                relay limits. The Portal automatically redirects all surplus
+                relays to our backup infrastructure. If you want all relays to
+                be unstoppable, stay under your limit or contact the team to up
+                your stake.
+              </p>
               <Spacer size={2 * GU} />
               <Box>
                 <div
@@ -238,7 +236,7 @@ export default function Notifications({
                       `}
                     >
                       <Title>
-                        <CenteredContainer>Max Usage</CenteredContainer>
+                        <CenteredContainer>AVG Usage</CenteredContainer>
                         {Intl.NumberFormat().format(
                           totalDailyRelays.toFixed(0)
                         )}{' '}

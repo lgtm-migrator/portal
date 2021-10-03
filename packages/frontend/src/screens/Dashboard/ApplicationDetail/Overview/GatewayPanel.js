@@ -179,11 +179,7 @@ export function AddressPanel({ apps }) {
                 height: ${5 * GU}px;
                 border-top: 2px solid ${theme.accent};
                 border-radius: 0 0 ${RADIUS}px ${RADIUS}px;
-                background: linear-gradient(
-                  126.96deg,
-                  ${theme.backgroundGradient1} -5.41%,
-                  ${theme.backgroundGradient2} 101.86%
-                );
+                background: ${theme.surfaceGradient2};
                 color: ${theme.accent};
                 font-weight: bold;
               }

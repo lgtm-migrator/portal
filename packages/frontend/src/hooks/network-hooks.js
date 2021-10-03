@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import env from '../environment'
-import { getPriorityLevelByChain } from '../lib/chain-utils'
+import { processChains } from '../lib/chain-utils'
 
 export function useNetworkSummary() {
   const {
@@ -37,7 +37,9 @@ export function useChains() {
     isError: isChainsError,
     data: chains,
   } = useQuery('/network/chains', async function getNetworkChains() {
-    const path = `${env('BACKEND_URL')}/api/network/stakeable-chains`
+    const path = `${env('BACKEND_URL')}/api/network/${
+      env('PROD') ? 'stakeable-' : ''
+    }chains`
 
     try {
       const res = await axios.get(path, {
@@ -48,12 +50,7 @@ export function useChains() {
         data: { chains },
       } = res
 
-      return chains.sort((a, b) => {
-        const priorityA = getPriorityLevelByChain(a.id)
-        const priorityB = getPriorityLevelByChain(b.id)
-
-        return priorityA - priorityB
-      })
+      return processChains(chains)
     } catch (err) {
       console.log('?', err)
     }
