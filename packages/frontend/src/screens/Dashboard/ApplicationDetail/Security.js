@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { useMutation, useQueryClient } from 'react-query'
 import axios from 'axios'
-import * as Sentry from '@sentry/react'
-import 'styled-components/macro'
+import styled from 'styled-components/macro'
 import {
   Button,
   ButtonBase,
@@ -18,6 +17,7 @@ import {
   useToast,
   GU,
 } from '@pokt-foundation/ui'
+import * as Sentry from '@sentry/react'
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
@@ -27,6 +27,11 @@ import {
   KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
+
+const INPUT_ADORNMENT_SETTINGS = {
+  width: 4.5 * GU,
+  padding: GU,
+}
 
 export default function Security({ appData, stakedTokens, maxDailyRelays }) {
   const [origin, setOrigin] = useState('')
@@ -141,17 +146,15 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
           <Split
             primary={
               <>
-                <Box>
-                  <p
-                    css={`
-                      ${textStyle('body2')}
-                    `}
-                  >
-                    To maximize the security of your application, you should
-                    activate the private secret key for all requests and enable
-                    the use of whitelist user agents and origins.
-                  </p>
-                </Box>
+                <p
+                  css={`
+                    ${textStyle('body2')}
+                  `}
+                >
+                  To maximize the security of your application, you should
+                  activate the private secret key for all requests and enable
+                  the use of whitelist user agents and origins.
+                </p>
                 <Spacer size={3 * GU} />
                 <Box
                   css={`
@@ -208,6 +211,7 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                       </ButtonBase>
                     }
                     adornmentPosition="end"
+                    adornmentSettings={INPUT_ADORNMENT_SETTINGS}
                   />
                   <ul
                     css={`
@@ -216,19 +220,16 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                       li:not(:last-child) {
                         margin-bottom: ${2 * GU}px;
                       }
+                      padding-left: 0;
                     `}
                   >
                     {userAgents.map((agent, index) => (
                       <li key={agent}>
-                        <TextCopy
+                        <WideTextCopy
                           key={`${agent}/${index}`}
                           onCopy={() => onDeleteUserAgentClick(agent)}
                           value={agent}
                           adornment={<IconCross />}
-                          css={`
-                            width: 100%;
-                            padding-left: 0;
-                          `}
                         />
                       </li>
                     ))}
@@ -259,6 +260,7 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                       </ButtonBase>
                     }
                     adornmentPosition="end"
+                    adornmentSettings={INPUT_ADORNMENT_SETTINGS}
                   />
                   <ul
                     css={`
@@ -266,19 +268,17 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
                       margin-top: ${2 * GU}px;
                       li:not(:last-child) {
                         margin-bottom: ${2 * GU}px;
+                        padding-left: 0;
                       }
                     `}
                   >
                     {origins.map((origin, index) => (
                       <li key={origin}>
-                        <TextCopy
+                        <WideTextCopy
                           key={`${origin}/${index}`}
                           adornment={<IconCross />}
                           onCopy={() => onDeleteOriginClick(origin)}
                           value={origin}
-                          css={`
-                            width: 100%;
-                          `}
                         />
                       </li>
                     ))}
@@ -313,3 +313,10 @@ export default function Security({ appData, stakedTokens, maxDailyRelays }) {
     />
   )
 }
+
+const WideTextCopy = styled(TextCopy)`
+  && {
+    width: 100%;
+    padding-left: 0;
+  }
+`

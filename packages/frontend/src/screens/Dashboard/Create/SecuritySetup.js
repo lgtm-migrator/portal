@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { useViewport } from 'use-viewport'
-import 'styled-components/macro'
+import styled from 'styled-components/macro'
 import {
   Button,
   ButtonBase,
@@ -21,6 +21,11 @@ import {
   FREE_TIER_MAX_RELAYS,
   FREE_TIER_TOKENS,
 } from '../../../lib/pocket-utils'
+
+const INPUT_ADORNMENT_SETTINGS = {
+  width: 4.5 * GU,
+  padding: GU,
+}
 
 export default function SecuritySetup({ data, decrementScreen, updateData }) {
   const [userAgent, setUserAgent] = useState('')
@@ -172,10 +177,7 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
                     <IconPlus />
                   </ButtonBase>
                 }
-                adornmentSettings={{
-                  width: 4.5 * GU,
-                  padding: GU,
-                }}
+                adornmentSettings={INPUT_ADORNMENT_SETTINGS}
                 adornmentPosition="end"
               />
               <ul
@@ -189,14 +191,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
               >
                 {data.whitelistUserAgents.map((agent) => (
                   <li key={agent}>
-                    <TextCopy
+                    <WideTextCopy
                       onCopy={() => onWhitelistedUserAgentDelete(agent)}
                       adornment={<IconCross />}
                       value={agent}
-                      css={`
-                        width: 100%;
-                        padding-left: 0;
-                      `}
                     />
                   </li>
                 ))}
@@ -219,10 +217,7 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
                     <IconPlus />
                   </ButtonBase>
                 }
-                adornmentSettings={{
-                  width: 4.5 * GU,
-                  padding: GU,
-                }}
+                adornmentSettings={INPUT_ADORNMENT_SETTINGS}
                 adornmentPosition="end"
               />
               <ul
@@ -236,14 +231,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
               >
                 {data.whitelistOrigins.map((origin) => (
                   <li key={origin}>
-                    <TextCopy
+                    <WideTextCopy
                       onCopy={() => onWhitelistedOriginDelete(origin)}
                       value={origin}
                       adornment={<IconCross />}
-                      css={`
-                        width: 100%;
-                        padding-left: 0;
-                      `}
                     />
                   </li>
                 ))}
@@ -267,3 +258,10 @@ export default function SecuritySetup({ data, decrementScreen, updateData }) {
     </>
   )
 }
+
+const WideTextCopy = styled(TextCopy)`
+  && {
+    width: 100%;
+    padding-left: 0;
+  }
+`
