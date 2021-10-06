@@ -189,7 +189,7 @@ export default function BasicSetup({
                         `}
                         alt=""
                       />
-                      <Spacer size={2 * GU} />
+                      <Spacer size={compactMode ? 1 * GU : 2 * GU} />
                       <p
                         css={`
                           overflow-wrap: break-word;
@@ -205,8 +205,11 @@ export default function BasicSetup({
                       css={`
                         display: flex;
                         flex-direction: row;
-                        justify-content: center;
-                        align-items: center;
+                        ${!compactMode &&
+                        `
+                          align-items: center;
+                          justify-content: center;
+                        `}
                       `}
                     >
                       <p>
