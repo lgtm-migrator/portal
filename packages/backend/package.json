@@ -114,7 +114,6 @@
     "prettier": "^2.2.1",
     "sinon": "^9.0.1",
     "subpackage": "^1.1.0",
-    "ts-migrate": "^0.1.19",
     "typescript": "^4.2.4"
   },
   "gitHead": "814e139fd8a2f9fb1dec17e97e40ce0fb5add160"
