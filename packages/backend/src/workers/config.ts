@@ -96,6 +96,11 @@ const MAIN_CHAINS = {
     id: '0005',
     limit: 8,
   },
+  HARMONY: {
+    ticker: 'HMY',
+    id: '0040',
+    limit: 5,
+  },
   POCKET_MAINNET: {
     ticker: 'POKT',
     id: '0001',

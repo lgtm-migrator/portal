@@ -16,6 +16,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0026', { prefix: 'eth-goerli', name: 'Ethereum Goerli' }],
   ['0027', { prefix: 'poa-xdai', name: 'XDAI Mainnet' }],
   ['0028', { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)' }],
+  ['0040', { prefix: 'harmony-0', name: 'Harmony Chard 0' }],
 ])
 
 export const PRODUCTION_CHAINS = [
@@ -32,6 +33,7 @@ export const PRODUCTION_CHAINS = [
   '0026',
   '0027',
   '0028',
+  '0040',
 ]
 export const ALPHA_CHAINS = []
 
