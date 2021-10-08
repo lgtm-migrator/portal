@@ -86,6 +86,11 @@ const MAIN_CHAINS = {
     id: '0023',
     limit: 5,
   },
+  ETHEREUM_XDAI_ARCHIVAL: {
+    ticker: 'POA',
+    id: '000C',
+    limit: 5,
+  },
   ETHEREUM_XDAI_FULL: {
     ticker: 'POA',
     id: '0027',
