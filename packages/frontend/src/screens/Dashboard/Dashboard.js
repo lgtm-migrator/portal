@@ -30,17 +30,17 @@ function DashboardView({ children }) {
         return
       }
 
-      const formattedApps = userApps.map(({ chain, id, isLb, name, apps }) => {
-        const publicKeys = apps.map(({ publicKey }) => publicKey)
+      const formattedApps = userApps.reduce(
+        (formattedApps, { chain, id, name, apps }) => {
+          const publicKeys = apps.map(({ publicKey }) => publicKey)
 
-        return {
-          chain,
-          id,
-          isLb,
-          name,
-          publicKeys,
-        }
-      })
+          return {
+            ...formattedApps,
+            [name]: [`ID: ${id}`, `chain: ${chain}`, publicKeys.join(' ')],
+          }
+        },
+        {}
+      )
 
       trackUserProfile({
         name: email,
@@ -48,6 +48,8 @@ function DashboardView({ children }) {
         username: email,
         custom: {
           ...formattedApps,
+          chains: userApps.map(({ chain }) => chain),
+          apps: userApps.map(({ name }) => name),
         },
       })
     }
