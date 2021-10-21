@@ -36,9 +36,24 @@ const TEST_CHAINS = {
 }
 
 const MAIN_CHAINS = {
+  ALGORAND_MAINNET: {
+    ticker: 'ALGO',
+    id: '0029',
+    limit: 5,
+  },
+  ALGORAND_MAINNET_ARCHIVAL: {
+    ticker: 'ALGO',
+    id: '000D',
+    limit: 5,
+  },
   AVAX_MAINNET: {
     ticker: 'AVAX',
     id: '0003',
+    limit: 5,
+  },
+  AVAX_MAINNET_ARCHIVAL: {
+    ticker: 'AVAX',
+    id: '00A3',
     limit: 5,
   },
   BINANCE_SMART_CHAIN: {
@@ -104,6 +119,11 @@ const MAIN_CHAINS = {
   HARMONY: {
     ticker: 'HMY',
     id: '0040',
+    limit: 5,
+  },
+  IOTEX_MAINNET: {
+    ticker: 'IOT',
+    id: '0044',
     limit: 5,
   },
   POCKET_MAINNET: {

@@ -8,6 +8,8 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic) Mainnet' }],
   ['000B', { prefix: 'poly-archival', name: 'Polygon (Matic) Archival' }],
   ['000C', { prefix: 'poa-xdai-archival', name: 'XDAI Mainnet (Archival)' }],
+  ['000D', { prefix: 'algo-archival', name: 'Algorand Mainnet (Archival)' }],
+  ['00A3', { prefix: 'avax-archival', name: 'Avalanche Mainnet (Archival)' }],
   ['0010', { prefix: 'bsc-archival', name: 'Binance Smart Chain (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],
   ['0022', { prefix: 'eth-archival', name: 'Ethereum Mainnet (Archival)' }],
@@ -17,7 +19,9 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0026', { prefix: 'eth-goerli', name: 'Ethereum Goerli' }],
   ['0027', { prefix: 'poa-xdai', name: 'XDAI Mainnet' }],
   ['0028', { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)' }],
+  ['0029', { prefix: 'algo-mainnet', name: 'Algorand Mainnet' }],
   ['0040', { prefix: 'harmony-0', name: 'Harmony Shard 0' }],
+  ['0044', { prefix: 'iot-mainnet', name: 'IoTeX Mainnet' }],
 ])
 
 export const PRODUCTION_CHAINS = [
