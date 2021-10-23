@@ -21,7 +21,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0028', { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)' }],
   ['0029', { prefix: 'algo-mainnet', name: 'Algorand Mainnet' }],
   ['0040', { prefix: 'harmony-0', name: 'Harmony Shard 0' }],
-  ['0044', { prefix: 'iot-mainnet', name: 'IoTeX Mainnet' }],
+  ['0044', { prefix: 'iotex-mainnet', name: 'IoTeX Mainnet' }],
 ])
 
 export const PRODUCTION_CHAINS = [
