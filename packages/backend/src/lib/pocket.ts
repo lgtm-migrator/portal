@@ -145,7 +145,7 @@ export async function transferToFreeTierFund({
   const rawTxResponse = await (
     pocketInstance.withPrivateKey(privateKey) as ITransactionSender
   )
-    .send(address, freeTierFundAccount, amount.toString())
+    .send(address, freeTierFundAddress, amount.toString())
     .submit(chainId, transactionFee)
 
   if (typeGuard(rawTxResponse, RpcError)) {

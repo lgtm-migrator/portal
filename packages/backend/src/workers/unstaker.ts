@@ -140,8 +140,8 @@ async function removeFunds({
 
   const txHash = await transferToFreeTierFund({
     amount: balanceBn - 10000n,
-    address,
     privateKey: decryptedPrivateKey,
+    address,
   })
 
   if (!txHash) {
