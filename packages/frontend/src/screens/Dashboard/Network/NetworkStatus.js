@@ -39,6 +39,7 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const PER_PAGE = 5
 
 function formatDailyRelaysForGraphing(dailyRelays = []) {
+  dailyRelays.pop()
   const labels = dailyRelays
     .map(({ bucket }) => bucket.split('T')[0])
     .map((bucket) => DAYS[new Date(bucket).getUTCDay()])
