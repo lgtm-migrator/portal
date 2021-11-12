@@ -10,9 +10,9 @@ import {
   transferFromFreeTierFund,
 } from '../lib/pocket'
 import { APPLICATION_STATUSES } from '../application-statuses'
-import env, { PocketNetworkKeys } from '../environment'
+import env from '../environment'
 
-const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
+const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
 
 async function getApplicationAndFund({
   chain,
@@ -125,7 +125,7 @@ async function stakeApplication({
 
 export async function fillAppPool(ctx): Promise<void> {
   const { balance } = (await getBalance(
-    freeTierFundAddress
+    freeTierAccountAddress
   )) as QueryBalanceResponse
 
   if (balance < FREE_TIER_STAKE_AMOUNT) {

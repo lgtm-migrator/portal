@@ -2,29 +2,27 @@
 import {
   Configuration,
   HttpRpcProvider,
-  Node,
   ITransactionSender,
+  Node,
   Pocket,
   PocketRpcProvider,
   QueryAccountResponse,
   QueryAppResponse,
+  QueryAppsResponse,
   QueryBalanceResponse,
   QueryTXResponse,
-  RpcError,
-  typeGuard,
-  UnlockedAccount,
   RawTxRequest,
-  QueryAppsResponse,
+  RpcError,
+  UnlockedAccount,
+  typeGuard,
 } from '@pokt-network/pocket-js'
 import env, { PocketNetworkKeys } from '../environment'
 
-const {
-  blockTime,
-  chainId,
-  freeTierFundAccount,
-  freeTierFundAddress,
-  transactionFee,
-} = env('POCKET_NETWORK') as PocketNetworkKeys
+const { blockTime, chainId, transactionFee } = env(
+  'POCKET_NETWORK'
+) as PocketNetworkKeys
+const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
+const freeTierAccountPrivateKey = env('FREE_TIER_ACCOUNT_PRIVATE_KEY') as string
 
 const DEFAULT_DISPATCHER_LIST =
   'https://dispatch-1.nodes.pokt.network:4201,https://dispatch-2.nodes.pokt.network:4202,https://dispatch-3.nodes.pokt.network:4203,https://dispatch-4.nodes.pokt.network:4204,https://dispatch-5.nodes.pokt.network:4205,https://dispatch-6.nodes.pokt.network:4206,https://dispatch-7.nodes.pokt.network:4207,https://dispatch-8.nodes.pokt.network:4208,https://dispatch-9.nodes.pokt.network:4209,https://dispatch-10.nodes.pokt.network:4210,https://dispatch-11.nodes.pokt.network:4211,https://dispatch-12.nodes.pokt.network:4212,https://dispatch-13.nodes.pokt.network:4213,https://dispatch-14.nodes.pokt.network:4214,https://dispatch-15.nodes.pokt.network:4215,https://dispatch-16.nodes.pokt.network:4216,https://dispatch-17.nodes.pokt.network:4217,https://dispatch-18.nodes.pokt.network:4218,https://dispatch-19.nodes.pokt.network:4219,https://dispatch-20.nodes.pokt.network:4220'
@@ -128,6 +126,10 @@ export async function transferToFreeTierFund({
   amount,
   privateKey,
   address,
+}: {
+  amount: bigint
+  privateKey: string
+  address: string
 }): Promise<string> {
   if (!amount) {
     throw new Error("Can't transfer to free tier fund: no amount provided")
@@ -145,7 +147,7 @@ export async function transferToFreeTierFund({
   const rawTxResponse = await (
     pocketInstance.withPrivateKey(privateKey) as ITransactionSender
   )
-    .send(address, freeTierFundAddress, amount.toString())
+    .send(address, freeTierAccountAddress, amount.toString())
     .submit(chainId, transactionFee)
 
   if (typeGuard(rawTxResponse, RpcError)) {
@@ -186,9 +188,11 @@ export async function transferFromFreeTierFund(
 
   pocketInstance.rpc(pocketRpcProvider)
   const rawTxResponse = await (
-    pocketInstance.withPrivateKey(freeTierFundAccount) as ITransactionSender
+    pocketInstance.withPrivateKey(
+      freeTierAccountPrivateKey
+    ) as ITransactionSender
   )
-    .send(freeTierFundAddress, customerAddress, totalAmount.toString())
+    .send(freeTierAccountAddress, customerAddress, totalAmount.toString())
     .submit(chainId, transactionFee)
 
   if (typeGuard(rawTxResponse, RpcError)) {

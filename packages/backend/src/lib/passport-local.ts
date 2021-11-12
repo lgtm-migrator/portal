@@ -7,7 +7,7 @@ import {
   StrategyOptions as JwtOptions,
 } from 'passport-jwt'
 import User, { IUser } from '../models/User'
-import env, { AuthKeys } from '../environment'
+import env from '../environment'
 import HttpError from '../errors/http-error'
 
 function extractTokenFromCookie(req: Request) {
@@ -21,7 +21,7 @@ const AUTH_FIELDS: IStrategyOptionsWithRequest = {
 }
 
 const JWT_OPTIONS: JwtOptions = {
-  secretOrKey: (env('AUTH') as AuthKeys).publicSecret,
+  secretOrKey: env('JWT_PUBLIC_KEY') as string,
   algorithms: ['RS256'],
   passReqToCallback: true,
   jwtFromRequest: ExtractJwt.fromExtractors([
@@ -87,7 +87,6 @@ passport.use(
         }
         return done(null, user)
       } catch (err) {
-        // TODO: Log error to sentry and with a logger
         return done(
           HttpError.INTERNAL_SERVER_ERROR({
             errors: [

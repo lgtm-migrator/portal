@@ -34,7 +34,7 @@ const logger = createLogger({
   ],
 })
 
-if (env('prod')) {
+if (env('PROD')) {
   logger.add(
     new WinstonCloudWatch({
       name: 'dashboard-mainnet-backend',

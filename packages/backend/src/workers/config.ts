@@ -1,3 +1,4 @@
+import env from '../environment'
 import { fillAppPool, stakeAppPool } from './application'
 import { getAppsPerChain } from './network'
 import {
@@ -149,11 +150,11 @@ const MAIN_CHAINS = {
 }
 
 function getChainsByEnvironment() {
-  if (process.env.NODE_ENV === 'development') {
+  if (!env('PROD')) {
     return { ...TEST_CHAINS, ...TEST_ONLY_CHAINS }
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  if (env('PROD')) {
     return {
       ...MAIN_CHAINS,
     }

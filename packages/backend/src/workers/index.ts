@@ -29,7 +29,6 @@ export function startWorkers(): void {
         logger.error(`Worker ${name} exited with an error.`, {
           error: err.message,
         })
-        // TODO: Send metrics to sentry
         logger.error(err.message)
       }
     })

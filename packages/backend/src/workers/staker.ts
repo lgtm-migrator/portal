@@ -20,9 +20,9 @@ import {
   transferFromFreeTierFund,
 } from '../lib/pocket'
 import { APPLICATION_STATUSES } from '../application-statuses'
-import env, { PocketNetworkKeys } from '../environment'
+import env from '../environment'
 
-const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
+const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
 
 async function createApplicationAndFund({ ctx }: { ctx: any }) {
   const pocket = await getPocketInstance()
@@ -162,7 +162,7 @@ export async function createAppForSlots(ctx): Promise<void> {
   const stakedApps = (await getApplications(StakingStatus.Staked)).applications
     .length
   const { balance } = (await getBalance(
-    freeTierFundAddress
+    freeTierAccountAddress
   )) as QueryBalanceResponse
 
   const futureSlotApps = await PreStakedApp.find({

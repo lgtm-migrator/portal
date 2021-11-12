@@ -2,9 +2,9 @@ import { Schema, model, Model, Document, Types } from 'mongoose'
 import { Encryptor, Decryptor } from 'strong-cryptor'
 import isEmail from 'validator/lib/isEmail'
 import { IFreeTierApplicationAccount, IGatewayAAT } from './types'
-import env, { PersistenceKeys } from '../environment'
+import env from '../environment'
 
-const CRYPTO_KEY = (env('PERSISTENCE') as PersistenceKeys).dbEncryptionKey
+const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY') as string
 
 const encryptor = new Encryptor({ key: CRYPTO_KEY })
 const decryptor = new Decryptor({ key: CRYPTO_KEY })

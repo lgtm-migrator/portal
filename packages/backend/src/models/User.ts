@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import isEmail from 'validator/lib/isEmail'
 import isStrongPassword from 'validator/lib/isStrongPassword'
-import env, { AuthKeys } from '../environment'
+import env from '../environment'
 
 dotenv.config()
 
@@ -55,14 +55,10 @@ userSchema.statics.comparePassword = function comparePassword(
 }
 userSchema.methods.generateVerificationToken =
   function generateVerificationToken() {
-    const token = jwt.sign(
-      { id: this._id },
-      (env('AUTH') as AuthKeys).privateSecret,
-      {
-        expiresIn: '10d',
-        algorithm: 'RS256',
-      }
-    )
+    const token = jwt.sign({ id: this._id }, env('JWT_PRIVATE_KEY') as string, {
+      expiresIn: '10d',
+      algorithm: 'RS256',
+    })
 
     return token
   }

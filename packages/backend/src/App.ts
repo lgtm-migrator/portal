@@ -12,7 +12,7 @@ import { connect } from './db'
 const PORT = process.env.PORT || 4200
 const ALLOWED_DOMAINS = env('ALLOWED_DOMAINS') as unknown as string[]
 
-if (!env('prod')) {
+if (!env('PROD')) {
   ALLOWED_DOMAINS.push('http://localhost:3000')
 }
 
@@ -50,6 +50,5 @@ export const startServer = async (): Promise<void> => {
     })
   } catch (err) {
     console.error(err)
-    // TODO: Log error to sentry
   }
 }

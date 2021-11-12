@@ -22,9 +22,9 @@ import {
   transferToFreeTierFund,
 } from '../lib/pocket'
 import MailgunService from '../services/MailgunService'
-import env, { PocketNetworkKeys } from '../environment'
+import env from '../environment'
 
-const { freeTierFundAddress } = env('POCKET_NETWORK') as PocketNetworkKeys
+const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
 
 async function unstakeApplication(
   app: typeof Application & IApplication,
@@ -366,7 +366,7 @@ export async function categorizeAppRemoval(ctx): Promise<void> {
 
 export async function transferSlotFunds(ctx): Promise<void> {
   const { balance } = (await getBalance(
-    freeTierFundAddress
+    freeTierAccountAddress
   )) as QueryBalanceResponse
 
   if (balance < FREE_TIER_STAKE_AMOUNT) {
