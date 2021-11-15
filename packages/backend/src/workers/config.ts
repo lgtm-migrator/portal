@@ -1,6 +1,8 @@
 import env from '../environment'
 import { fillAppPool, stakeAppPool } from './application'
 import { getAppsPerChain } from './network'
+import { notifyUsage } from './notifications'
+
 import {
   categorizeAppRemoval,
   transferSlotFunds,
@@ -8,7 +10,12 @@ import {
   stakeAppsForSlots,
   removeFundsFromApps,
 } from './unstaker'
-import { ONE_MINUTES, FIVE_MINUTES, SIXTY_MINUTES } from './utils'
+import {
+  ONE_MINUTES,
+  FIVE_MINUTES,
+  SIXTY_MINUTES,
+  SIXTY_MINUTES_OFFSET,
+} from './utils'
 
 const TEST_ONLY_CHAINS = {
   POCKET_TESTNET: {
@@ -216,5 +223,11 @@ export const workers = [
     color: 'blue',
     workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
     recurrence: FIVE_MINUTES,
+  },
+  {
+    name: 'NOTIFICATION_WORKER',
+    color: 'red',
+    workerFn: (ctx): Promise<void> => notifyUsage(ctx),
+    recurrence: SIXTY_MINUTES_OFFSET,
   },
 ]

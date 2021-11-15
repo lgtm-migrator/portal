@@ -4,3 +4,7 @@ export function formatNumberToSICompact(n) {
     compactDisplay: 'short',
   }).format(n)
 }
+
+export function commify(n) {
+  return new Intl.NumberFormat('en-US').format(n)
+}

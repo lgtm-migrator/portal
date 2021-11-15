@@ -1,13 +1,6 @@
 import React, { useMemo } from 'react'
 import { useViewport } from 'use-viewport'
-import {
-  DataView,
-  Link,
-  Spacer,
-  textStyle,
-  useTheme,
-  GU,
-} from '@pokt-foundation/ui'
+import { DataView, Link, textStyle, GU } from '@pokt-foundation/ui'
 import Box from '../../../../components/Box/Box'
 import { useOriginClassification } from '../../../../hooks/application-hooks'
 import 'styled-components/macro'
@@ -48,171 +41,76 @@ export default function UsagePerOrigin({ id, maxRelays }) {
         padding-bottom: ${4 * GU}px;
       `}
     >
-      {!isLoading && (
-        <>
-          <Spacer size={2 * GU} />
-          <div
-            css={`
-              display: flex;
-              width: 100%;
-              justify-content: space-between;
-            `}
-          >
-            <p
-              css={`
-                ${textStyle('body4')}
-              `}
-            >
-              0%
-            </p>
-            <p
-              css={`
-                ${textStyle('body4')}
-              `}
-            >
-              100%
-            </p>
-          </div>
-          <Spacer size={GU / 2} />
-          <UsageBar
-            maxRelays={maxRelays}
-            totalRelays={totalRelays}
-            usagePerOrigin={usagePerOrigin}
-          />
-          <Spacer size={GU / 2} />
-          <p
-            css={`
-              ${textStyle('body4')} text-align: right;
-            `}
-          >
-            <span>
-              {new Intl.NumberFormat('en-US', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(maxRelays)}
-            </span>
-            &nbsp; relays a day
-          </p>
-          <Spacer size={2 * GU} />
-        </>
-      )}
       <DataView
         mode={compactMode ? 'list' : 'table'}
-        fields={[
-          { label: 'Origin' },
-          { label: 'Relays', align: 'right' },
-          { label: 'Usage %' },
-        ]}
+        fields={[{ label: 'Origin' }, { label: 'Relays' }]}
         status={isLoading ? 'loading' : 'default'}
         entries={processedOriginClassification}
         renderEntry={({ origin, count, percentage }, index) => {
           return [
-            <p
+            <div
               css={`
-                display: inline-block;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
+                display: flex;
+                flex-direction: column;
               `}
             >
-              {origin ? (
-                <Link
-                  href={origin}
-                  css={`
-                    && {
-                      max-width: 200px;
-                      overflow: hidden;
-                      white-space: nowrap;
-                      text-overflow: ellipsis;
-                    }
-                  `}
-                >
-                  {origin}
-                </Link>
-              ) : (
-                'Unknown'
-              )}
-            </p>,
-            <p>{count}</p>,
-            <p>
-              <span
+              <p
                 css={`
                   display: inline-block;
-                  width: ${1.5 * GU}px;
-                  height: ${1.5 * GU}px;
-                  border-radius: 50% 50%;
-                  background: ${HIGHLIGHT_COLORS[
-                    index % HIGHLIGHT_COLORS.length
-                  ]};
-                  box-shadow: ${HIGHLIGHT_COLORS[
-                      index % HIGHLIGHT_COLORS.length
-                    ]}
-                    0px 2px 8px 0px;
+                  overflow: hidden;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
                 `}
-              />
-              &nbsp;{percentage.toFixed(2)} %
-            </p>,
+              >
+                {origin ? (
+                  <Link
+                    href={origin}
+                    css={`
+                      && {
+                        max-width: ${!compactMode ? 40 * GU : 25 * GU}px;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        color: white;
+                      }
+                    `}
+                  >
+                    {origin}
+                  </Link>
+                ) : (
+                  'Unknown'
+                )}
+              </p>
+              <div
+                css={`
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                <p
+                  css={`
+                    ${textStyle('body4')}
+                    color: ${HIGHLIGHT_COLORS[index % HIGHLIGHT_COLORS.length]};
+                  `}
+                >
+                  {percentage.toFixed(2)}%
+                </p>
+                &nbsp;
+                <div
+                  css={`
+                    width: ${200 * percentage}px;
+                    height: ${GU / 2}px;
+                    background: ${HIGHLIGHT_COLORS[
+                      index % HIGHLIGHT_COLORS.length
+                    ]};
+                  `}
+                />
+              </div>
+            </div>,
+            <p>{count}</p>,
           ]
         }}
       />
     </Box>
-  )
-}
-
-function UsageBar({ maxRelays, totalRelays, usagePerOrigin }) {
-  const theme = useTheme()
-
-  return (
-    <div
-      css={`
-        position: relative;
-        width: 100%;
-        height: ${1 * GU}px;
-      `}
-    >
-      <div
-        css={`
-          position: absolute;
-          top: -${GU / 2}px;
-          left: ${(totalRelays / maxRelays) * 100}%;
-          width: ${GU / 4}px;
-          height: ${GU * 1.5}px;
-          background: ${theme.accentAlternative};
-          &:before {
-            content: '${Math.floor((totalRelays / maxRelays) * 100)}%';
-            color: ${theme.accentAlternative};
-            position: absolute;
-            top: -${GU * 3}px;
-            left: -${GU}px;
-          }
-        `}
-      />
-      <div
-        css={`
-          display: flex;
-          width: 100%;
-          overflow: hidden;
-          height: ${1 * GU}px;
-          background: #32404f;
-          border-radius: ${2.5 * GU}px;
-          div {
-            height: ${1 * GU}px;
-          }
-        `}
-      >
-        {usagePerOrigin.map(({ origin, count }, index) => {
-          return (
-            <div
-              key={index}
-              title={origin}
-              style={{
-                width: `${(count / maxRelays) * 100}%`,
-                background: HIGHLIGHT_COLORS[index % HIGHLIGHT_COLORS.length],
-              }}
-            />
-          )
-        })}
-      </div>
-    </div>
   )
 }

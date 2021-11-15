@@ -11,6 +11,7 @@ import {
 import 'styled-components/macro'
 import { useUsageColor } from '../application-utils'
 import Box from '../../../../components/Box/Box'
+import { commify } from '../../../../lib/formatting-utils'
 
 export default function UsagePanel({
   chartLabels,
@@ -66,25 +67,36 @@ export default function UsagePanel({
           <Spacer size={5 * GU} />
           <CircleGraph
             value={Math.min(1, sessionRelays / maxSessionRelays)}
-            size={140}
+            size={120}
             color={usageColor}
           />
-          <Spacer size={6 * GU} />
+          <Spacer size={4 * GU} />
           <h4
             css={`
               ${textStyle('title2')}
               text-align: center;
             `}
           >
-            {sessionRelays.toFixed(0)}
+            {commify(sessionRelays.toFixed(0))}
+            <Spacer size={GU / 2} />
             <span
               css={`
                 display: block;
-                ${textStyle('body1')}
-                font-weight: 700;
+                ${textStyle('body2')}
+                font-weight: 400;
               `}
             >
               Relays this session
+            </span>
+            <Spacer size={1 * GU} />
+            <span
+              css={`
+                display: block;
+                ${textStyle('body2')}
+                font-weight: 400;
+              `}
+            >
+              Max {commify(maxSessionRelays * 24)}
             </span>
           </h4>
           {compactMode && <Spacer size={3 * GU} />}
@@ -103,6 +115,7 @@ export default function UsagePanel({
           >
             Weekly usage
           </h3>
+          <Spacer size={1 * GU} />
           <LineChart
             lines={chartLines}
             label={(i) => chartLabels[i]}

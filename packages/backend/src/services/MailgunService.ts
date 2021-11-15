@@ -23,7 +23,7 @@ const WHITELISTED_TEMPLATES = new Map([
     'NotificationThresholdHit',
     [
       'pocket-dashboard-notifications-threshold-hit',
-      'Pocket Portal: App notification',
+      'Pocket Portal: Endpoint Notification',
     ],
   ],
   [
