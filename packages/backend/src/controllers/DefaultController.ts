@@ -6,7 +6,7 @@ router.get('', (_: Request, res: Response) => {
   res
     .status(200)
     .send(
-      "Please visit <a href='https://dashboard.pokt.network/'>https://dashboard.pokt.network</a>"
+      "Please visit <a href='https://mainnet.portal.pokt.network/'>https://mainnet.portal.pokt.network</a>"
     )
 })
 
