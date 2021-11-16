@@ -1,7 +1,7 @@
 version: "2.1"
 services:
     mongodb:
-        image: mongo:3.2.11
+        image: mongo:4.2.11
         environment:
             MONGO_INITDB_ROOT_USERNAME: mongo-client
             MONGO_INITDB_ROOT_PASSWORD: mongo-password
