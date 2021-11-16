@@ -46,7 +46,7 @@ async function unstakeApplication(
 
   if (!txHash) {
     ctx.logger.error(
-      `UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
+      `[${ctx.name}] UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
     )
     return
   }
@@ -56,7 +56,7 @@ async function unstakeApplication(
   await app.save()
 
   ctx.logger.info(
-    `unstakeApplication(): submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`,
+    `[${ctx.name}] submitted UNSTAKE tx ${txHash} for app ${app.name} ${address}`,
     {
       workerName: ctx.name,
       account: address,
@@ -78,12 +78,20 @@ async function stakeApplication(
 
   if (balance < SLOT_STAKE_AMOUNT) {
     ctx.logger.warn(
-      `NOTICE! app ${app.name} [${app.freeTierApplicationAccount.address}] doesn't have enough funds.`
+      `[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccount.address}] doesn't have enough funds.`
     )
     return
   }
 
-  ctx.logger.info(`Staking app ${app.name} [${address}] for chain ${chain}`)
+  ctx.logger.info(
+    `[${ctx.name}] Staking app ${app.name} [${address}] for chain ${chain}`,
+    {
+      workerName: ctx.name,
+      account: address,
+      kind: 'txLog',
+      type: 'log',
+    }
+  )
 
   // @ts-ignore
   const decryptedPrivateKey = Application.decryptPrivateKey(privateKey)
@@ -100,7 +108,15 @@ async function stakeApplication(
   )
 
   if (!txHash) {
-    ctx.logger.warn(`stake tx was not sent for ${app.name} [${address}]`)
+    ctx.logger.warn(
+      `[${ctx.name}] stake tx was not sent for ${app.name} [${address}]. This is an issue with pocketJS connecting to the dispatcher nodes`,
+      {
+        workerName: ctx.name,
+        account: address,
+        kind: 'txLog',
+        type: 'tx_issue',
+      }
+    )
     return
   }
 
@@ -110,7 +126,7 @@ async function stakeApplication(
   await app.save()
 
   ctx.logger.info(
-    `Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`,
+    `[${ctx.name}] Sent SLOT stake tx for app ${app.name} [${address}]: ${txHash}`,
     {
       workerName: ctx.name,
       account: address,
@@ -146,19 +162,24 @@ async function removeFunds({
 
   if (!txHash) {
     ctx.logger.error(
-      `removeFunds(): funds transfer tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
+      `[${ctx.name}] funds transfer tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`,
+      {
+        workerName: ctx.name,
+        account: address,
+        kind: 'txLog',
+        type: 'tx_issue',
+      }
     )
     return
   }
 
   ctx.logger.info(
-    `removeFunds(): app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash}`,
+    `[${ctx.name}] app ${app.name} [${address}] transferred funds to free tier wallet in tx ${txHash} and it is now back in the PreStakedAppPool available for edit staking.`,
     {
       workerName: ctx.name,
       account: address,
       amount: balanceBn.toString(),
       kind: 'txLog',
-      status: APPLICATION_STATUSES.READY,
       txHash,
       type: 'transfer',
     } as txLog
@@ -197,7 +218,13 @@ async function markAppForRemoval({
     : await User.findById(userID)
 
   ctx.logger.info(
-    `marked ${app.freeTierApplicationAccount.address}-${app.name} for removal`
+    `[${ctx.name}] marked ${app.freeTierApplicationAccount.address}-${app.name} for removal`,
+    {
+      workerName: ctx.name,
+      account: app.freeTierApplicationAccount.address,
+      kind: 'txLog',
+      type: 'mark_for_removal',
+    }
   )
 
   const emailService = new MailgunService()
@@ -230,13 +257,15 @@ async function categorizeApp({
   // so we bail.
   if (!stakedTokens) {
     ctx.logger.error(
-      `could not fetch balance for ${app.name} [${address}]`,
+      `[${ctx.name}] could not fetch balance for ${app.name} [${address}]`,
       stakedTokens
     )
     return
   }
 
-  ctx.logger.info(`app ${app.name} [${address}] has ${stakedTokens} in balance`)
+  ctx.logger.info(
+    `[${ctx.name}] app ${app.name} [${address}] has ${stakedTokens} in balance`
+  )
 
   const appLbs = await LoadBalancer.find({
     applicationIDs: app._id.toString(),
@@ -258,7 +287,9 @@ async function categorizeApp({
   )
 
   if (BigInt(stakedTokens) === FREE_TIER_STAKE_AMOUNT) {
-    ctx.logger.info(`moving ${app.name} [${address}] to prestake pool`)
+    ctx.logger.info(
+      `[${ctx.name}] moving ${app.name} [${address}] to prestake pool`
+    )
     // mark for moving to pre-stake pool
     // @ts-ignore
     await moveToPreStakePool(app, ctx)
@@ -266,7 +297,15 @@ async function categorizeApp({
   }
   if (BigInt(stakedTokens) !== FREE_TIER_STAKE_AMOUNT) {
     // mark for unstaking
-    ctx.logger.info(`marking ${app.name} [${address}] for unstaking`)
+    ctx.logger.info(
+      `[${ctx.name}] marking ${app.name} [${address}] for unstaking`,
+      {
+        workerName: ctx.name,
+        account: address,
+        kind: 'txLog',
+        type: 'queue_for_removal',
+      }
+    )
     app.status = APPLICATION_STATUSES.AWAITING_SLOT_FUNDS
     app.updatedAt = new Date(Date.now())
     await app.save()
@@ -291,7 +330,7 @@ async function moveToPreStakePool(
   await preStakedApp.save()
 
   ctx.logger.info(
-    `app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
+    `[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
     {
       workerName: ctx.name,
       account: app.freeTierApplicationAccount.address,
@@ -329,7 +368,7 @@ export async function markAppsForRemoval(ctx): Promise<void> {
       // @ts-ignore
       if (!app.freeTierApplicationAccount.privateKey) {
         ctx.logger.info(
-          `app ${app.name} [${app.freeTierApplicationAccountaddress}] doesn't have a private key stored`
+          `[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccountaddress}] doesn't have a private key stored`
         )
         return
       }
@@ -338,7 +377,9 @@ export async function markAppsForRemoval(ctx): Promise<void> {
     })
   )
 
-  ctx.logger.info(`decomissioning ${appsWithoutUsage.length} apps`)
+  ctx.logger.info(
+    `[${ctx.name}] decomissioning ${appsWithoutUsage.length} apps`
+  )
 }
 
 export async function categorizeAppRemoval(ctx): Promise<void> {
@@ -371,7 +412,7 @@ export async function transferSlotFunds(ctx): Promise<void> {
 
   if (balance < FREE_TIER_STAKE_AMOUNT) {
     ctx.logger.warn(
-      `fillAppPool(): Free tier fund wallet has run out of balance`
+      `[${ctx.name}] Free tier fund wallet has run out of balance`
     )
     return
   }
@@ -391,7 +432,7 @@ export async function transferSlotFunds(ctx): Promise<void> {
 
       if (!txHash) {
         ctx.logger.error(
-          `UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
+          `[${ctx.name}] UNSTAKE tx was NOT sent for app ${app.name} ${address}! This is an issue with the provider node and pocketJS.`
         )
         return
       }
@@ -400,7 +441,7 @@ export async function transferSlotFunds(ctx): Promise<void> {
       app.updatedAt = new Date(Date.now())
 
       ctx.logger.info(
-        `fillAppPool(): sent funds to account ${address} on tx ${txHash}`,
+        `[${ctx.name}] sent funds to account ${address} on tx ${txHash}`,
         {
           workerName: ctx.name,
           account: address,
@@ -431,7 +472,7 @@ export async function unstakeApps(ctx): Promise<void> {
       const isGracePeriodOver = now.diff(updatedAt, 'm') >= 10
 
       ctx.logger.info(
-        `unstakeApps(): grace period diff is ${now.diff(updatedAt, 'm')} `
+        `[${ctx.name}] grace period diff is ${now.diff(updatedAt, 'm')} `
       )
 
       if (!isGracePeriodOver) {

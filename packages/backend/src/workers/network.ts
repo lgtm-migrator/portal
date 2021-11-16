@@ -78,7 +78,7 @@ export async function getAppsPerChain(ctx): Promise<void> {
 
     if (!blockchain) {
       ctx.logger.warn(
-        `NOTICE: chain ${chainID} not detected, count of apps is ${count}`
+        `[${ctx.name}] NOTICE: chain ${chainID} not detected, count of apps is ${count}`
       )
       return
     }
@@ -114,7 +114,7 @@ export async function getNodeCountForChains(ctx): Promise<void> {
 
     if (!blockchain) {
       ctx.logger.warn(
-        `NOTICE: chain ${id} not detected, count of nodes is ${count}`
+        `[${ctx.name}] NOTICE: chain ${id} not detected, count of nodes is ${count}`
       )
       return
     }

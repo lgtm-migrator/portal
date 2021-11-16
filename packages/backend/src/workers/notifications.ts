@@ -10,6 +10,7 @@ import {
   composeHoursFromNowUtcDate,
   getSecondsUntilTomorrowUtc,
 } from '../lib/date-utils'
+import { notificationLog } from '../lib/logger'
 
 const DEFAULT_FREETIER_LIMIT = 42080
 
@@ -47,7 +48,8 @@ export async function fetchUsedApps(): Promise<Map<string, number>> {
 }
 
 export async function mapUsageToLBs(
-  appsUsed: Map<string, number>
+  appsUsed: Map<string, number>,
+  _ctx: any
 ): Promise<{
   emailsByID: Map<string, string>
   limitsByID: Map<string, number>
@@ -125,12 +127,14 @@ export async function sendEmailByThreshold({
   namesByID,
   preferencesByLB,
   usageByID,
+  ctx,
 }: {
   emailsByID: Map<string, string>
   limitsByID: Map<string, number>
   namesByID: Map<string, string>
   preferencesByLB: Map<string, INotificationSettings>
   usageByID: Map<string, number>
+  ctx: any
 }): Promise<void> {
   for (const [id, usage] of usageByID) {
     const limit = limitsByID.get(id) ?? DEFAULT_FREETIER_LIMIT
@@ -167,11 +171,36 @@ export async function sendEmailByThreshold({
 
     // We can bail out if the notification we're sending is lesser than the last one sent
     if (cachedThreshold && cachedThreshold >= thresholdExceeded) {
+      ctx.logger.info(
+        `[${ctx.name}] No need to send email to app ${namesByID.get(
+          id
+        )} [${id}]; threshold exceeded (${thresholdExceeded}) is lesser than the last cached threshold (${cachedThreshold}) `
+      )
       return
     }
 
     // if there's nothing cached, we can go ahead and send the email
     cache.set(id, thresholdExceeded, 'EX', getSecondsUntilTomorrowUtc())
+    ctx.logger.info(
+      `[${
+        ctx.name
+      }] Saved threshold ${thresholdExceeded} to cache for app ${namesByID.get(
+        id
+      )} [${id}].`
+    )
+
+    ctx.logger.info(
+      `[${ctx.name}] Endpoint ${namesByID.get(
+        id
+      )} [${id}] usage is ${usage} (limit: ${limit})`,
+      {
+        workerName: ctx.name,
+        appID: id,
+        kind: 'notificationLog',
+        usage,
+        limit,
+      } as notificationLog
+    )
 
     // send email
     const emailService = new MailgunService()
@@ -185,19 +214,18 @@ export async function sendEmailByThreshold({
       templateName: 'NotificationThresholdHit',
       toEmail: emailsByID.get(id),
     })
+
+    ctx.logger.info(
+      `[${ctx.name}] Sent email to endpoint ${namesByID.get(id)} [${id}]`
+    )
   }
 }
 
 export async function notifyUsage(ctx): Promise<void> {
   const apps = await fetchUsedApps()
 
-  const {
-    emailsByID,
-    limitsByID,
-    namesByID,
-    preferencesByLB,
-    usageByID,
-  } = await mapUsageToLBs(apps)
+  const { emailsByID, limitsByID, namesByID, preferencesByLB, usageByID } =
+    await mapUsageToLBs(apps, ctx)
 
   await sendEmailByThreshold({
     emailsByID,
@@ -205,5 +233,6 @@ export async function notifyUsage(ctx): Promise<void> {
     namesByID,
     preferencesByLB,
     usageByID,
+    ctx,
   })
 }

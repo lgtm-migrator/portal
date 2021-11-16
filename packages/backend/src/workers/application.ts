@@ -26,7 +26,7 @@ async function getApplicationAndFund({
   const { balance } = (await getBalance(address)) as QueryBalanceResponse
 
   if (balance >= FREE_TIER_STAKE_AMOUNT) {
-    ctx.logger.warn(`app ${address} already had enough balance`)
+    ctx.logger.warn(`[${ctx.name}]: app ${address} already had enough balance`)
     app.status = APPLICATION_STATUSES.AWAITING_FREETIER_STAKING
     app.chain = chain
     await app.save()
@@ -40,7 +40,7 @@ async function getApplicationAndFund({
 
   if (!txHash) {
     ctx.logger.error(
-      `Funds were not sent for app ${app.freeTierApplicationAccount.address}! This is an issue with connecting to the network with PocketJS.`
+      `[${ctx.name}] Funds were not sent for app ${app.freeTierApplicationAccount.address}! This is an issue with connecting to the network with PocketJS.`
     )
     return false
   }
@@ -50,7 +50,9 @@ async function getApplicationAndFund({
   app.chain = chain
 
   ctx.logger.info(
-    `fillAppPool(): sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`,
+    `[${
+      ctx.name
+    }] sent funds (${FREE_TIER_STAKE_AMOUNT.toString()} POKT) to app ${address} on tx ${txHash}`,
     {
       workerName: ctx.name,
       account: address,
@@ -80,12 +82,12 @@ async function stakeApplication({
 
   if (balance < FREE_TIER_STAKE_AMOUNT) {
     ctx.logger.warn(
-      `NOTICE! app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
+      `[${ctx.name}] app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
     )
     return
   }
 
-  ctx.logger.info(`Staking app ${address} for chain ${chain}`)
+  ctx.logger.info(`[${ctx.name}] Staking app ${address} for chain ${chain}`)
 
   // @ts-ignore
   const decryptedPrivateKey = Application.decryptPrivateKey(privateKey)
@@ -107,7 +109,7 @@ async function stakeApplication({
   await app.save()
 
   ctx.logger.info(
-    `stakeApplication(): Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`,
+    `[${ctx.name}] Sent stake request on tx ${txHash} : app ${address}, chain ${chain}`,
     {
       workerName: ctx.name,
       account: address,
@@ -129,8 +131,8 @@ export async function fillAppPool(ctx): Promise<void> {
   )) as QueryBalanceResponse
 
   if (balance < FREE_TIER_STAKE_AMOUNT) {
-    ctx.logger.warn(
-      `fillAppPool(): Free tier fund wallet has run out of balance`
+    ctx.logger.error(
+      `[${ctx.name}] Free tier fund wallet has run out of balance`
     )
     return
   }
@@ -149,7 +151,7 @@ export async function fillAppPool(ctx): Promise<void> {
       const slotsToFill = limit - availableApps.length
 
       ctx.logger.info(
-        `fillAppPool(): Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`,
+        `[${ctx.name}] Filling ${slotsToFill} (out of ${limit}) slots for chain ${id}`,
         {
           workerName: ctx.name,
           chain: id,

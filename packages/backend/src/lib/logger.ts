@@ -3,6 +3,13 @@ import WinstonCloudWatch from 'winston-cloudwatch'
 import env from '../environment'
 import { getUTCTimestamp } from './date-utils'
 
+export interface notificationLog {
+  workerName: string
+  appID: string
+  kind: 'notificationLog'
+  usage: number
+  limit: number
+}
 export interface txLog {
   workerName: string
   account: string
@@ -11,7 +18,16 @@ export interface txLog {
   kind: 'txLog'
   status: string
   txHash?: string
-  type: 'transfer' | 'stake' | 'slot_stake' | 'unstake' | 'removal'
+  type:
+    | 'transfer'
+    | 'stake'
+    | 'slot_stake'
+    | 'unstake'
+    | 'removal'
+    | 'mark_for_removal'
+    | 'prestakepool_move'
+    | 'log'
+    | 'tx_issue'
 }
 
 const { createLogger, format, transports } = winston

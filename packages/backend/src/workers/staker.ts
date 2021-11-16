@@ -31,7 +31,7 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
 
   if (typeGuard(account, Error)) {
     ctx.logger.error(
-      `Could not create application. This is an error with pocketJS.`
+      `[${ctx.name}]: Could not create application. This is an error with pocketJS.`
     )
     return false
   }
@@ -53,7 +53,9 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
   await preStakedApp.save()
 
   ctx.logger.info(
-    `Created app ${account.addressHex.toString()} with pk ${account.publicKey.toString(
+    `[${
+      ctx.name
+    }] Created app ${account.addressHex.toString()} with pk ${account.publicKey.toString(
       'hex'
     )}`
   )
@@ -65,13 +67,17 @@ async function createApplicationAndFund({ ctx }: { ctx: any }) {
 
   if (!txHash) {
     ctx.logger.error(
-      `Funds were not sent for app ${account.addressHex.toString()}! This is an issue with connecting to the network with PocketJS.`
+      `[${
+        ctx.name
+      }] Funds were not sent for app ${account.addressHex.toString()}! This is an issue with connecting to the network with PocketJS.`
     )
     return false
   }
 
   ctx.logger.info(
-    `createApplicationAndFund(): sent funds (${SLOT_STAKE_AMOUNT.toString()} POKT) to app ${account.addressHex.toString()} on tx ${txHash}`,
+    `[${
+      ctx.name
+    }] sent funds (${SLOT_STAKE_AMOUNT.toString()} POKT) to app ${account.addressHex.toString()} on tx ${txHash}`,
     {
       workerName: ctx.name,
       account: account.addressHex.toString(),
@@ -101,12 +107,12 @@ async function fillAppSlot({
 
   if (balance < SLOT_STAKE_AMOUNT) {
     ctx.logger.warn(
-      `NOTICE! slot app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
+      `[${ctx.name}] NOTICE! slot app ${app.freeTierApplicationAccount.address} doesn't have enough funds.`
     )
     return
   }
 
-  ctx.logger.info(`Filling up slot with app ${address}`)
+  ctx.logger.info(`[${ctx.name}] Filling up slot with app ${address}`)
 
   // @ts-ignore
   const decryptedPrivateKey = Application.decryptPrivateKey(privateKey)
@@ -119,18 +125,16 @@ async function fillAppSlot({
   )
 
   if (typeGuard(stakeTxToSend, RpcError)) {
-    ctx.logger.error(`${stakeTxToSend.toJSON}`)
+    ctx.logger.error(`[${ctx.name}] ${stakeTxToSend.toJSON}`)
     throw stakeTxToSend
   }
 
-  ctx.logger.info(`Crafted tx: ${stakeTxToSend.toJSON()}`)
+  ctx.logger.info(`[${ctx.name}] Crafted tx successfully`)
 
   const txHash = await submitRawTransaction(
     address,
     (stakeTxToSend as RawTxRequest).txHex
   )
-
-  ctx.logger.info(`tx hash: ${txHash}`)
 
   app.status = APPLICATION_STATUSES.READY
   app.stakingTxHash = txHash
@@ -138,7 +142,7 @@ async function fillAppSlot({
   await app.save()
 
   ctx.logger.info(
-    `stakeAppSlots(): Sent slot stake request for filling on tx ${txHash} : app ${address}, chain ${chain}`,
+    `[${ctx.name}]: Sent slot stake request for filling on tx ${txHash} : app ${address}, chain ${chain}`,
     {
       workerName: ctx.name,
       account: address,
@@ -175,20 +179,18 @@ export async function createAppForSlots(ctx): Promise<void> {
   )
 
   if (slotsToFill === 0) {
-    ctx.logger.info('createAppForSlots(): no slots to fill.')
+    ctx.logger.info(`[${ctx.name}] no slots to fill.`)
     return
   }
 
   if (balance < BigInt(slotsToFill)) {
     ctx.logger.warn(
-      `createAppForSlots(): Free tier fund wallet has run out of balance`
+      `[${ctx.name}] Free tier fund wallet has run out of balance`
     )
     return
   }
 
-  ctx.logger.info(
-    `createAppForSlots(): filling ${slotsToFill.toString()} slots.`
-  )
+  ctx.logger.info(`[${ctx.name}] filling ${slotsToFill.toString()} slots.`)
 
   for (let i = 0; i < slotsToFill; i++) {
     await createApplicationAndFund({ ctx })
