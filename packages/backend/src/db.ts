@@ -18,7 +18,6 @@ export const connect = (
   url = composeMongoUrl(env('PROD') as boolean),
   opts = {}
 ): Promise<typeof mongoose> => {
-  console.log(url)
   const userSettings = env('PROD')
     ? {
         user: env('DATABASE_USER') as string,
