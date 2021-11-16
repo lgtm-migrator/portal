@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.15]
+        node-version: [16.13]
 
     services:
       localhost:
@@ -48,7 +48,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.15]
+        node-version: [16.13]
 
     steps:
       - uses: actions/checkout@v2

@@ -1,5 +1,5 @@
 import { Schema, model, Model, Document } from 'mongoose'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 import isEmail from 'validator/lib/isEmail'

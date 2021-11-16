@@ -1,4 +1,4 @@
-FROM node:12.15
+FROM node:16.13
 
 ENV APP_HOME /app
 

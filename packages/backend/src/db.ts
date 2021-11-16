@@ -1,7 +1,8 @@
 import mongoose from 'mongoose'
 import env from './environment'
 
-const DEV_DB_URL = 'mongodb://localhost:27017/gateway-testnet'
+const DEV_DB_URL =
+  'mongodb://mongo-client:mongo-password@localhost:27017/gateway-testnet?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
 
 function composeMongoUrl(production = false) {
   return production
@@ -17,6 +18,7 @@ export const connect = (
   url = composeMongoUrl(env('PROD') as boolean),
   opts = {}
 ): Promise<typeof mongoose> => {
+  console.log(url)
   const userSettings = env('PROD')
     ? {
         user: env('DATABASE_USER') as string,

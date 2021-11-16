@@ -4,7 +4,7 @@ import express, {
   NextFunction,
   CookieOptions,
 } from 'express'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { Types } from 'mongoose'
 import asyncMiddleware from '../middlewares/async'
