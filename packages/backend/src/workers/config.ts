@@ -70,11 +70,6 @@ const MAIN_CHAINS = {
     id: '0004',
     limit: 8,
   },
-  BINANCE_SMART_CHAIN_ARCHIVAL: {
-    ticker: 'BSC',
-    id: '0010',
-    limit: 8,
-  },
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',

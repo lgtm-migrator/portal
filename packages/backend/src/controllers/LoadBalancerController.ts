@@ -90,24 +90,35 @@ router.get(
     const processedLbs = await Promise.all(
       lbs.map(async (lb) => {
         if (!lb.applicationIDs.length) {
-          throw HttpError.INTERNAL_SERVER_ERROR({
-            errors: [
-              {
-                id: 'MALFORMED_LB',
-                message: 'Malformed load balancer',
-              },
-            ],
-          })
+          // Remove user association with empty LBs. This means their apps have no usage and this LB should be removed.
+          lb.user = null
+          await lb.save()
+          return
         }
 
         if (!lb.updatedAt) {
           lb.updatedAt = new Date(Date.now())
-
-          await lb.save()
         }
         const apps: IAppInfo[] = []
 
-        for (const appId of lb.applicationIDs) {
+        // pre process apps
+        const cleanedApplicationIDs = []
+
+        for (const appID of lb.applicationIDs) {
+          const app = await Application.findById(appID)
+
+          if (!app) {
+            continue
+          }
+
+          cleanedApplicationIDs.push(appID)
+        }
+
+        lb.applicationIDs = cleanedApplicationIDs
+
+        await lb.save()
+
+        for (const appId of cleanedApplicationIDs) {
           const app = await Application.findById(appId)
 
           apps.push({
@@ -119,9 +130,23 @@ router.get(
 
         const app = await Application.findById(lb.applicationIDs[0])
 
+        const onChainApp = (
+          (await getApp(
+            app.freeTierApplicationAccount.address
+          )) as QueryAppResponse
+        ).toJSON()
+
+        const { chains } = onChainApp
+
+        const [chain] = chains
+
+        app.chain = chain
+
+        await app.save()
+
         const processedLb: GetApplicationQuery = {
           apps,
-          chain: app.chain,
+          chain: chain,
           createdAt: new Date(Date.now()),
           updatedAt: lb.updatedAt,
           freeTier: app.freeTier,
@@ -137,7 +162,9 @@ router.get(
       })
     )
 
-    res.status(200).send(processedLbs)
+    res
+      .status(200)
+      .send(processedLbs.filter((lb) => lb).filter((lb) => lb.user))
   })
 )
 

@@ -7,6 +7,8 @@ export const errorHandler =
     let code: number
     let body: IContent
 
+    console.log(err)
+
     if (err instanceof HttpError) {
       code = Number(err.code)
       body = err.content
