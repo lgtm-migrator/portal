@@ -7,7 +7,7 @@ import {
 import { APPLICATION_STATUSES } from '../application-statuses'
 import { FREE_TIER_STAKE_AMOUNT, SLOT_STAKE_AMOUNT } from './config'
 import Application, { IApplication } from '../models/Application'
-import LoadBalancer from '../models/LoadBalancer'
+import LoadBalancer, { ILoadBalancer } from '../models/LoadBalancer'
 import PreStakedApp from '../models/PreStakedApp'
 import User from '../models/User'
 import { txLog } from '../lib/logger'
@@ -69,23 +69,25 @@ export async function mapAppsToLBs(
         return
       }
 
-      const lb = await LoadBalancer.findOne({
+      const lbs = await LoadBalancer.find({
         applicationIDs: `${app?.id.toString()}`,
       })
 
-      if (!lb) {
+      if (!lbs.length) {
         usedOrphanedApps.set(app._id.toString(), app.name)
         return
       }
 
-      // only target LBs, we'll handle old apps later
-      // Also bail if we already have this LB
-      if (usedLBs.has(lb.id.toString())) {
-        return
-      }
+      lbs.map((lb) => {
+        // only target LBs, we'll handle old apps later
+        // Also bail if we already have this LB
+        if (usedLBs.has(lb.id.toString())) {
+          return
+        }
 
-      usedLBs.set(lb._id.toString(), lb.applicationIDs)
-      usedLBNames.set(lb._id.toString(), lb.name)
+        usedLBs.set(lb._id.toString(), lb.applicationIDs)
+        usedLBNames.set(lb._id.toString(), lb.name)
+      })
     })
   )
 
@@ -123,9 +125,9 @@ export async function findUnusedLBs({
     )
   }
 
-  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()]
+  // Let's handle apps 10 at a time to not hammer the DB
+  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()].slice(0, 20)
 
-  // find individual apps of unused LBs
   await Promise.allSettled(
     unusedAppIDs.map(async (appID) => {
       // do stuff
@@ -157,28 +159,53 @@ export async function findUnusedLBs({
         } [${app._id.toString()}] to the Prestakepool`
       )
 
-      //const preStakedApp = new PreStakedApp({
-      //chain: app.chain,
-      //status: APPLICATION_STATUSES.SWAPPABLE,
-      //createdAt: app.createdAt,
-      //freeTierApplicationAccount: app.freeTierApplicationAccount,
-      //gatewayAAT: app.gatewayAAT,
-      //})
+      const preStakedApp = new PreStakedApp({
+        chain: app.chain,
+        status: APPLICATION_STATUSES.SWAPPABLE,
+        createdAt: app.createdAt,
+        freeTierApplicationAccount: app.freeTierApplicationAccount,
+        gatewayAAT: app.gatewayAAT,
+      })
 
-      //await Application.deleteOne({ _id: app._id })
+      await Application.deleteOne({ _id: app._id })
 
-      //await preStakedApp.save()
+      await preStakedApp.save()
 
-      //ctx.logger.info(
-      //`[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
-      //{
-      //workerName: ctx.name,
-      //account: app.freeTierApplicationAccount.address,
-      //chain: app.chain,
-      //type: 'removal',
-      //status: APPLICATION_STATUSES.SWAPPABLE,
-      //} as txLog
-      //)
+      ctx.logger.info(
+        `[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
+        {
+          workerName: ctx.name,
+          account: app.freeTierApplicationAccount.address,
+          chain: app.chain,
+          type: 'removal',
+          status: APPLICATION_STATUSES.SWAPPABLE,
+        } as txLog
+      )
+
+      const LBs = LoadBalancer.find({
+        applicationIDs: app._id.toString(),
+      })
+
+      // Remove this app entry from ANY load balancer it was in.
+      // If the load balancer is empty after removing this entry,
+      // then delete the whole load balancer.
+      lbs.map(async (lb: ILoadBalancer) => {
+        const applicationIDs = lb.applicationIDs
+        const newApplicationIDs = applicationIDs.filter(
+          (id) => id !== app._id.toString()
+        )
+
+        if (!newApplicationIDs.length) {
+          ctx.logger.info(
+            `[${ctx.name}] Removed LB ${lb.name} [${lb._id.toString()}].`
+          )
+          await lb.deleteOne()
+          return
+        }
+
+        lb.applicationIDs = newApplicationIDs
+        await lb.save()
+      })
     })
   )
 }
