@@ -119,14 +119,8 @@ export async function findUnusedLBs({
     })
   )
 
-  for (const [id, appIDs] of unusedLBs) {
-    ctx.logger.info(
-      `[${ctx.name}] ${unusedLBNames.get(id)} [${id}] found to have no usage.`
-    )
-  }
-
   // Let's handle apps 10 at a time to not hammer the DB
-  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()].slice(0, 20)
+  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()].reverse().slice(0, 20)
 
   await Promise.allSettled(
     unusedAppIDs.map(async (appID) => {
