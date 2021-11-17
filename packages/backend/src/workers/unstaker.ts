@@ -120,7 +120,9 @@ export async function findUnusedLBs({
   )
 
   // Let's handle apps 10 at a time to not hammer the DB
-  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()].reverse().slice(0, 20)
+  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()]
+    .reverse()
+    .slice(0, 100)
 
   await Promise.allSettled(
     unusedAppIDs.map(async (appID) => {
