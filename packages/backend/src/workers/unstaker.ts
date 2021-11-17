@@ -11,7 +11,7 @@ import LoadBalancer from '../models/LoadBalancer'
 import PreStakedApp from '../models/PreStakedApp'
 import User from '../models/User'
 import { txLog } from '../lib/logger'
-import { influx, APPLICATION_USAGE_QUERY } from '../lib/influx'
+import { influx, buildNotificationsQuery } from '../lib/influx'
 import {
   createAppStakeTx,
   createAppUnstakeTx,
@@ -23,8 +23,165 @@ import {
 } from '../lib/pocket'
 import MailgunService from '../services/MailgunService'
 import env from '../environment'
+import { composeDaysFromNowUtcDate } from '../lib/date-utils'
 
 const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
+
+export async function fetchUsedApps(): Promise<string[]> {
+  const rawAppsUsed = await influx.collectRows(
+    buildNotificationsQuery({
+      start: composeDaysFromNowUtcDate(15),
+      stop: composeDaysFromNowUtcDate(0),
+    })
+  )
+
+  const appsUsed = new Map<string, number>()
+
+  rawAppsUsed.map(({ _value, applicationPublicKey }) => {
+    const total = appsUsed.get(applicationPublicKey) ?? 0
+
+    appsUsed.set(applicationPublicKey, total + _value)
+  })
+
+  return Array.from(appsUsed.keys())
+}
+
+export async function mapAppsToLBs(
+  appsUsed: string[],
+  ctx: any
+): Promise<{
+  usedLBs: Map<string, string[]>
+  usedLBNames: Map<string, string>
+  usedOrphanedApps: Map<string, string>
+}> {
+  const usedLBs = new Map<string, string[]>()
+  const usedLBNames = new Map<string, string>()
+  const usedOrphanedApps = new Map<string, string>()
+
+  await Promise.allSettled(
+    appsUsed.map(async (publicKey) => {
+      // do stuff
+      const app = await Application.findOne({
+        'freeTierApplicationAccount.publicKey': `${publicKey}`,
+      })
+
+      if (!app) {
+        return
+      }
+
+      const lb = await LoadBalancer.findOne({
+        applicationIDs: `${app?.id.toString()}`,
+      })
+
+      if (!lb) {
+        usedOrphanedApps.set(app._id.toString(), app.name)
+        return
+      }
+
+      // only target LBs, we'll handle old apps later
+      // Also bail if we already have this LB
+      if (usedLBs.has(lb.id.toString())) {
+        return
+      }
+
+      usedLBs.set(lb._id.toString(), lb.applicationIDs)
+      usedLBNames.set(lb._id.toString(), lb.name)
+    })
+  )
+
+  return { usedLBs, usedLBNames, usedOrphanedApps }
+}
+
+export async function findUnusedLBs({
+  usedLBs,
+  usedLBNames,
+  usedOrphanedApps,
+  ctx,
+}: {
+  usedLBs: Map<string, string[]>
+  usedLBNames: Map<string, string>
+  usedOrphanedApps: Map<string, string>
+  ctx: any
+}): Promise<void> {
+  const unusedLBs = new Map<string, string[]>()
+  const unusedLBNames = new Map<string, string>()
+  const lbs = await LoadBalancer.find()
+
+  await Promise.allSettled(
+    lbs.map(async (lb) => {
+      // do stuff
+      if (!usedLBs.has(lb._id.toString())) {
+        unusedLBs.set(lb._id.toString(), lb.applicationIDs)
+        unusedLBNames.set(lb._id.toString(), lb.name)
+      }
+    })
+  )
+
+  for (const [id, appIDs] of unusedLBs) {
+    ctx.logger.info(
+      `[${ctx.name}] ${unusedLBNames.get(id)} [${id}] found to have no usage.`
+    )
+  }
+
+  const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()]
+
+  // find individual apps of unused LBs
+  await Promise.allSettled(
+    unusedAppIDs.map(async (appID) => {
+      // do stuff
+      const app = await Application.findOne({ _id: appID })
+
+      if (!app) {
+        return
+      }
+
+      const onChainApp = (await getApp(
+        app.freeTierApplicationAccount.address
+      )) as QueryAppResponse
+
+      const { staked_tokens } = onChainApp.toJSON()
+
+      // Bail, we're looking for apps we can inmediately move to the prestakepool
+      if (BigInt(staked_tokens) !== FREE_TIER_STAKE_AMOUNT) {
+        ctx.logger.info(
+          `[${ctx.name}] ${
+            app.name
+          } [${app._id.toString()}] doesn't have the required balance to be moved to the Prestakepool.`
+        )
+        return
+      }
+
+      ctx.logger.info(
+        `[${ctx.name}] Moving ${
+          app.name
+        } [${app._id.toString()}] to the Prestakepool`
+      )
+
+      //const preStakedApp = new PreStakedApp({
+      //chain: app.chain,
+      //status: APPLICATION_STATUSES.SWAPPABLE,
+      //createdAt: app.createdAt,
+      //freeTierApplicationAccount: app.freeTierApplicationAccount,
+      //gatewayAAT: app.gatewayAAT,
+      //})
+
+      //await Application.deleteOne({ _id: app._id })
+
+      //await preStakedApp.save()
+
+      //ctx.logger.info(
+      //`[${ctx.name}] app ${app.name} [${app.freeTierApplicationAccount.address}] (chain: ${preStakedApp.chain})moved to PreStakedAppPool`,
+      //{
+      //workerName: ctx.name,
+      //account: app.freeTierApplicationAccount.address,
+      //chain: app.chain,
+      //type: 'removal',
+      //status: APPLICATION_STATUSES.SWAPPABLE,
+      //} as txLog
+      //)
+    })
+  )
+}
 
 async function unstakeApplication(
   app: typeof Application & IApplication,
@@ -346,7 +503,12 @@ async function moveToPreStakePool(
  * A warning email is sent to the unused apps and marked for removal.
  * */
 export async function markAppsForRemoval(ctx): Promise<void> {
-  const appsWithUsage = await influx.collectRows(APPLICATION_USAGE_QUERY)
+  const appsWithUsage = await influx.collectRows(
+    buildNotificationsQuery({
+      start: composeDaysFromNowUtcDate(14),
+      stop: composeDaysFromNowUtcDate(0),
+    })
+  )
 
   const apps = await Application.find()
 
@@ -378,7 +540,7 @@ export async function markAppsForRemoval(ctx): Promise<void> {
   )
 
   ctx.logger.info(
-    `[${ctx.name}] decomissioning ${appsWithoutUsage.length} apps`
+    `[${ctx.name}] found ${appsWithoutUsage.length} apps without usage`
   )
 }
 
@@ -529,4 +691,15 @@ export async function removeFundsFromApps(ctx): Promise<void> {
       await removeFunds({ app, ctx })
     })
   )
+}
+
+export async function unstakeLBs(ctx): Promise<void> {
+  const apps = await fetchUsedApps()
+
+  const { usedLBs, usedLBNames, usedOrphanedApps } = await mapAppsToLBs(
+    apps,
+    ctx
+  )
+
+  await findUnusedLBs({ usedLBs, usedLBNames, usedOrphanedApps, ctx })
 }

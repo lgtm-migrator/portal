@@ -5,10 +5,11 @@ import { notifyUsage } from './notifications'
 
 import {
   categorizeAppRemoval,
+  removeFundsFromApps,
+  stakeAppsForSlots,
   transferSlotFunds,
   unstakeApps,
-  stakeAppsForSlots,
-  removeFundsFromApps,
+  unstakeLBs,
 } from './unstaker'
 import {
   ONE_MINUTES,
@@ -229,5 +230,11 @@ export const workers = [
     color: 'red',
     workerFn: (ctx): Promise<void> => notifyUsage(ctx),
     recurrence: SIXTY_MINUTES_OFFSET,
+  },
+  {
+    name: 'LB_UNSTAKER',
+    color: 'red',
+    workerFn: (ctx): Promise<void> => unstakeLBs(ctx),
+    recurrence: FIVE_MINUTES,
   },
 ]
