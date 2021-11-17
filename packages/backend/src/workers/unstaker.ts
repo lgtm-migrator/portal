@@ -122,7 +122,7 @@ export async function findUnusedLBs({
   // Let's handle apps 10 at a time to not hammer the DB
   const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()]
     .reverse()
-    .slice(0, 100)
+    .slice(0, 300)
 
   await Promise.allSettled(
     unusedAppIDs.map(async (appID) => {
@@ -163,6 +163,8 @@ export async function findUnusedLBs({
         gatewayAAT: app.gatewayAAT,
       })
 
+      const deletedAppID = app._id.toString()
+
       await Application.deleteOne({ _id: app._id })
 
       await preStakedApp.save()
@@ -179,16 +181,16 @@ export async function findUnusedLBs({
       )
 
       const LBs = LoadBalancer.find({
-        applicationIDs: app._id.toString(),
+        applicationIDs: deletedAppID,
       })
 
       // Remove this app entry from ANY load balancer it was in.
       // If the load balancer is empty after removing this entry,
       // then delete the whole load balancer.
-      lbs.map(async (lb: ILoadBalancer) => {
+      LBs.map(async (lb: ILoadBalancer) => {
         const applicationIDs = lb.applicationIDs
         const newApplicationIDs = applicationIDs.filter(
-          (id) => id !== app._id.toString()
+          (id) => id !== deletedAppID.toString()
         )
 
         if (!newApplicationIDs.length) {
