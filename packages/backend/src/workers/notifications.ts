@@ -169,6 +169,15 @@ export async function sendEmailByThreshold({
       `portal-notification-threshold`
     )
 
+    if (thresholdExceeded === -1) {
+      ctx.logger.info(
+        `[${ctx.name}] No need to send email to app ${namesByID.get(
+          id
+        )} [${id}]; No threshold has been exceeded.`
+      )
+      return
+    }
+
     // We can bail out if the notification we're sending is lesser than the last one sent
     if (cachedThreshold && cachedThreshold >= thresholdExceeded) {
       ctx.logger.info(
