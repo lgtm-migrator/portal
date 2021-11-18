@@ -98,10 +98,10 @@ router.post(
       { session: false },
       async (err, user: IUser) => {
         if (err) {
-          next(err)
+          return next(err)
         }
         if (!user) {
-          next(
+          return next(
             HttpError.BAD_REQUEST({
               errors: [
                 {
@@ -133,7 +133,7 @@ router.post(
             templateName: 'SignUp',
             toEmail: user.email,
           })
-          next(
+          return next(
             HttpError.BAD_REQUEST({
               errors: [
                 {
