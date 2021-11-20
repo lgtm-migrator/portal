@@ -1,13 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import '@fontsource/manrope'
 import App from './App'
 import env from './environment'
+import { initializeCountly } from './lib/analytics'
 import initializeSentry from './sentry'
-
-import '@fontsource/manrope'
 
 const REACT_AXE_THROTTLE_TIME = 2500
 
+initializeCountly()
 initializeSentry()
 
 if (!env('PROD') && env('ENABLE_A11Y')) {
