@@ -17,7 +17,7 @@ const ENV_VARS = {
     return import.meta.env.VITE_APP_HASURA_URL ?? ''
   },
   PROD() {
-    return import.meta.env.NODE_ENV === 'production'
+    return import.meta.env.MODE === 'production'
   },
   USE_TEST_APP() {
     return import.meta.env.VITE_APP_USE_TEST_APP === 'true' ?? false
