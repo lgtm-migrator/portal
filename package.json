@@ -5,13 +5,7 @@
   "author": "Pocket Foundation <hola@pokt.network>",
   "contributors": ["Enrique Ortiz <hi@enriqueortiz.dev>"],
   "license": "MIT",
-  "private": true,
-  "workspaces": ["packages/*"],
-  "devDependencies": {
-    "lerna": "^3.22.1"
-  },
   "scripts": {
-    "init:db": "sh scripts/init-db.sh",
-    "prepare": "lerna run build"
+    "init:db": "sh scripts/init-db.sh"
   }
 }

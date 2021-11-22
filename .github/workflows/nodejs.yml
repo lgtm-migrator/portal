@@ -34,13 +34,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Install PNPM
+        working-directory: packages/backend
+        run: npm i -g pnpm
+
       - name: Install dependencies
         working-directory: packages/backend
-        run: yarn
+        run: pnpm i
 
       - name: Running prod build
         working-directory: packages/backend
-        run: yarn build
+        run: pnpm build
 
   # Frontend CI
   Frontend:
@@ -58,10 +62,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Install PNPM
+        working-directory: packages/frontend
+        run: npm i -g pnpm
+
       - name: Install dependencies
         working-directory: packages/frontend
-        run: yarn
+        run: pnpm i
 
       - name: Running lint
         working-directory: packages/frontend
-        run: yarn lint
+        run: pnpm run lint

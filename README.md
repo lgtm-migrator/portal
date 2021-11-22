@@ -20,7 +20,7 @@ Decentralized infrastructure, just a few clicks away. 🚀
 
 - First, make sure to run the DB script in the top level package.
 - Spin up the `Dockerfile` script in the backend package.
-- Install packages with `yarn` and launch the app with `yarn start` in each of the two packages. You'll have to provide your own values in the `env` for each, for which an example is included.
+- Install packages with `pnpm i` and launch the app with `pnpm run start` in each of the two packages. You'll have to provide your own values in the `env` for each, for which an example is included.
 
 A detailed contributing and architecture guide is coming soon!
 
