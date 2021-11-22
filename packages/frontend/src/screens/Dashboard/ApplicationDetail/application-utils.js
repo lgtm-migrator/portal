@@ -1,5 +1,5 @@
-import * as dayjs from 'dayjs'
-import * as dayJsutcPlugin from 'dayjs/plugin/utc'
+import dayjs from 'dayjs/esm'
+import dayJsutcPlugin from 'dayjs/esm/plugin/utc'
 import { useTheme } from '@pokt-foundation/ui'
 import { norm } from '../../../lib/math-utils'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
