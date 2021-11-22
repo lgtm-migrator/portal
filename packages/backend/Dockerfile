@@ -14,4 +14,4 @@ RUN npm i -g pnpm && pnpm i && pnpm run build
 ENV HOST=0.0.0.0 PORT=4200
 
 EXPOSE ${PORT}
-CMD [ "pnpm", "run start:prod" ]
+CMD [ "yarn", "start:prod" ]
