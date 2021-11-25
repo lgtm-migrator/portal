@@ -24,7 +24,7 @@ export interface ILoadBalancer extends Document {
   chain: string
 }
 
-const LoadBalancerSchema = new Schema(
+const LoadBalancerSchema = new Schema<ILoadBalancer>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     name: String,

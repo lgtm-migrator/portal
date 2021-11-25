@@ -25,6 +25,8 @@ import MailgunService from '../services/MailgunService'
 import env from '../environment'
 import { composeDaysFromNowUtcDate } from '../lib/date-utils'
 
+const CUSTOM_LB_THRESHOLD = 3
+
 const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
 
 export async function fetchUsedApps(): Promise<string[]> {
@@ -66,6 +68,9 @@ export async function mapAppsToLBs(
       })
 
       if (!app) {
+        ctx.logger.warn(
+          `[${ctx.name}] Did not find corresponding app for ${publicKey}`
+        )
         return
       }
 
@@ -74,13 +79,17 @@ export async function mapAppsToLBs(
       })
 
       if (!lbs.length) {
+        ctx.logger.warn(
+          `[${ctx.name}] ${
+            app.name
+          } (${app._id.toString()}) is an orphaned app and displays usage.`
+        )
         usedOrphanedApps.set(app._id.toString(), app.name)
         return
       }
 
       lbs.map((lb) => {
-        // only target LBs, we'll handle old apps later
-        // Also bail if we already have this LB
+        // bail if we already have this LB
         if (usedLBs.has(lb.id.toString())) {
           return
         }
@@ -107,22 +116,44 @@ export async function findUnusedLBs({
 }): Promise<void> {
   const unusedLBs = new Map<string, string[]>()
   const unusedLBNames = new Map<string, string>()
+  // We're taking a "is this element in the set" approach, so we'll need to look at all the LBs and see which are not active.
   const lbs = await LoadBalancer.find()
 
   await Promise.allSettled(
     lbs.map(async (lb) => {
-      // do stuff
-      if (!usedLBs.has(lb._id.toString())) {
+      // A note on LB removal eligibility:
+      // We need to ensure that only old, dusty, "vanilla" LBs are removed.
+      // This means that we need to take into account more things than just usage to avoid any edge cases.
+      // These are:
+      // Is the LB possibly a custom sales LB that has gone unused for whatever reason? If so, dismiss it. We're hunting the small ones only.
+      // We'll take only LBs with 3 apps and below to avoid "bigger" endpoints to be reduced in size if they don't hit their full capacity.
+      const isLbCustom = lb.applicationIDs.length > CUSTOM_LB_THRESHOLD
+
+      // if it was created or updated recently, dismiss it
+      const isLBNew = Math.abs(dayjs().diff(dayjs(lb.createdAt), 'day')) <= 14
+      const isLBActive =
+        Math.abs(dayjs().diff(dayjs(lb?.updatedAt ?? dayjs()), 'day')) <= 14
+
+      if (
+        !usedLBs.has(lb._id.toString()) &&
+        !isLbCustom &&
+        !isLBNew &&
+        !isLBActive
+      ) {
         unusedLBs.set(lb._id.toString(), lb.applicationIDs)
         unusedLBNames.set(lb._id.toString(), lb.name)
+      } else {
+        ctx.logger.info(
+          `[${ctx.name}] ${
+            lb.name
+          } (${lb._id.toString()}) is not eligible for sweeping.`
+        )
       }
     })
   )
 
   // Let's handle apps 10 at a time to not hammer the DB
   const unusedAppIDs = [...Array.from(unusedLBs.values()).flat()]
-    .reverse()
-    .slice(0, 300)
 
   await Promise.allSettled(
     unusedAppIDs.map(async (appID) => {
@@ -144,7 +175,7 @@ export async function findUnusedLBs({
         ctx.logger.info(
           `[${ctx.name}] ${
             app.name
-          } [${app._id.toString()}] doesn't have the required balance to be moved to the Prestakepool.`
+          } [${app._id.toString()}] doesn't have the required balance to be moved to the Prestakepool. (current balance: ${staked_tokens})`
         )
         return
       }

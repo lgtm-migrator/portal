@@ -8,11 +8,12 @@ export interface IChain extends Document {
   name: string
   network?: string
   networkID: string
+  requestTimeOut?: number
   nodeCount: number
   ticker: string
 }
 
-const chainSchema = new Schema(
+const chainSchema = new Schema<IChain>(
   {
     _id: String,
     appCount: Number,
@@ -21,6 +22,7 @@ const chainSchema = new Schema(
     name: String,
     networkID: String,
     nodeCount: Number,
+    requestTimeOut: Number,
     ticker: String,
   },
   { collection: 'Blockchains' }

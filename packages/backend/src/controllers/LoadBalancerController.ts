@@ -28,6 +28,7 @@ import { getApp } from '../lib/pocket'
 import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
+import Blockchains from '../models/Blockchains'
 
 const DEFAULT_GATEWAY_SETTINGS = {
   secretKey: '',
@@ -87,10 +88,11 @@ router.get(
       })
     }
 
+    // Process all the LBs to "clean them up" for the interface.
     const processedLbs = await Promise.all(
       lbs.map(async (lb) => {
         if (!lb.applicationIDs.length) {
-          // Remove user association with empty LBs. This means their apps have no usage and this LB should be removed.
+          // Remove user association with empty LBs. This means their apps have no usage and have been removed, so this LB should be removed (and will be done so automatically after some time).
           lb.user = null
           await lb.save()
           return
@@ -105,6 +107,10 @@ router.get(
         const cleanedApplicationIDs = []
 
         for (const appID of lb.applicationIDs) {
+          if (!appID) {
+            continue
+          }
+
           const app = await Application.findById(appID)
 
           if (!app) {
@@ -245,18 +251,24 @@ router.post(
         ],
       })
     }
+
+    const blockchain = await Blockchains.findOne({ _id: application.chain })
+
+    const timeout = blockchain?.requestTimeOut ?? DEFAULT_TIMEOUT
+
     const loadBalancer: ILoadBalancer = new LoadBalancer({
       user: id,
       name,
-      requestTimeOut: DEFAULT_TIMEOUT,
+      requestTimeOut: timeout,
       applicationIDs: [application._id.toString()],
       updatedAt: new Date(Date.now()),
+      createdAt: new Date(Date.now()),
     })
 
     await loadBalancer.save()
 
     const processedLb: GetApplicationQuery = {
-      chain: application.chain,
+      chain,
       createdAt: new Date(Date.now()),
       updatedAt: loadBalancer.updatedAt,
       name: loadBalancer.name,
@@ -335,6 +347,9 @@ router.put(
         await application.save()
       })
     )
+
+    loadBalancer.updatedAt = new Date(Date.now())
+    await loadBalancer.save()
 
     res.status(204).send()
   })
@@ -457,6 +472,10 @@ router.put(
         await app.save()
       })
     )
+
+    loadBalancer.updatedAt = new Date(Date.now())
+
+    await loadBalancer.save()
 
     emailService.send({
       templateName: 'NotificationChange',
@@ -636,7 +655,11 @@ router.post(
       })
     )
 
-    await loadBalancer.deleteOne()
+    loadBalancer.user = null
+    loadBalancer.updatedAt = new Date(Date.now())
+
+    await loadBalancer.save()
+
     res.status(204).send()
   })
 )
