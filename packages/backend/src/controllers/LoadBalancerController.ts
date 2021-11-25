@@ -36,7 +36,7 @@ const DEFAULT_GATEWAY_SETTINGS = {
   whitelistUserAgents: [],
 }
 const DEFAULT_TIMEOUT = 5000
-const MAX_USER_APPS = 2
+const MAX_USER_ENDPOINTS = 2
 
 async function getLBPublicKeys(appIDs: string[], lbID: string) {
   const cachedPublicKeys = await getResponseFromCache(`${lbID}-pks`)
@@ -174,9 +174,10 @@ router.post(
     const { name, chain, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
 
     const id = (req.user as IUser)._id
-    const userApps = await Application.find({ user: id })
+    const userLBs = await LoadBalancer.find({ user: id })
+
     const isNewAppRequestInvalid =
-      userApps.length >= MAX_USER_APPS &&
+      userLBs.length >= MAX_USER_ENDPOINTS &&
       !(env('GODMODE_ACCOUNTS') as string[]).includes(id.toString())
 
     if (isNewAppRequestInvalid) {
@@ -306,7 +307,7 @@ router.put(
       })
     }
 
-    const existingSettings = await Promise.all(
+    const existingKeys = await Promise.all(
       loadBalancer.applicationIDs.map(async function changeSettings(
         applicationId
       ) {
@@ -314,15 +315,13 @@ router.put(
           applicationId
         )
 
-        return application.gatewaySettings
+        return application.gatewaySettings?.secretKey ?? ''
       })
     )
 
-    const { secretKey = '' } = existingSettings.find(
-      (settings) => settings?.secretKey !== ''
-    )
+    const secretKey = existingKeys.find((k) => k !== '')
 
-    gatewaySettings.secretKey = secretKey
+    const processedGatewaySettings = { ...gatewaySettings, secretKey }
 
     await Promise.all(
       loadBalancer.applicationIDs.map(async function changeSettings(
@@ -332,7 +331,7 @@ router.put(
           applicationId
         )
 
-        application.gatewaySettings = gatewaySettings
+        application.gatewaySettings = processedGatewaySettings
         await application.save()
       })
     )
