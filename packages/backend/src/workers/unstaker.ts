@@ -7,7 +7,7 @@ import {
 import { APPLICATION_STATUSES } from '../application-statuses'
 import { FREE_TIER_STAKE_AMOUNT, SLOT_STAKE_AMOUNT } from './config'
 import Application, { IApplication } from '../models/Application'
-import LoadBalancer, { ILoadBalancer } from '../models/LoadBalancer'
+import LoadBalancer from '../models/LoadBalancer'
 import PreStakedApp from '../models/PreStakedApp'
 import User from '../models/User'
 import { txLog } from '../lib/logger'
@@ -211,30 +211,31 @@ export async function findUnusedLBs({
         } as txLog
       )
 
-      const LBs = LoadBalancer.find({
+      const LBs = await LoadBalancer.find({
         applicationIDs: deletedAppID,
       })
 
       // Remove this app entry from ANY load balancer it was in.
       // If the load balancer is empty after removing this entry,
       // then delete the whole load balancer.
-      LBs.map(async (lb: ILoadBalancer) => {
-        const applicationIDs = lb.applicationIDs
-        const newApplicationIDs = applicationIDs.filter(
-          (id) => id !== deletedAppID.toString()
-        )
-
-        if (!newApplicationIDs.length) {
-          ctx.logger.info(
-            `[${ctx.name}] Removed LB ${lb.name} [${lb._id.toString()}].`
+      await Promise.allSettled(
+        LBs.map(async (lb) => {
+          const applicationIDs = lb.applicationIDs
+          const newApplicationIDs = applicationIDs.filter(
+            (id) => id !== deletedAppID.toString()
           )
-          await lb.deleteOne()
-          return
-        }
 
-        lb.applicationIDs = newApplicationIDs
-        await lb.save()
-      })
+          if (!newApplicationIDs.length) {
+            ctx.logger.info(
+              `[${ctx.name}] Removed LB ${lb.name} [${lb._id.toString()}].`
+            )
+            await lb.deleteOne()
+          } else {
+            lb.applicationIDs = newApplicationIDs
+            await lb.save()
+          }
+        })
+      )
     })
   )
 }
