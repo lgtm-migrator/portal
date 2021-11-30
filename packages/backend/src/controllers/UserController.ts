@@ -159,10 +159,10 @@ router.post(
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('signup', { session: false }, async (err, user) => {
       if (err) {
-        next(err)
+        return next(err)
       }
       if (!user) {
-        next(
+        return next(
           HttpError.INTERNAL_SERVER_ERROR({
             errors: [
               {
@@ -199,16 +199,16 @@ router.post(
 
 router.post(
   '/send-verify-mail',
-  asyncMiddleware(async (req: Request, res: Response) => {
+  asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body
     const user: IUser = await User.findOne({ email })
 
     if (!user) {
-      throw HttpError.BAD_REQUEST({
+      return next(HttpError.BAD_REQUEST({
         errors: [
           { id: 'EMAIL_DOES_NOT_EXIST', message: 'Email does not exist' },
         ],
-      })
+      }))
     }
     const validationToken = await createNewVerificationToken(
       user._id,
