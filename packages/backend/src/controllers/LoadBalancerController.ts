@@ -144,6 +144,10 @@ router.get(
 
         const { chains } = onChainApp
 
+        if (!chains) {
+          return
+        }
+
         const [chain] = chains
 
         app.chain = chain
