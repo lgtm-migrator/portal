@@ -10,7 +10,6 @@ const CHAIN_ID_PREFIXES = new Map([
   ['000C', { prefix: 'poa-xdai-archival', name: 'XDAI Mainnet (Archival)' }],
   ['000D', { prefix: 'algo-archival', name: 'Algorand Mainnet (Archival)' }],
   ['00A3', { prefix: 'avax-archival', name: 'Avalanche Mainnet (Archival)' }],
-  ['0010', { prefix: 'bsc-archival', name: 'Binance Smart Chain (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],
   ['0022', { prefix: 'eth-archival', name: 'Ethereum Mainnet (Archival)' }],
   ['0023', { prefix: 'eth-ropsten', name: 'Ethereum Ropsten' }],
