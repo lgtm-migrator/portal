@@ -1,6 +1,6 @@
 export const MAX_USER_APPS = 2
 
-export const FREE_TIER_TOKENS = 8000000000
+export const FREE_TIER_TOKENS = 3120000000
 export const FREE_TIER_MAX_RELAYS = 1000000
 
 /**

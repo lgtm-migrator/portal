@@ -21,6 +21,7 @@ const CHAIN_ID_PREFIXES = new Map([
   ['0029', { prefix: 'algo-mainnet', name: 'Algorand Mainnet' }],
   ['0040', { prefix: 'harmony-0', name: 'Harmony Shard 0' }],
   ['0044', { prefix: 'iotex-mainnet', name: 'IoTeX Mainnet' }],
+  ['0046', { prefix: 'evmos-testnet', name: 'Evmos Testnet' }],
 ])
 
 export const PRODUCTION_CHAINS = [

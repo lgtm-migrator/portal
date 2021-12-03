@@ -48,37 +48,37 @@ const MAIN_CHAINS = {
   ALGORAND_MAINNET: {
     ticker: 'ALGO',
     id: '0029',
-    limit: 5,
+    limit: 0,
   },
   ALGORAND_MAINNET_ARCHIVAL: {
     ticker: 'ALGO',
     id: '000D',
-    limit: 5,
+    limit: 0,
   },
   AVAX_MAINNET: {
     ticker: 'AVAX',
     id: '0003',
-    limit: 5,
+    limit: 0,
   },
   AVAX_MAINNET_ARCHIVAL: {
     ticker: 'AVAX',
     id: '00A3',
-    limit: 5,
+    limit: 0,
   },
   BINANCE_SMART_CHAIN: {
     ticker: 'BSC',
     id: '0004',
-    limit: 8,
+    limit: 0,
   },
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',
-    limit: 10,
+    limit: 0,
   },
   ETHEREUM_KOVAN_FULL: {
     ticker: 'POA',
     id: '0024',
-    limit: 5,
+    limit: 0,
   },
   ETHEREUM_MAINNET_ARCHIVAL: {
     ticker: 'ETH',
@@ -88,67 +88,72 @@ const MAIN_CHAINS = {
   EHEREUM_MAINNET_ARCHIVAL_TRACING: {
     ticker: 'ETH',
     id: '0028',
-    limit: 8,
+    limit: 0,
   },
   ETHEREUM_MAINNET_FULL: {
     ticker: 'ETH',
     id: '0021',
-    limit: 8,
+    limit: 0,
   },
   ETHEREUM_RINKEBY_FULL: {
     ticker: 'ETH',
     id: '0025',
-    limit: 8,
+    limit: 0,
   },
   ETHEREUM_ROPSTEN_FULL: {
     ticker: 'ETH',
     id: '0023',
-    limit: 5,
+    limit: 0,
   },
   ETHEREUM_XDAI_ARCHIVAL: {
     ticker: 'POA',
     id: '000C',
-    limit: 5,
+    limit: 0,
   },
   ETHEREUM_XDAI_FULL: {
     ticker: 'POA',
     id: '0027',
-    limit: 8,
+    limit: 0,
   },
   FUSE_FULL: {
     ticker: 'FUSE',
     id: '0005',
-    limit: 8,
+    limit: 0,
   },
   HARMONY: {
     ticker: 'HMY',
     id: '0040',
-    limit: 5,
+    limit: 0,
   },
   IOTEX_MAINNET: {
     ticker: 'IOT',
     id: '0044',
-    limit: 5,
+    limit: 0,
   },
   POCKET_MAINNET: {
     ticker: 'POKT',
     id: '0001',
-    limit: 3,
+    limit: 0,
   },
   POLYGON_ARCHIVAL: {
     ticker: 'POLY-A',
     id: '000B',
-    limit: 5,
+    limit: 0,
   },
   POLYGON_MAINNET: {
     ticker: 'POLY',
     id: '0009',
-    limit: 8,
+    limit: 0,
   },
   SOLANA_MAINNET: {
     ticker: 'SOL',
     id: '0006',
-    limit: 5,
+    limit: 0,
+  },
+  EVMOS_TESTNET: {
+    ticker: 'EVMOS',
+    id: '0046',
+    limit: 10,
   },
 }
 
@@ -164,7 +169,7 @@ function getChainsByEnvironment() {
   }
 }
 
-export const FREE_TIER_STAKE_AMOUNT = 8000000000n
+export const FREE_TIER_STAKE_AMOUNT = 3120000000n
 export const SLOT_STAKE_AMOUNT = 1000000n
 export const chains = getChainsByEnvironment()
 
@@ -178,12 +183,12 @@ export const workers = [
     workerFn: (ctx): Promise<void> => getAppsPerChain(ctx),
     recurrence: SIXTY_MINUTES,
   },
-  //{
-  //name: 'APP_POOL_FILLER',
-  //color: 'green',
-  //workerFn: (ctx): Promise<void> => fillAppPool(ctx),
-  //recurrence: ONE_MINUTES,
-  //},
+  {
+    name: 'APP_POOL_FILLER',
+    color: 'green',
+    workerFn: (ctx): Promise<void> => fillAppPool(ctx),
+    recurrence: ONE_MINUTES,
+  },
   {
     name: 'APP_POOL_STAKER',
     color: 'green',
