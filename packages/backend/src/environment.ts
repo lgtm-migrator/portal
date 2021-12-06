@@ -26,6 +26,9 @@ export const ENV_VARS = {
   FRONTEND_URL(): string {
     return process.env.FRONTEND_URL || 'http://localhost:3000'
   },
+  ERROR_METRICS_URL(): string {
+    return process.env.ERROR_METRICS_URL?.trim() ?? ''
+  },
   ALLOWED_DOMAINS(): string[] {
     return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3000']
   },
@@ -136,6 +139,7 @@ type envVarCategory =
   | 'EMAIL_API_KEY'
   | 'EMAIL_FROM'
   | 'ENABLE_WORKERS'
+  | 'ERROR_METRICS_URL'
   | 'FREE_TIER_ACCOUNT_ADDRESS'
   | 'FREE_TIER_ACCOUNT_PRIVATE_KEY'
   | 'FRONTEND_URL'

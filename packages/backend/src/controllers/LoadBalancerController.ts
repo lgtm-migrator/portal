@@ -29,6 +29,7 @@ import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
 import Blockchains from '../models/Blockchains'
+import axios from 'axios'
 
 const DEFAULT_GATEWAY_SETTINGS = {
   secretKey: '',
@@ -969,139 +970,6 @@ router.post(
   })
 )
 
-router.post(
-  '/latest-successful-relays',
-  asyncMiddleware(async (req: Request, res: Response) => {
-    const userId = (req.user as IUser)._id
-
-    const { id } = req.body
-
-    const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
-
-    if (!loadBalancer) {
-      throw HttpError.BAD_REQUEST({
-        errors: [
-          {
-            id: 'NONEXISTENT_LOADBALANCER',
-            message: 'User does not have an active Load Balancer',
-          },
-        ],
-      })
-    }
-    if (loadBalancer.user.toString() !== userId.toString()) {
-      throw HttpError.FORBIDDEN({
-        errors: [
-          {
-            id: 'UNAUTHORIZED_ACCESS',
-            message: 'User does not have access to this load balancer',
-          },
-        ],
-      })
-    }
-
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLBPublicKeys(appIds, id)
-
-    const rawLatestRelays = await influx.collectRows(
-      buildLatestFilteredQueries({
-        publicKeys,
-        start: '-1h',
-        stop: '-0h',
-        result: '200',
-      })
-    )
-
-    const processedLatestRelays = rawLatestRelays.map(
-      ({
-        method,
-        bytes_200,
-        bytes_500,
-        elapsedTime_200,
-        elapsedTime_500,
-        nodePublicKey,
-      }) => {
-        return {
-          bytes: bytes_200 ?? bytes_500 ?? 0,
-          elapsedTime: elapsedTime_200 ?? elapsedTime_500 ?? 0,
-          method,
-          nodePublicKey,
-          result: bytes_200 ? '200' : '500',
-        }
-      }
-    )
-
-    res.status(200).send({
-      session_relays: processedLatestRelays,
-    })
-  })
-)
-
-router.post(
-  '/latest-failing-relays',
-  asyncMiddleware(async (req: Request, res: Response) => {
-    const userId = (req.user as IUser)._id
-    const { id } = req.body
-
-    const loadBalancer: ILoadBalancer = await LoadBalancer.findById(id)
-
-    if (!loadBalancer) {
-      throw HttpError.BAD_REQUEST({
-        errors: [
-          {
-            id: 'NONEXISTENT_LOADBALANCER',
-            message: 'User does not have an active Load Balancer',
-          },
-        ],
-      })
-    }
-    if (loadBalancer.user.toString() !== userId.toString()) {
-      throw HttpError.FORBIDDEN({
-        errors: [
-          {
-            id: 'UNAUTHORIZED_ACCESS',
-            message: 'User does not have access to this load balancer',
-          },
-        ],
-      })
-    }
-
-    const appIds = loadBalancer.applicationIDs
-    const publicKeys = await getLBPublicKeys(appIds, id)
-
-    const rawLatestRelays = await influx.collectRows(
-      buildLatestFilteredQueries({
-        publicKeys,
-        start: '-1h',
-        stop: '-0h',
-        result: '500',
-      })
-    )
-
-    const processedLatestRelays = rawLatestRelays.map(
-      ({
-        method,
-        bytes_200,
-        bytes_500,
-        elapsedTime_200,
-        elapsedTime_500,
-        nodePublicKey,
-      }) => {
-        return {
-          bytes: bytes_200 ?? bytes_500 ?? 0,
-          elapsedTime: elapsedTime_200 ?? elapsedTime_500 ?? 0,
-          method,
-          nodePublicKey,
-          result: bytes_200 ? '200' : '500',
-        }
-      }
-    )
-
-    res.status(200).send({
-      session_relays: processedLatestRelays,
-    })
-  })
-)
-
 router.get(
   '/ranged-relays/:lbId',
   asyncMiddleware(async (req: Request, res: Response) => {
@@ -1376,6 +1244,50 @@ router.get(
     )
 
     res.status(200).send(processedOriginClassificationResponse)
+  })
+)
+
+router.get(
+  '/error-metrics/:lbID',
+  asyncMiddleware(async (req: Request, res: Response) => {
+    const userId = (req.user as IUser)._id
+    const { lbID } = req.params
+
+    const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)
+
+    if (!loadBalancer) {
+      throw HttpError.BAD_REQUEST({
+        errors: [
+          {
+            id: 'NONEXISTENT_LOADBALANCER',
+            message: 'User does not have an active Load Balancer',
+          },
+        ],
+      })
+    }
+    if (loadBalancer.user.toString() !== userId.toString()) {
+      throw HttpError.FORBIDDEN({
+        errors: [
+          {
+            id: 'UNAUTHORIZED_ACCESS',
+            message: 'User does not have access to this load balancer',
+          },
+        ],
+      })
+    }
+
+    const appIds = loadBalancer.applicationIDs
+    const publicKeys = await getLBPublicKeys(appIds, lbID)
+
+    const metricsURL = `${env('ERROR_METRICS_URL')}/error?or=(${publicKeys
+      .map((pk: string) => `applicationpublickey.eq.${pk}`)
+      .join(
+        ','
+      )})&limit=50&order=timestamp.desc&or=(method.neq.synccheck,method.neq.checks)`
+
+    const { data: metrics } = await axios.get(metricsURL)
+
+    res.status(200).send(metrics)
   })
 )
 

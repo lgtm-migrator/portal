@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
+import { getAddressFromPublicKey } from 'pocket-tools'
 import { useViewport } from 'use-viewport'
 import Styled from 'styled-components/macro'
 import * as Sentry from '@sentry/react'
@@ -21,17 +22,12 @@ import {
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
-import { log } from '../../../lib/utils'
+import { log, shorten } from '../../../lib/utils'
 import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 
-const DEFAULT_FILTERED_STATE = {
-  failedRelays: [],
-  successfulRelays: [],
-}
-const FAILED_RELAYS_KEY = 'failedRelays'
-const SUCCESSFUL_RELAYS_KEY = 'successfulRelays'
+const REFETCH_INTERVAL = 60 * 1000
 
 export default function SuccessDetails({
   id,
@@ -41,7 +37,6 @@ export default function SuccessDetails({
   successfulRelays,
   totalRelays,
 }) {
-  const [activeKey, setActiveKey] = useState(SUCCESSFUL_RELAYS_KEY)
   const theme = useTheme()
   const toast = useToast()
   const { within } = useViewport()
@@ -51,41 +46,38 @@ export default function SuccessDetails({
   const { isLoading, data } = useQuery(
     [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id, isLb],
     async function getFilteredRelays() {
-      const successfulPath = `${env('BACKEND_URL')}/api/${
+      const errorMetricsURL = `${env('BACKEND_URL')}/api/${
         isLb ? 'lb' : 'applications'
-      }/latest-successful-relays`
-      const failingPath = `${env('BACKEND_URL')}/api/${
-        isLb ? 'lb' : 'applications'
-      }/latest-failing-relays`
+      }/error-metrics/${id}`
 
       if (!id) {
-        return DEFAULT_FILTERED_STATE
+        return []
       }
 
       try {
-        const { data: successfulData } = await axios.post(
-          successfulPath,
-          {
-            id,
-          },
-          {
-            withCredentials: true,
-          }
+        const { data } = await axios.get(errorMetricsURL, {
+          withCredentials: true,
+        })
+
+        const transformedErrorMetrics = await Promise.all(
+          data.map(async (e) => {
+            const nodeAddress = await getAddressFromPublicKey(e.nodepublickey)
+
+            return {
+              bytes: e.bytes,
+              message: e.message,
+              method: e.method,
+              nodeAddress,
+            }
+          })
         )
 
-        const { data: failedData } = await axios.post(
-          failingPath,
-          {
-            id,
-          },
-          {
-            withCredentials: true,
-          }
+        const errorMetrics = transformedErrorMetrics.filter(
+          (e) => !e.method.includes('check')
         )
 
         return {
-          successfulRelays: successfulData.session_relays,
-          failedRelays: failedData.session_relays,
+          errorMetrics,
         }
       } catch (err) {
         if (sentryEnabled) {
@@ -102,14 +94,10 @@ export default function SuccessDetails({
     },
     {
       keepPreviousData: true,
+      refetchInterval: REFETCH_INTERVAL,
     }
   )
 
-  const onSuccessfulClick = useCallback(
-    () => setActiveKey(SUCCESSFUL_RELAYS_KEY),
-    []
-  )
-  const onFailedClick = useCallback(() => setActiveKey(FAILED_RELAYS_KEY), [])
   const successRate = useMemo(() => {
     return totalRelays === 0 ? 0 : successfulRelays / totalRelays
   }, [totalRelays, successfulRelays])
@@ -118,14 +106,6 @@ export default function SuccessDetails({
       ? 0
       : (totalRelays - successfulRelays) / totalRelays
   }, [successfulRelays, totalRelays])
-
-  const displayData = useMemo(() => {
-    if (activeKey === SUCCESSFUL_RELAYS_KEY) {
-      return data?.successfulRelays ?? []
-    } else {
-      return data?.failedRelays ?? []
-    }
-  }, [activeKey, data])
 
   return (
     <FloatUp
@@ -256,27 +236,6 @@ export default function SuccessDetails({
               </Box>
               <Spacer size={3 * GU} />
               <Box padding={[0, 0, 0, 0]}>
-                <div
-                  css={`
-                    display: flex;
-                    justify-content: space-between;
-                  `}
-                >
-                  <Spacer size={2 * GU} />
-                  <Tab
-                    active={activeKey === SUCCESSFUL_RELAYS_KEY}
-                    onClick={onSuccessfulClick}
-                  >
-                    Successful requests
-                  </Tab>
-                  <Tab
-                    active={activeKey === FAILED_RELAYS_KEY}
-                    onClick={onFailedClick}
-                  >
-                    Failed requests
-                  </Tab>
-                  <Spacer size={3 * GU} />
-                </div>
                 <Spacer size={5 * GU} />
                 <DataView
                   fields={[
@@ -285,8 +244,8 @@ export default function SuccessDetails({
                     'Bytes transferred',
                     'Service Node',
                   ]}
-                  entries={displayData}
-                  renderEntry={({ bytes, method, nodePublicKey }) => {
+                  entries={data?.errorMetrics ?? []}
+                  renderEntry={({ bytes, method, nodeAddress, message }) => {
                     return [
                       <div
                         css={`
@@ -294,19 +253,26 @@ export default function SuccessDetails({
                           width: ${1.5 * GU}px;
                           height: ${1.5 * GU}px;
                           border-radius: 50% 50%;
-                          background: ${activeKey === SUCCESSFUL_RELAYS_KEY
-                            ? theme.positive
-                            : theme.negative};
-                          box-shadow: ${activeKey === SUCCESSFUL_RELAYS_KEY
-                              ? theme.positive
-                              : theme.negative}
-                            0px 2px 8px 0px;
+                          background: ${theme.negative};
+                          box-shadow: ${theme.negative} 0px 2px 8px 0px;
                         `}
                       />,
-                      <p>{method ? method : 'Unknown'}</p>,
-                      <p>{bytes}B</p>,
+                      <p
+                        css={`
+                          ${textStyle('body3')}
+                        `}
+                      >
+                        {method ? method : 'Unknown'}
+                      </p>,
+                      <p
+                        css={`
+                          ${textStyle('body3')}
+                        `}
+                      >
+                        {bytes}B
+                      </p>,
                       <TextCopy
-                        value={nodePublicKey}
+                        value={shorten(nodeAddress, 16)}
                         onCopy={() => toast('Node address copied to cliboard')}
                         css={`
                           width: 100%;
@@ -316,6 +282,15 @@ export default function SuccessDetails({
                         `}
                       />,
                     ]
+                  }}
+                  renderEntryExpansion={({ message }) => {
+                    const formattedMessage = message?.includes('html')
+                      ? 'Server Error'
+                      : message
+
+                    return formattedMessage
+                      ? [<p>{formattedMessage}</p>]
+                      : undefined
                   }}
                   status={isLoading ? 'loading' : 'default'}
                 />

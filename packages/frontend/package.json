@@ -28,6 +28,7 @@
     "d3-format": "^2.0.0",
     "dayjs": "^1.10.4",
     "husky": "^4.3.0",
+    "pocket-tools": "^0.2.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
