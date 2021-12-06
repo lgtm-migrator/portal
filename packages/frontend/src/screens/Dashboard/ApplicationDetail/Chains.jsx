@@ -16,7 +16,6 @@ import {
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUser } from '../../../contexts/UserContext'
-import { trackEvent } from '../../../lib/analytics'
 import { log } from '../../../lib/utils'
 import env from '../../../environment'
 import {
@@ -31,7 +30,7 @@ export default function SwitchChains({ appData }) {
   const { appId } = useParams()
   const toast = useToast()
   const queryClient = useQueryClient()
-  const { email, userLoading } = useUser()
+  const { userLoading } = useUser()
   const { isLoading: isChainsLoading, data: chains } = useQuery(
     KNOWN_QUERY_SUFFIXES.STAKEABLE_CHAINS,
     async function getNetworkChains() {
@@ -78,15 +77,6 @@ export default function SwitchChains({ appData }) {
         const {
           data: { id },
         } = res
-
-        trackEvent('portal_chain_switch', {
-          segmentation: {
-            newChain: selectedChain,
-            oldChain: activeAppChain,
-            id,
-            email,
-          },
-        })
 
         queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 

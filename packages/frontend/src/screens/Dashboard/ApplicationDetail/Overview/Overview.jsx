@@ -34,7 +34,6 @@ import {
   formatDailyRelaysForGraphing,
   formatLatencyValuesForGraphing,
 } from '../application-utils'
-import { trackEvent } from '../../../../lib/analytics'
 import env from '../../../../environment'
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
 
@@ -158,11 +157,6 @@ export default function Overview({
       const path = `${env('BACKEND_URL')}/api/lb/remove/${appId}`
 
       await axios.post(path, {}, { withCredentials: true })
-      trackEvent('portal_app_revoke', {
-        segmentation: {
-          appId,
-        },
-      })
 
       history.push('/home')
     } catch (err) {

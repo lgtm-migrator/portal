@@ -8,7 +8,6 @@ import Styled from 'styled-components/macro'
 import * as Sentry from '@sentry/react'
 import {
   Button,
-  ButtonBase,
   CircleGraph,
   DataView,
   Spacer,
@@ -245,7 +244,7 @@ export default function SuccessDetails({
                     'Service Node',
                   ]}
                   entries={data?.errorMetrics ?? []}
-                  renderEntry={({ bytes, method, nodeAddress, message }) => {
+                  renderEntry={({ bytes, method, nodeAddress }) => {
                     return [
                       <div
                         css={`
@@ -325,35 +324,6 @@ function NavigationOptions() {
     <Button wide mode="primary" onClick={() => history.goBack()}>
       Back to application
     </Button>
-  )
-}
-
-function Tab({ active, children, onClick }) {
-  const theme = useTheme()
-
-  return (
-    <ButtonBase
-      onClick={onClick}
-      css={`
-        && {
-          position: relative;
-          height: ${6 * GU}px;
-          width: 100%;
-          border-radius: 0 0 ${1 * GU}px ${1 * GU}px;
-          color: ${theme.content};
-          ${textStyle('body3')}
-          ${active &&
-          `
-          background: #091828;
-          border-top: 2px solid ${theme.accent};
-          color: white;
-          transition: all 0.080s ease-in;
-        `};
-        }
-      `}
-    >
-      {children}
-    </ButtonBase>
   )
 }
 

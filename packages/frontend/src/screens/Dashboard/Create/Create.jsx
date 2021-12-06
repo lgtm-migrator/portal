@@ -14,7 +14,6 @@ import { useUserApps } from '../../../contexts/AppsContext'
 import { processChains } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
 import { log } from '../../../lib/utils'
-import { trackEvent } from '../../../lib/analytics'
 import env from '../../../environment'
 import {
   KNOWN_MUTATION_SUFFIXES,
@@ -138,7 +137,7 @@ export default function Create() {
     whitelistUserAgents,
   } = appConfigData
   const { isAppsLoading, userApps, userID } = useUserApps()
-  const { email, userLoading } = useUser()
+  const { userLoading } = useUser()
   const queryClient = useQueryClient()
 
   const {
@@ -199,15 +198,6 @@ export default function Create() {
 
       const { data } = res
       const { id } = data
-
-      trackEvent('portal_app_creation', {
-        segmentation: {
-          chain: selectedNetwork,
-          appName,
-          id,
-          email,
-        },
-      })
 
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 

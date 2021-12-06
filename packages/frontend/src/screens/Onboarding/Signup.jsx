@@ -19,7 +19,6 @@ import {
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import VerifyResetNotice from '../../components/VerifyResetNotice/VerifyResetNotice'
-import { trackEvent } from '../../lib/analytics'
 import env from '../../environment'
 import { sentryEnabled } from '../../sentry'
 
@@ -40,11 +39,6 @@ export default function Signup() {
         await axios.post(path, {
           email,
           password,
-        })
-        trackEvent('portal_signup', {
-          segmentation: {
-            email,
-          },
         })
       } catch (err) {
         const { errors = [] } = err?.response?.data

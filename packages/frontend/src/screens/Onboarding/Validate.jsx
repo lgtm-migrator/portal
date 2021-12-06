@@ -6,7 +6,6 @@ import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
 import { Button, Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
-import { trackEvent } from '../../lib/analytics'
 import env from '../../environment'
 import { KNOWN_MUTATION_SUFFIXES } from '../../known-query-suffixes'
 import { sentryEnabled } from '../../sentry'
@@ -27,11 +26,6 @@ export default function Validate() {
         await axios.post(path, {
           plainToken: token,
           email,
-        })
-        trackEvent('portal_email_verification', {
-          segmentation: {
-            email,
-          },
         })
       } catch (err) {
         if (sentryEnabled) {
