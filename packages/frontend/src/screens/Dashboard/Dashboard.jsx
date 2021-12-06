@@ -6,6 +6,7 @@ import { Spacer, useTheme, GU } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
 import MenuPanel from '../../components/MenuPanel/MenuPanel'
 import { AppsContextProvider, useUserApps } from '../../contexts/AppsContext'
+import { UserContextProvider } from '../../contexts/UserContext'
 
 function DashboardView({ children }) {
   const location = useLocation()
