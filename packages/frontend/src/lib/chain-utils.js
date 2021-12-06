@@ -29,7 +29,6 @@ export const PRODUCTION_CHAINS = [
   '0003',
   '0004',
   '0005',
-  '0006',
   '0009',
   '000B',
   '000C',
