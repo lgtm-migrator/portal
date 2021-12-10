@@ -13,7 +13,7 @@ export interface IGatewaySettings {
   secretKey: string
   secretKeyRequired: boolean
   whitelistOrigins: string[]
-  whitelistuserAgents: string[]
+  whitelistUserAgents: string[]
 }
 
 export interface INotificationSettings {

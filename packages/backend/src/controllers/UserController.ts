@@ -204,11 +204,13 @@ router.post(
     const user: IUser = await User.findOne({ email })
 
     if (!user) {
-      return next(HttpError.BAD_REQUEST({
-        errors: [
-          { id: 'EMAIL_DOES_NOT_EXIST', message: 'Email does not exist' },
-        ],
-      }))
+      return next(
+        HttpError.BAD_REQUEST({
+          errors: [
+            { id: 'EMAIL_DOES_NOT_EXIST', message: 'Email does not exist' },
+          ],
+        })
+      )
     }
     const validationToken = await createNewVerificationToken(
       user._id,
