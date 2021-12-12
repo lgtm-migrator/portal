@@ -183,12 +183,12 @@ export const workers = [
     workerFn: (ctx): Promise<void> => getAppsPerChain(ctx),
     recurrence: SIXTY_MINUTES,
   },
-  {
-    name: 'APP_POOL_FILLER',
-    color: 'green',
-    workerFn: (ctx): Promise<void> => fillAppPool(ctx),
-    recurrence: ONE_MINUTES,
-  },
+  //{
+  //name: 'APP_POOL_FILLER',
+  //color: 'green',
+  //workerFn: (ctx): Promise<void> => fillAppPool(ctx),
+  //recurrence: ONE_MINUTES,
+  //},
   {
     name: 'APP_POOL_STAKER',
     color: 'green',
