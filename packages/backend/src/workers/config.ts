@@ -177,64 +177,64 @@ export const chains = getChainsByEnvironment()
  * Holds the workers configuration.
  */
 export const workers = [
-  {
-    name: 'APP_PER_CHAIN_COUNTER',
-    color: 'green',
-    workerFn: (ctx): Promise<void> => getAppsPerChain(ctx),
-    recurrence: SIXTY_MINUTES,
-  },
+  //{
+  //name: 'APP_PER_CHAIN_COUNTER',
+  //color: 'green',
+  //workerFn: (ctx): Promise<void> => getAppsPerChain(ctx),
+  //recurrence: SIXTY_MINUTES,
+  //},
   //{
   //name: 'APP_POOL_FILLER',
   //color: 'green',
   //workerFn: (ctx): Promise<void> => fillAppPool(ctx),
   //recurrence: ONE_MINUTES,
   //},
-  {
-    name: 'APP_POOL_STAKER',
-    color: 'green',
-    workerFn: (ctx): Promise<void> => stakeAppPool(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'APP_REMOVAL_CATEGORIZER',
-    color: 'pink',
-    workerFn: (ctx): Promise<void> => categorizeAppRemoval(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'APP_RESTAKING_FUNDS_SERVICE',
-    color: 'red',
-    workerFn: (ctx): Promise<void> => transferSlotFunds(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'APP_UNUSED_UNSTAKER_SERVICE',
-    color: 'yellow',
-    workerFn: (ctx): Promise<void> => unstakeApps(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'APP_SLOT_RESTAKER_SERVICE',
-    color: 'brown',
-    workerFn: (ctx): Promise<void> => stakeAppsForSlots(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'APP_FUND_REMOVAL_SERVICE',
-    color: 'blue',
-    workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
-    recurrence: FIVE_MINUTES,
-  },
-  {
-    name: 'NOTIFICATION_WORKER',
-    color: 'red',
-    workerFn: (ctx): Promise<void> => notifyUsage(ctx),
-    recurrence: SIXTY_MINUTES_OFFSET,
-  },
-  {
-    name: 'LB_UNSTAKER',
-    color: 'red',
-    workerFn: (ctx): Promise<void> => unstakeLBs(ctx),
-    recurrence: SIXTY_MINUTES_OFFSET,
-  },
+  //{
+  //name: 'APP_POOL_STAKER',
+  //color: 'green',
+  //workerFn: (ctx): Promise<void> => stakeAppPool(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'APP_REMOVAL_CATEGORIZER',
+  //color: 'pink',
+  //workerFn: (ctx): Promise<void> => categorizeAppRemoval(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'APP_RESTAKING_FUNDS_SERVICE',
+  //color: 'red',
+  //workerFn: (ctx): Promise<void> => transferSlotFunds(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'APP_UNUSED_UNSTAKER_SERVICE',
+  //color: 'yellow',
+  //workerFn: (ctx): Promise<void> => unstakeApps(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'APP_SLOT_RESTAKER_SERVICE',
+  //color: 'brown',
+  //workerFn: (ctx): Promise<void> => stakeAppsForSlots(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'APP_FUND_REMOVAL_SERVICE',
+  //color: 'blue',
+  //workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
+  //recurrence: FIVE_MINUTES,
+  //},
+  //{
+  //name: 'NOTIFICATION_WORKER',
+  //color: 'red',
+  //workerFn: (ctx): Promise<void> => notifyUsage(ctx),
+  //recurrence: SIXTY_MINUTES_OFFSET,
+  //},
+  //{
+  //name: 'LB_UNSTAKER',
+  //color: 'red',
+  //workerFn: (ctx): Promise<void> => unstakeLBs(ctx),
+  //recurrence: SIXTY_MINUTES_OFFSET,
+  //},
 ]
