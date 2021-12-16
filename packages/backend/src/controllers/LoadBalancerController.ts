@@ -89,13 +89,15 @@ router.get(
       })
     }
 
+    console.log(`found ${lbs.length} lbs for user ${id.toString()}`)
+
     // Process all the LBs to "clean them up" for the interface.
     const processedLbs = await Promise.all(
       lbs.map(async (lb) => {
         if (!lb.applicationIDs.length) {
           // Remove user association with empty LBs. This means their apps have no usage and have been removed, so this LB should be removed (and will be done so automatically after some time).
           lb.user = null
-          await lb.save()
+
           return
         }
 
@@ -122,8 +124,6 @@ router.get(
         }
 
         lb.applicationIDs = cleanedApplicationIDs
-
-        await lb.save()
 
         for (const appId of cleanedApplicationIDs) {
           const app = await Application.findById(appId)
@@ -152,8 +152,6 @@ router.get(
         const [chain] = chains
 
         app.chain = chain
-
-        await app.save()
 
         const processedLb: GetApplicationQuery = {
           apps,
