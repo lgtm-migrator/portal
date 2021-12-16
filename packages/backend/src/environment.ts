@@ -14,7 +14,6 @@ export type PocketNetworkKeys = {
   dispatchers: string
   chainHash: string
   providerType: string
-  httpProviderNode: string
   mainFundAccount: string
   mainFundAddress: string
 }
@@ -98,6 +97,9 @@ export const ENV_VARS = {
   FREE_TIER_ACCOUNT_ADDRESS(): string {
     return process.env.POCKET_NETWORK_FREE_TIER_FUND_ADDRESS
   },
+  POCKET_PROVIDER_NODE(): string {
+    return process.env.POCKET_NETWORK_HTTP_PROVIDER_NODE
+  },
   POCKET_NETWORK(): PocketNetworkKeys {
     return {
       aatVersion: process.env.POCKET_NETWORK_AAT_VERSION,
@@ -111,7 +113,6 @@ export const ENV_VARS = {
       dispatchers: process.env.POCKET_NETWORK_DISPATCHERS,
       chainHash: process.env.POCKET_NETWORK_CHAIN_HASH,
       providerType: process.env.POCKET_NETWORK_PROVIDER_TYPE,
-      httpProviderNode: process.env.POCKET_NETWORK_HTTP_PROVIDER_NODE,
       mainFundAccount: process.env.POCKET_NETWORK_MAIN_FUND_ACCOUNT,
       mainFundAddress: process.env.POCKET_NETWORK_MAIN_FUND_ADDRESS,
       clientPubKey: process.env.POCKET_NETWORK_CLIENT_PUB_KEY,
@@ -152,6 +153,7 @@ type envVarCategory =
   | 'JWT_PRIVATE_KEY'
   | 'JWT_PUBLIC_KEY'
   | 'POCKET_NETWORK'
+  | 'POCKET_PROVIDER_NODE'
   | 'PROD'
   | 'REDIS_ENDPOINT'
   | 'SECRET_KEY'
