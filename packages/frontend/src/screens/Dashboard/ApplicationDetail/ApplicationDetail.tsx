@@ -34,18 +34,20 @@ interface ApplicationDetailProps {
 
 function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
   const { path } = useRouteMatch()
-  const { metricsLoading, metrics } = useAppMetrics({
+  const { metricsLoading, metrics = [] } = useAppMetrics({
     activeApplication,
   })
+
+  // @ts-ignore
   const [
-    { data: totalRelaysData },
-    { data: successfulRelaysData },
-    { data: dailyRelayData },
-    { data: sessionRelayData },
-    { data: previousSuccessfulRelayData },
-    { data: previousRangedRelayData },
-    { data: hourlyLatencyData },
-    { data: appOnChainData },
+    totalRelaysData,
+    successfulRelaysData,
+    dailyRelayData,
+    sessionRelayData,
+    previousSuccessfulRelayData,
+    previousRangedRelayData,
+    hourlyLatencyData,
+    appOnChainData,
   ] = metrics
 
   const sessionRelayDep = JSON.stringify(sessionRelayData)

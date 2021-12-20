@@ -1,8 +1,7 @@
 import axios from 'axios'
-import { useQueries } from 'react-query'
+import { useQuery } from 'react-query'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
-import { log } from '../lib/utils'
 import { ILBInfo } from './application-hooks'
 
 export type TotalRelaysQuery = { total_relays: number }
@@ -23,167 +22,108 @@ export function useAppMetrics({
   activeApplication,
 }: {
   activeApplication: ILBInfo
-}) {
+}): {
+  metricsLoading: boolean
+  metrics:
+    | [
+        TotalRelaysQuery,
+        SuccessfulRelaysQuery,
+        DailyRelaysQuery,
+        SessionRelaysQuery,
+        PreviousSuccessfulRelaysQuery,
+        PreviousRangedRelaysQuery,
+        HourlyLatencyQuery,
+        OnChainDataQuery
+      ]
+    | []
+} {
   const { id: appId = '', isLb = false } = activeApplication
   const type = isLb ? 'lb' : 'applications'
 
-  const results = useQueries([
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.WEEKLY_TOTAL_METRICS, type, appId],
-      queryFn:
-        async function getTotalWeeklyRelaysAndLatency(): Promise<TotalRelaysQuery> {
-          log(type, appId)
-          const path = `${env('BACKEND_URL')}/api/${type}/total-relays/${appId}`
+  const { data, isLoading } = useQuery(
+    `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
+    async function getMetrics() {
+      const totalRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/total-relays/${appId}`
+      const successfulRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/successful-relays/${appId}`
+      const dailyRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/daily-relays/${appId}`
+      const sessionRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/session-relays/${appId}`
+      const previousSuccessfulRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/previous-successful-relays/${appId}`
+      const previousTotalRelaysPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/ranged-relays/${appId}`
+      const hourlyLatencyPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/hourly-latency/${appId}`
+      const onChainDataPath = `${env(
+        'BACKEND_URL'
+      )}/api/${type}/status/${appId}`
 
-          try {
-            const { data } = await axios.get(path, {
-              withCredentials: true,
-            })
-
-            return data
-          } catch (err) {
-            console.log(err)
+      try {
+        const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, {
+          withCredentials: true,
+        })
+        const { data: successfulRelaysResponse } = await axios.get(
+          successfulRelaysPath,
+          {
+            withCredentials: true,
           }
-        },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.WEEKLY_SUCCESSFUL_METRICS, type, appId],
-      queryFn: async function getSuccessfulWeeklyRelaysAndLatency(): Promise<
-        SuccessfulRelaysQuery | undefined
-      > {
-        const path = `${env(
-          'BACKEND_URL'
-        )}/api/${type}/successful-relays/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
+        )
+        const { data: dailyRelaysResponse } = await axios.get(dailyRelaysPath, {
+          withCredentials: true,
+        })
+        const { data: sessionRelaysResponse } = await axios.get(
+          sessionRelaysPath,
+          {
             withCredentials: true,
-          })
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.DAILY_BREAKDOWN_METRICS, type, appId],
-      queryFn: async function getDailyRelays(): Promise<
-        DailyRelaysQuery | undefined
-      > {
-        const path = `${env('BACKEND_URL')}/api/${type}/daily-relays/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
+          }
+        )
+        const { data: previousSuccessfulRelaysResponse } = await axios.get(
+          previousSuccessfulRelaysPath,
+          {
             withCredentials: true,
-          })
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.SESSION_METRICS, type, appId],
-      queryFn: async function getTotalSessionRelays(): Promise<
-        SessionRelaysQuery | undefined
-      > {
-        const path = `${env('BACKEND_URL')}/api/${type}/session-relays/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
+          }
+        )
+        const { data: previousTotalRelaysResponse } = await axios.get(
+          previousTotalRelaysPath,
+          {
             withCredentials: true,
-          })
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.PREVIOUS_SUCCESSFUL_METRICS, type, appId],
-      queryFn: async function getPreviousSuccessfulRelays(): Promise<
-        PreviousSuccessfulRelaysQuery | undefined
-      > {
-        const path = `${env(
-          'BACKEND_URL'
-        )}/api/${type}/previous-successful-relays/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
+          }
+        )
+        const { data: hourlyLatencyResponse } = await axios.get(
+          hourlyLatencyPath,
+          {
             withCredentials: true,
-          })
+          }
+        )
+        const { data: onChainDataResponse } = await axios.get(onChainDataPath, {
+          withCredentials: true,
+        })
 
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.PREVIOUS_TOTAL_METRICS, type, appId],
-      queryFn: async function gePreviousRangedRelays(): Promise<
-        PreviousRangedRelaysQuery | undefined
-      > {
-        const path = `${env('BACKEND_URL')}/api/${type}/ranged-relays/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
-            withCredentials: true,
-          })
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.HOURLY_LATENCY_METRICS, type, appId],
-      queryFn: async function getDailyHourlyLatency(): Promise<
-        HourlyLatencyQuery | undefined
-      > {
-        const path = `${env('BACKEND_URL')}/api/${type}/hourly-latency/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
-            withCredentials: true,
-          })
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-    {
-      queryKey: [KNOWN_QUERY_SUFFIXES.ONCHAIN_DATA, type, appId],
-      queryFn: async function getAppOnChainData(): Promise<
-        OnChainDataQuery | undefined
-      > {
-        const path = `${env('BACKEND_URL')}/api/${type}/status/${appId}`
-
-        try {
-          const { data } = await axios.get(path, {
-            withCredentials: true,
-          })
-
-          log('onchaindata:', data)
-
-          return data
-        } catch (err) {
-          console.log(err)
-        }
-      },
-    },
-  ])
-
-  const metricsLoading = results.reduce(
-    (loading, result) => result.isLoading || loading,
-    false
+        return [
+          totalRelaysResponse as TotalRelaysQuery,
+          successfulRelaysResponse as SuccessfulRelaysQuery,
+          dailyRelaysResponse as DailyRelaysQuery,
+          sessionRelaysResponse as SessionRelaysQuery,
+          previousSuccessfulRelaysResponse as PreviousSuccessfulRelaysQuery,
+          previousTotalRelaysResponse as PreviousRangedRelaysQuery,
+          hourlyLatencyResponse as HourlyLatencyQuery,
+          onChainDataResponse as OnChainDataQuery,
+        ]
+      } catch (err) {
+        console.log(err)
+      }
+    }
   )
 
-  return { metricsLoading, metrics: results }
+  return { metricsLoading: isLoading, metrics: data || [] }
 }
