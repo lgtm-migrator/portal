@@ -27,6 +27,12 @@ import { composeDaysFromNowUtcDate } from '../lib/date-utils'
 
 const CUSTOM_LB_THRESHOLD = 3
 
+const REMOVABLE_STAKES = [
+  FREE_TIER_STAKE_AMOUNT,
+  // Old stake rate
+  8000000000n,
+]
+
 const freeTierAccountAddress = env('FREE_TIER_ACCOUNT_ADDRESS') as string
 
 export async function fetchUsedApps(): Promise<string[]> {
@@ -171,7 +177,7 @@ export async function findUnusedLBs({
       const { staked_tokens } = onChainApp.toJSON()
 
       // Bail, we're looking for apps we can inmediately move to the prestakepool
-      if (BigInt(staked_tokens) !== FREE_TIER_STAKE_AMOUNT) {
+      if (!REMOVABLE_STAKES.includes(BigInt(staked_tokens))) {
         ctx.logger.info(
           `[${ctx.name}] ${
             app.name
