@@ -225,16 +225,16 @@ export const workers = [
   //workerFn: (ctx): Promise<void> => removeFundsFromApps(ctx),
   //recurrence: FIVE_MINUTES,
   //},
-  //{
-  //name: 'NOTIFICATION_WORKER',
-  //color: 'red',
-  //workerFn: (ctx): Promise<void> => notifyUsage(ctx),
-  //recurrence: SIXTY_MINUTES_OFFSET,
-  //},
-  //{
-  //name: 'LB_UNSTAKER',
-  //color: 'red',
-  //workerFn: (ctx): Promise<void> => unstakeLBs(ctx),
-  //recurrence: SIXTY_MINUTES_OFFSET,
-  //},
+  {
+    name: 'NOTIFICATION_WORKER',
+    color: 'red',
+    workerFn: (ctx): Promise<void> => notifyUsage(ctx),
+    recurrence: SIXTY_MINUTES_OFFSET,
+  },
+  {
+    name: 'LB_UNSTAKER',
+    color: 'red',
+    workerFn: (ctx): Promise<void> => unstakeLBs(ctx),
+    recurrence: SIXTY_MINUTES_OFFSET,
+  },
 ]
