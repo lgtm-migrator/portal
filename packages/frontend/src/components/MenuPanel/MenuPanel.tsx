@@ -1,8 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { animated, useSpring } from 'react-spring'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
+import { UserLB } from '@pokt-foundation/portal-types'
 import {
   ButtonBase,
   Spacer,
@@ -16,7 +23,6 @@ import IconNetwork from './IconNetwork'
 import PortalLogo from '../../assets/portal_logo.svg'
 import { lerp } from '../../lib/math-utils'
 import { shorten } from '../../lib/utils'
-import { ILBInfo } from '../../hooks/application-hooks'
 
 type MenuRoute = {
   icon?: React.ReactNode
@@ -65,7 +71,7 @@ interface MenuPanelProps {
   appsLoading: boolean
   onMenuPanelClose: () => void
   opened: boolean
-  userApps: ILBInfo[]
+  userApps: UserLB[]
 }
 
 export default function MenuPanel({
@@ -322,7 +328,7 @@ function MenuPanelGroup({
           }}
         >
           {childInstances.map(({ id, label }, index) => (
-            <>
+            <Fragment key={id}>
               <Spacer size={1 * GU} />
               <li
                 key={id}
@@ -361,7 +367,7 @@ function MenuPanelGroup({
                   </span>
                 </ButtonBase>
               </li>
-            </>
+            </Fragment>
           ))}
         </animated.ul>
       ) : (

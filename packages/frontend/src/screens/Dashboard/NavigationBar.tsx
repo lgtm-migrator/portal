@@ -3,8 +3,9 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { useMutation } from 'react-query'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
-import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
+import { UserLB } from '@pokt-foundation/portal-types'
+import * as Sentry from '@sentry/react'
 import {
   Button,
   ButtonBase,
@@ -23,12 +24,11 @@ import IconMenu from '../../components/MenuPanel/IconMenu'
 import env from '../../environment'
 import { shorten } from '../../lib/utils'
 import { sentryEnabled } from '../../sentry'
-import { ILBInfo } from '../../hooks/application-hooks'
 
 const DEFAULT_TITLE = 'Pocket Portal'
 const MAX_CHARACTERS = 25
 
-function useRouteTitle(applications: ILBInfo[] = []) {
+function useRouteTitle(applications: UserLB[] = []) {
   const { pathname } = useLocation()
 
   if (pathname.includes('notifications')) {
@@ -64,7 +64,7 @@ function useRouteTitle(applications: ILBInfo[] = []) {
 }
 
 interface NavigationBarProps {
-  applications: ILBInfo[]
+  applications: UserLB[]
   toggleMenuPanel: () => void
 }
 

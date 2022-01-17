@@ -1,5 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "allowJs": true,
     "declaration": true,
     "emitDeclarationOnly": true,
@@ -11,6 +13,7 @@
     "target": "esnext",
     "outDir": "./build"
   },
+  "references": [{ "path": "../types" }],
   "baseUrl": "src",
   "paths": {
     "@/*": ["*"]

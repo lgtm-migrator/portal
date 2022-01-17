@@ -1,16 +1,17 @@
 import React, { useCallback, useContext, useMemo } from 'react'
-import { ILBInfo, useUserApplications } from '../hooks/application-hooks'
+import { UserLB } from '@pokt-foundation/portal-types'
+import { useUserApplications } from '../hooks/application-hooks'
 import { log } from '../lib/utils'
 
 type UserAppInfo = {
   appsLoading: boolean
-  userApps: ILBInfo[]
+  userApps: UserLB[]
   refetchApps: () => void
 }
 const DEFAULT_APP_STATE = {
   appsLoading: true,
   userApps: [],
-  refetchApps: () => {}
+  refetchApps: () => {},
 }
 
 const AppsContext = React.createContext<UserAppInfo>(DEFAULT_APP_STATE)

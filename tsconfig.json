@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "paths": {
+      "@pokt-foundation/pocket-portal-backend": ["packages/backend"],
+      "@pokt-foundation/pocket-portal-frontend": ["packages/frontend"],
+      "@pokt-foundation/portal-types": ["packages/types"]
+    }
+  },
+  "references": [{ "path": "../packages/types" }]
+}

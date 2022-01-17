@@ -45,6 +45,14 @@ module.exports = {
     'one-var-declaration-per-line': ['error', 'always'],
     'import/no-named-as-default-member': 'off',
     'import/no-named-as-default': 'off',
+    'import/no-unresolved': 'off',
+    'import/no-extraneous-dependencies': (context) => [
+      'error',
+      {
+        devDependencies: false,
+        packageDir: [context.getFilename(), __dirname],
+      },
+    ],
     'import/default': 'off',
     'import/namespace': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',

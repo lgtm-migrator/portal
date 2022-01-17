@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import Styled from 'styled-components/macro'
-import * as Sentry from '@sentry/react'
+import { UserLB } from '@pokt-foundation/portal-types'
 import {
   Button,
   CircleGraph,
@@ -18,6 +18,7 @@ import {
   useToast,
   GU,
 } from '@pokt-foundation/ui'
+import * as Sentry from '@sentry/react'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
@@ -28,7 +29,7 @@ import {
   KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
-import { ILBInfo } from '../../../hooks/application-hooks'
+import { UserLBDailyRelayBucket } from 'packages/types/src'
 
 const GRAPH_SIZE = 130
 
@@ -58,8 +59,8 @@ function useUsageColor(usage: number): string {
 }
 
 interface NotificationsProps {
-  appData: ILBInfo
-  dailyRelays: { dailyRelays: number; bucket: number }[]
+  appData: UserLB
+  dailyRelays: UserLBDailyRelayBucket[]
   maxDailyRelays: number
 }
 
@@ -79,8 +80,7 @@ export default function Notifications({
   const queryClient = useQueryClient()
   const { isLoading: isNotificationsLoading, mutate } = useMutation(
     async function updateNotificationSettings() {
-      const type = appData.isLb ? 'lb' : 'applications'
-      const path = `${env('BACKEND_URL')}/api/${type}/notifications/${appId}`
+      const path = `${env('BACKEND_URL')}/api/lb/notifications/${appId}`
 
       const { quarter, half, threeQuarters, full } = chosenPercentages
 
@@ -123,7 +123,7 @@ export default function Notifications({
   const highestDailyAmount = useMemo(
     () =>
       dailyRelays.reduce(
-        (highest, { dailyRelays }: { dailyRelays: number }) =>
+        (highest, { daily_relays: dailyRelays }) =>
           Math.max(highest, dailyRelays),
         0
       ),
@@ -135,7 +135,8 @@ export default function Notifications({
       dailyRelays.length === 0
         ? 0
         : dailyRelays.reduce(
-            (lowest, { dailyRelays }) => Math.min(lowest, dailyRelays),
+            (lowest, { daily_relays: dailyRelays }) =>
+              Math.min(lowest, dailyRelays),
             Number.POSITIVE_INFINITY
           ),
     [dailyRelays]
@@ -144,8 +145,10 @@ export default function Notifications({
   const totalDailyRelays = useMemo(() => {
     return dailyRelays.length === 0
       ? 0
-      : dailyRelays.reduce((sum, { dailyRelays = 0 }) => sum + dailyRelays, 0) /
-          dailyRelays.length
+      : dailyRelays.reduce(
+          (sum, { daily_relays: dailyRelays = 0 }) => sum + dailyRelays,
+          0
+        ) / dailyRelays.length
   }, [dailyRelays])
 
   const averageUsageColor = useUsageColor(totalDailyRelays / maxDailyRelays)

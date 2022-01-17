@@ -1,8 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { useHistory } from 'react-router'
 import { useMutation, useQueryClient } from 'react-query'
 import axios from 'axios'
 import styled from 'styled-components/macro'
+import { UserLB } from '@pokt-foundation/portal-types'
 import {
   Button,
   ButtonBase,
@@ -27,7 +34,6 @@ import {
   KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
-import { ILBInfo } from '../../../hooks/application-hooks'
 
 const INPUT_ADORNMENT_SETTINGS = {
   width: 4.5 * GU,
@@ -35,8 +41,8 @@ const INPUT_ADORNMENT_SETTINGS = {
 }
 
 interface SecurityProps {
-  appData: ILBInfo
-  stakedTokens: bigint
+  appData: UserLB
+  stakedTokens: number
   maxDailyRelays: number
 }
 
@@ -83,9 +89,7 @@ export default function Security({
   }, [appData])
 
   const { mutate } = useMutation(async function updateApplicationSettings() {
-    const path = `${env('BACKEND_URL')}/api/${
-      appData.isLb ? 'lb' : 'applications'
-    }/${appData.id}`
+    const path = `${env('BACKEND_URL')}/api/${'lb'}/${appData.id}`
 
     try {
       await axios.put(

@@ -5,6 +5,11 @@ import axios from 'axios'
 import dayjs from 'dayjs/esm'
 import dayJsutcPlugin from 'dayjs/esm/plugin/utc'
 import { useViewport } from 'use-viewport'
+import {
+  UserLB,
+  UserLBDailyRelayBucket,
+  UserLBLatencyBucket,
+} from '@pokt-foundation/portal-types'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
 import {
@@ -37,20 +42,19 @@ import {
 import env from '../../../../environment'
 // @ts-ignore
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
-import { ILBInfo } from '../../../../hooks/application-hooks'
 
 const LATENCY_UPPER_BOUND = 1.25 // 1.25 seconds
 const SESSIONS_PER_DAY = 24
 
 interface OverviewProps {
-  appData: ILBInfo
+  appData: UserLB
   currentSessionRelays: number
-  dailyRelays: { dailyRelays: number; bucket: string }
-  hourlyLatency: { bucket: string; latency: number }
+  dailyRelays: UserLBDailyRelayBucket[]
+  hourlyLatency: UserLBLatencyBucket[]
   maxDailyRelays: number
   previousRelays: number
   previousSuccessfulRelays: number
-  stakedTokens?: bigint
+  stakedTokens?: number
   successfulRelays: number
   totalRelays: number
 }
@@ -115,16 +119,8 @@ function useMetricValues({
   }, [appData])
 
   const exceedsMaxRelays = useMemo(() => {
-    if (!hourlyLatency) {
-      return false
-    }
-    const todaysRelays = hourlyLatency[hourlyLatency.length - 1] ?? {
-      dailyRelays: 0,
-    }
-    const { dailyRelays = 0 } = todaysRelays
-
-    return dailyRelays >= maxDailyRelays
-  }, [hourlyLatency, maxDailyRelays])
+    return totalRelays >= maxDailyRelays
+  }, [maxDailyRelays, totalRelays])
 
   const exceedsSessionRelays = useMemo(() => {
     return currentSessionRelays >= maxDailyRelays / 24
@@ -332,7 +328,7 @@ export default function Overview({
                 )}
                 <AppStatus
                   maxDailyRelays={maxDailyRelays}
-                  stakedTokens={stakedTokens as bigint}
+                  stakedTokens={stakedTokens as number}
                 />
                 <Spacer size={3 * GU} />
                 <GatewayPanel

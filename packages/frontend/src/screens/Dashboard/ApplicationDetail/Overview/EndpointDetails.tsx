@@ -1,26 +1,25 @@
 import React, { useMemo } from 'react'
+import { UserLB } from '@pokt-foundation/portal-types'
 import { GU, Spacer, TextCopy, textStyle, useToast } from '@pokt-foundation/ui'
 import 'styled-components/macro'
 import Box from '../../../../components/Box/Box'
 import { ChainMetadata, prefixFromChainId } from '../../../../lib/chain-utils'
 import { getImageForChain } from '../../../../known-chains/known-chains'
-import { ILBInfo } from '../../../../hooks/application-hooks'
 
 interface EndpointDetailsProps {
-  appData: ILBInfo
+  appData: UserLB
 }
 
 export default function EndpointDetails({ appData }: EndpointDetailsProps) {
   const toast = useToast()
 
-  const { chain: chainId, id: appId, isLb } = appData
+  const { chain: chainId, id: appId } = appData
   const { prefix, name } = prefixFromChainId(chainId) as ChainMetadata
   const chainImage = getImageForChain(name)
 
   const endpoint = useMemo(
-    () =>
-      `https://${prefix}.gateway.pokt.network/v1/${isLb ? 'lb/' : ''}${appId}`,
-    [appId, isLb, prefix]
+    () => `https://${prefix}.gateway.pokt.network/v1/lb/${appId}`,
+    [appId, prefix]
   )
 
   return (

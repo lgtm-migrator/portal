@@ -1,0 +1,44 @@
+{
+  "name": "@pokt-foundation/portal-types",
+  "version": "0.0.1",
+  "description": "Typescript types for the Pocket Portal.",
+  "main": "lib/index.js",
+  "files": [
+    "lib/**/*.d.ts",
+    "lib/**/*.js",
+    "lib/**/*.js.map",
+    "*.d.ts",
+    "*.js"
+  ],
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json",
+    "check-types": "tsc",
+    "lint": "eslint --color --ext .ts src/",
+    "lint:fix": "yarn run lint --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pokt-foundation/portal.git"
+  },
+  "keywords": [
+    "portal",
+    "pocket",
+    "network",
+    "decentralized",
+    "infrastructure"
+  ],
+  "author": "Enrique Ortiz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pokt-foundation/portal/issues"
+  },
+  "homepage": "https://github.com/pokt-foundation/portal#readme",
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "mongoose": "^5.11.18"
+  }
+}

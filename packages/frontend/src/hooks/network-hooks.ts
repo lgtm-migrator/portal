@@ -32,13 +32,11 @@ export function useNetworkSummary(): {
     const path = `${env('BACKEND_URL')}/api/network/summary`
 
     try {
-      const {
-        data: { summary },
-      } = await axios.get(path, {
+      const { data } = await axios.get(path, {
         withCredentials: true,
       })
 
-      return summary
+      return data
     } catch (err) {
       console.log('?', err)
     }
@@ -70,14 +68,10 @@ export function useChains(): {
         withCredentials: true,
       })
 
-      const {
-        data: { chains },
-      } = res
+      const { data } = res
 
-      return processChains(chains) as Chain[]
-    } catch (err) {
-      console.log('?', err)
-    }
+      return processChains(data) as Chain[]
+    } catch (err) {}
   })
 
   return {
@@ -104,9 +98,7 @@ export function useTotalWeeklyRelays(): {
       })
 
       return data
-    } catch (err) {
-      console.log(err, 'rip')
-    }
+    } catch (err) {}
   })
 
   return {

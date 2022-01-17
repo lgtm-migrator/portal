@@ -30,9 +30,8 @@ const REFETCH_INTERVAL = 60 * 1000
 
 interface SuccessDetailsProps {
   id: string
-  isLb: boolean
   maxDailyRelays: number
-  stakedTokens: bigint
+  stakedTokens: number
   successfulRelays: number
   totalRelays: number
 }
@@ -46,7 +45,6 @@ interface EndpointRpcError {
 
 export default function SuccessDetails({
   id,
-  isLb,
   maxDailyRelays,
   stakedTokens,
   successfulRelays,
@@ -59,11 +57,9 @@ export default function SuccessDetails({
   const compactMode = within(-1, 'medium')
 
   const { isLoading, data } = useQuery(
-    [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id, isLb],
+    [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id],
     async function getFilteredRelays() {
-      const errorMetricsURL = `${env('BACKEND_URL')}/api/${
-        isLb ? 'lb' : 'applications'
-      }/error-metrics/${id}`
+      const errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
 
       if (!id) {
         return []

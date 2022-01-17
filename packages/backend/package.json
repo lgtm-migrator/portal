@@ -1,7 +1,7 @@
 {
-  "name": "@pokt-foundation/pocket-dashboard-backend",
+  "name": "@pokt-foundation/pocket-portal-backend",
   "version": "0.1.0",
-  "description": "Pocket dashboard",
+  "description": "Pocket Portal Backend",
   "private": false,
   "repository": {
     "url": "https://github.com/pokt-foundation/pocket-dashboard",
@@ -30,6 +30,7 @@
     "@babel/runtime": "^7.8.4",
     "@influxdata/influxdb-client": "^1.15.0",
     "@pokt-foundation/pocket-dashboard-shared": "^0.0.3-alpha.0",
+    "@pokt-foundation/portal-types": "workspace:^",
     "@pokt-network/pocket-js": "^0.7.0-rc",
     "@sendgrid/client": "^7.4.2",
     "@sendgrid/mail": "^7.4.2",

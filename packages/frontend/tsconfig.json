@@ -1,5 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
@@ -16,5 +18,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
+  "references": [{ "path": "../types" }],
   "include": ["./src", "./src/global.d.ts"]
 }

@@ -1,58 +1,13 @@
 import axios from 'axios'
 import { useQuery } from 'react-query'
+import { UserLB, UserLBOriginBucket } from '@pokt-foundation/portal-types'
 import * as Sentry from '@sentry/react'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
 import { sentryEnabled } from '../sentry'
 
-export interface IGatewaySettings {
-  secretKey: string
-  secretKeyRequired: boolean
-  whitelistOrigins: string[]
-  whitelistUserAgents: string[]
-}
-
-export interface INotificationSettings {
-  signedUp: boolean
-  quarter: boolean
-  quarterLastSent?: Date | number
-  half: boolean
-  halfLastSent?: Date | number
-  threeQuarters: boolean
-  threeQuartersLastSent?: Date | number
-  full: boolean
-  fullLastSent?: Date | number
-  createdAt?: Date | number
-}
-
-export type IAppInfo = {
-  address: string
-  appId: string
-  publicKey: string
-}
-
-export type ILBInfo = {
-  apps: IAppInfo[]
-  chain: string
-  createdAt?: Date | number
-  updatedAt?: Date | number
-  freeTier: boolean
-  gatewaySettings: IGatewaySettings
-  name: string
-  notificationSettings: INotificationSettings
-  id: string
-  status: string
-  user?: string
-  isLb?: boolean
-}
-
-export type OriginData = {
-  origin: string
-  count: number
-}
-
 export function useUserApplications(): {
-  appsData: ILBInfo[] | undefined
+  appsData: UserLB[] | undefined
   isAppsError: boolean
   isAppsLoading: boolean
   refetchUserApps: unknown
@@ -75,7 +30,7 @@ export function useUserApplications(): {
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
           ...rest,
-        })) as ILBInfo[]
+        })) as UserLB[]
 
         return [...userLbs]
       } catch (err) {
@@ -101,7 +56,7 @@ export function useUserApplications(): {
 export function useOriginClassification({ id }: { id: string }): {
   isLoading: boolean
   isError: boolean
-  originData: OriginData[] | undefined
+  originData: UserLBOriginBucket[] | undefined
 } {
   const {
     isLoading,
@@ -120,7 +75,7 @@ export function useOriginClassification({ id }: { id: string }): {
           withCredentials: true,
         })
 
-        return data.origin_classification as OriginData[]
+        return data.origin_classification as UserLBOriginBucket[]
       } catch (err) {
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {

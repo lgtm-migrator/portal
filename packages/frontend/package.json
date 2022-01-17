@@ -1,5 +1,5 @@
 {
-  "name": "@pokt-foundation/pocket-dashboard-frontend",
+  "name": "@pokt-foundation/pocket-portal-frontend",
   "version": "0.1.0",
   "description": "Pocket Portal frontend",
   "homepage": "./",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@fontsource/manrope": "^4.4.5",
     "@pokt-foundation/ui": "0.3.0",
+    "@pokt-foundation/portal-types": "workspace:^",
     "@reach/visually-hidden": "^0.15.2",
     "@sentry/browser": "^6.7.1",
     "@sentry/react": "^6.7.1",

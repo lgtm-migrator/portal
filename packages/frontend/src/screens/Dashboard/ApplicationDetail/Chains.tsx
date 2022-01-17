@@ -2,8 +2,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import axios from 'axios'
-import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
+import { UserLB } from '@pokt-foundation/portal-types'
 import {
   Button,
   DataView,
@@ -13,10 +13,10 @@ import {
   useToast,
   GU,
 } from '@pokt-foundation/ui'
+import * as Sentry from '@sentry/react'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUser } from '../../../contexts/UserContext'
-import { ILBInfo } from '../../../hooks/application-hooks'
 import { Chain } from '../../../lib/chain-utils'
 import { log } from '../../../lib/utils'
 import env from '../../../environment'
@@ -27,7 +27,7 @@ import {
 import { sentryEnabled } from '../../../sentry'
 
 interface SwitchChainsProps {
-  appData: ILBInfo
+  appData: UserLB
 }
 
 export default function SwitchChains({ appData }: SwitchChainsProps) {

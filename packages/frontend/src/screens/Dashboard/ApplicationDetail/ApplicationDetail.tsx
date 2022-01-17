@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Switch, Route, useParams, useRouteMatch } from 'react-router'
 import 'styled-components/macro'
+import { UserLB } from '@pokt-foundation/portal-types'
 import { Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Chains from '../../Dashboard/ApplicationDetail/Chains'
@@ -10,7 +11,6 @@ import Security from '../../Dashboard/ApplicationDetail/Security'
 import SuccessDetails from '../../Dashboard/ApplicationDetail/SuccessDetails'
 import { useAppMetrics } from '../../../hooks/useAppMetrics'
 import { useUserApps } from '../../../contexts/AppsContext'
-import { ILBInfo } from '../../../hooks/application-hooks'
 
 export default function AppDetailWrapper() {
   const { appsLoading, userApps } = useUserApps()
@@ -29,7 +29,7 @@ export default function AppDetailWrapper() {
 }
 
 interface ApplicationDetailProps {
-  activeApplication: ILBInfo
+  activeApplication: UserLB
 }
 
 function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
@@ -88,7 +88,7 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
     [totalRelaysDep]
   )
   const successfulRelays = useMemo(
-    () => successfulRelaysData?.total_relays ?? 0,
+    () => successfulRelaysData?.successful_relays ?? 0,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [successfulRelaysDep]
   )
@@ -99,8 +99,8 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
   )
   const { stakedTokens, maxDailyRelays } = useMemo(() => {
     return {
-      stakedTokens: appOnChainData?.stake ?? 0n,
-      maxDailyRelays: Number(appOnChainData?.relays ?? 0) * 24 ?? 0n,
+      stakedTokens: appOnChainData?.stake ?? 0,
+      maxDailyRelays: Number(appOnChainData?.relays ?? 0) * 24 ?? 0,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appOnChainDep])
@@ -133,7 +133,6 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
       <Route path={`${path}/success-details`}>
         <SuccessDetails
           id={activeApplication.id}
-          isLb={activeApplication.isLb}
           maxDailyRelays={maxDailyRelays}
           stakedTokens={stakedTokens}
           successfulRelays={successfulRelays}

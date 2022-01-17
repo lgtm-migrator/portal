@@ -1,9 +1,9 @@
 import dayjs from 'dayjs/esm'
 import dayJsutcPlugin from 'dayjs/esm/plugin/utc'
+import { UserLBDailyRelayBucket } from '@pokt-foundation/portal-types'
 import { useTheme } from '@pokt-foundation/ui'
 import { norm } from '../../../lib/math-utils'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
-import { DailyRelayBucket } from '../../../hooks/network-hooks'
 
 const ONE_MILLION = 1000000
 const ONE_SECOND = 1 // Data for graphs come in second
@@ -12,10 +12,10 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const DEFAULT_EMPTY_RELAYS = [
   {
-    dailyRelays: 0,
+    daily_relays: 0,
   },
   {
-    dailyRelays: 0,
+    daily_relays: 0,
   },
 ]
 
@@ -38,11 +38,6 @@ const DEFAULT_LATENCY_VALUES = [
     values: Array(24).fill(0),
   },
 ]
-
-type DailyAppRelayBucket = {
-  dailyRelays: number
-  bucket: string
-}
 
 type HourlyLatencyBucket = {
   latency: number
@@ -76,7 +71,7 @@ export function useSuccessRateColor(successRate: number): string[] {
 }
 
 export function formatDailyRelaysForGraphing(
-  dailyRelays: DailyAppRelayBucket[] = [],
+  dailyRelays: UserLBDailyRelayBucket[] = [],
   upperBound = ONE_MILLION
 ): {
   labels: string[]
@@ -89,7 +84,7 @@ export function formatDailyRelaysForGraphing(
 
   const processedDailyRelays =
     dailyRelays.length === 1
-      ? [...dailyRelays, { dailyRelays: 0 }]
+      ? [...dailyRelays, { daily_relays: 0 }]
       : dailyRelays.length === 0
       ? DEFAULT_EMPTY_RELAYS
       : dailyRelays
@@ -97,9 +92,8 @@ export function formatDailyRelaysForGraphing(
   const lines = [
     {
       id: 1,
-      values: processedDailyRelays.map(
-        ({ dailyRelays }: { dailyRelays: number }) =>
-          norm(Number(dailyRelays), 0, Number(upperBound))
+      values: processedDailyRelays.map(({ daily_relays: dailyRelays }) =>
+        norm(Number(dailyRelays), 0, Number(upperBound))
       ),
     },
   ]

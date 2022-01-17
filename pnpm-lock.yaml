@@ -3,7 +3,10 @@ lockfileVersion: 5.3
 importers:
 
   .:
-    specifiers: {}
+    specifiers:
+      typescript: ^4.2.4
+    devDependencies:
+      typescript: 4.5.2
 
   packages/backend:
     specifiers:
@@ -18,6 +21,7 @@ importers:
       '@babel/runtime': ^7.8.4
       '@influxdata/influxdb-client': ^1.15.0
       '@pokt-foundation/pocket-dashboard-shared': ^0.0.3-alpha.0
+      '@pokt-foundation/portal-types': workspace:^
       '@pokt-network/pocket-js': ^0.7.0-rc
       '@sendgrid/client': ^7.4.2
       '@sendgrid/mail': ^7.4.2
@@ -97,6 +101,7 @@ importers:
       '@babel/runtime': 7.16.3
       '@influxdata/influxdb-client': 1.20.0
       '@pokt-foundation/pocket-dashboard-shared': 0.0.3-alpha.0_debug@2.6.9
+      '@pokt-foundation/portal-types': link:../types
       '@pokt-network/pocket-js': 0.7.0-rc_debug@2.6.9+typescript@4.5.2
       '@sendgrid/client': 7.6.0_debug@2.6.9
       '@sendgrid/mail': 7.6.0_debug@2.6.9
@@ -187,6 +192,7 @@ importers:
       '@axe-core/react': ^4.1.1
       '@fontsource/manrope': ^4.4.5
       '@originjs/vite-plugin-commonjs': ^1.0.1
+      '@pokt-foundation/portal-types': workspace:^
       '@pokt-foundation/ui': 0.3.0
       '@reach/visually-hidden': ^0.15.2
       '@react-spring/types': ^9.3.1
@@ -239,6 +245,7 @@ importers:
       vite-plugin-svgr: ^0.6.0
     dependencies:
       '@fontsource/manrope': 4.5.1
+      '@pokt-foundation/portal-types': link:../types
       '@pokt-foundation/ui': 0.3.0_7a082f7d10047d47195aea793f958a14
       '@reach/visually-hidden': 0.15.2_react-dom@17.0.2+react@17.0.2
       '@sentry/browser': 6.15.0
@@ -304,6 +311,15 @@ importers:
       chalk: 4.1.2
       dotenv: 8.6.0
       graphql-request: 3.6.1
+
+  packages/types:
+    specifiers:
+      mongoose: ^5.11.18
+      typescript: ^4.2.4
+    dependencies:
+      mongoose: 5.13.13
+    devDependencies:
+      typescript: 4.5.2
 
 packages:
 

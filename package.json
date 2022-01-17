@@ -3,9 +3,14 @@
   "description": "Pocket Portal monorepo: decentralized infrastructure, just a few clicks away.",
   "repository": "https://github.com/pokt-foundation/portal",
   "author": "Pocket Foundation <hola@pokt.network>",
-  "contributors": ["Enrique Ortiz <hi@enriqueortiz.dev>"],
+  "contributors": [
+    "Enrique Ortiz <hi@enriqueortiz.dev>"
+  ],
   "license": "MIT",
   "scripts": {
     "init:db": "sh scripts/init-db.sh"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.4"
   }
 }

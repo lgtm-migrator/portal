@@ -15,8 +15,8 @@ import { commify } from '../../../../lib/formatting-utils'
 
 interface UsagePanelProps {
   chartLabels: string[]
-  chartLines: { id: 1; values: number[] }
-  chartScales: string[]
+  chartLines: { id: number; values: number[] }[]
+  chartScales: { label: string | number }[]
   maxSessionRelays: number
   sessionRelays: number
 }

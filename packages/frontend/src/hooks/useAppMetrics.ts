@@ -1,44 +1,41 @@
+/* eslint-disable prettier/prettier */
 import axios from 'axios'
 import { useQuery } from 'react-query'
+import {
+  UserLB,
+  UserLBDailyRelaysResponse,
+  UserLBHistoricalLatencyResponse,
+  UserLBOnChainDataResponse,
+  UserLBPreviousTotalRelaysResponse,
+  UserLBPreviousTotalSuccessfulRelaysResponse,
+  UserLBSessionRelaysResponse,
+  UserLBTotalRelaysResponse,
+  UserLBTotalSuccessfulRelaysResponse,
+} from '@pokt-foundation/portal-types'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
-import { ILBInfo } from './application-hooks'
 
-export type TotalRelaysQuery = { total_relays: number }
-export type SuccessfulRelaysQuery = TotalRelaysQuery
-export type DailyRelaysQuery = {
-  daily_relays: { dailyRelays: number; bucket: string }[]
-}
-export type PreviousRangedRelaysQuery = TotalRelaysQuery
-export type PreviousSuccessfulRelaysQuery = { successful_relays: number }
-export type SessionRelaysQuery = { session_relays: number }
-export type HourlyLatencyQuery = {
-  hourly_latency: { bucket: number; latency: number }[]
-}
-export type OnChainDataQuery = { stake: bigint; relays: number | bigint }
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useAppMetrics({
   activeApplication,
 }: {
-  activeApplication: ILBInfo
+  activeApplication: UserLB
 }): {
   metricsLoading: boolean
   metrics:
     | [
-        TotalRelaysQuery,
-        SuccessfulRelaysQuery,
-        DailyRelaysQuery,
-        SessionRelaysQuery,
-        PreviousSuccessfulRelaysQuery,
-        PreviousRangedRelaysQuery,
-        HourlyLatencyQuery,
-        OnChainDataQuery
+        UserLBTotalRelaysResponse,
+        UserLBTotalSuccessfulRelaysResponse,
+        UserLBDailyRelaysResponse,
+        UserLBSessionRelaysResponse,
+        UserLBPreviousTotalSuccessfulRelaysResponse,
+        UserLBPreviousTotalRelaysResponse,
+        UserLBHistoricalLatencyResponse,
+        UserLBOnChainDataResponse
       ]
     | []
 } {
-  const { id: appId = '', isLb = false } = activeApplication
-  const type = isLb ? 'lb' : 'applications'
+  const { id: appId = '' } = activeApplication
+  const type = 'lb'
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
@@ -60,7 +57,7 @@ export function useAppMetrics({
       )}/api/${type}/previous-successful-relays/${appId}`
       const previousTotalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/ranged-relays/${appId}`
+      )}/api/${type}/previous-total-relays/${appId}`
       const hourlyLatencyPath = `${env(
         'BACKEND_URL'
       )}/api/${type}/hourly-latency/${appId}`
@@ -110,14 +107,14 @@ export function useAppMetrics({
         })
 
         return [
-          totalRelaysResponse as TotalRelaysQuery,
-          successfulRelaysResponse as SuccessfulRelaysQuery,
-          dailyRelaysResponse as DailyRelaysQuery,
-          sessionRelaysResponse as SessionRelaysQuery,
-          previousSuccessfulRelaysResponse as PreviousSuccessfulRelaysQuery,
-          previousTotalRelaysResponse as PreviousRangedRelaysQuery,
-          hourlyLatencyResponse as HourlyLatencyQuery,
-          onChainDataResponse as OnChainDataQuery,
+          totalRelaysResponse as UserLBTotalRelaysResponse,
+          successfulRelaysResponse as UserLBTotalSuccessfulRelaysResponse,
+          dailyRelaysResponse as UserLBDailyRelaysResponse,
+          sessionRelaysResponse as UserLBSessionRelaysResponse,
+          previousSuccessfulRelaysResponse as UserLBPreviousTotalSuccessfulRelaysResponse,
+          previousTotalRelaysResponse as UserLBPreviousTotalRelaysResponse,
+          hourlyLatencyResponse as UserLBHistoricalLatencyResponse,
+          onChainDataResponse as UserLBOnChainDataResponse,
         ]
       } catch (err) {
         console.log(err)

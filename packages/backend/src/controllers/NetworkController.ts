@@ -1,4 +1,12 @@
 import express, { Response, Request } from 'express'
+import {
+  ChainsResponse,
+  IChain,
+  NetworkDailyRelayBucket,
+  NetworkDailyRelaysResponse,
+  NetworkSummaryResponse,
+  NetworkWeeklyAggregatedRelaysResponse,
+} from '@pokt-foundation/portal-types'
 import { APPLICATION_STATUSES } from '../application-statuses'
 import Chain from '../models/Blockchains'
 import NetworkData from '../models/NetworkData'
@@ -31,8 +39,7 @@ router.get(
         ticker,
         network,
         description,
-        nodeCount,
-      }) {
+      }): Promise<IChain> {
         const isAvailableForStaking = await ApplicationPool.exists({
           chain: _id,
           status: APPLICATION_STATUSES.SWAPPABLE,
@@ -43,13 +50,12 @@ router.get(
           ticker,
           network,
           description,
-          nodeCount,
           isAvailableForStaking,
         }
       })
-    )
+    ) as ChainsResponse
 
-    res.status(200).send({ chains: processedChains })
+    res.status(200).send(processedChains)
   })
 )
 
@@ -73,21 +79,19 @@ router.get(
       appCount,
       description,
       network,
-      nodeCount,
       ticker,
-    }) {
+    }): IChain {
       return {
         appCount,
         description,
         id: _id,
         isAvailableForStaking: true,
         network,
-        nodeCount,
         ticker,
       }
-    })
+    }) as ChainsResponse
 
-    res.status(200).send({ chains: formattedChains })
+    res.status(200).send(formattedChains)
   })
 )
 
@@ -101,12 +105,10 @@ router.get(
     )
 
     res.status(200).send({
-      summary: {
-        appsStaked: 2000,
-        nodesStaked: latestNetworkData.nodesStaked,
-        poktStaked: latestNetworkData.poktStaked,
-      },
-    })
+      appsStaked: 2000,
+      nodesStaked: Number(latestNetworkData.nodesStaked),
+      poktStaked: Number(latestNetworkData.poktStaked),
+    } as NetworkSummaryResponse)
   })
 )
 
@@ -127,8 +129,8 @@ router.get(
     )
 
     const processedDailyRelaysResponse = rawDailyRelays.map(
-      ({ _time, _value }) => ({ total_relays: _value ?? 0, bucket: _time })
-    )
+      ({ _time, _value }) => ({ total_relays: _value ?? 0, bucket: _time }) as NetworkDailyRelayBucket
+    ) as NetworkDailyRelaysResponse
 
     await cache.set(
       'network-daily-relays',
@@ -157,7 +159,7 @@ router.get(
     const processedAggregateStatsResponse = {
       successful_relays: success,
       total_relays: total,
-    }
+    } as NetworkWeeklyAggregatedRelaysResponse
 
     await cache.set(
       'weekly-aggregate-stats',

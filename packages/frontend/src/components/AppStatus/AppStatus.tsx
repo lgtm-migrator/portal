@@ -5,7 +5,7 @@ import 'styled-components/macro'
 import Box from '../Box/Box'
 
 interface AppStatusProps {
-  stakedTokens: bigint
+  stakedTokens: number
   maxDailyRelays: number
 }
 

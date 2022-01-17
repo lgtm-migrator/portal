@@ -8,7 +8,6 @@ export type Chain = {
   ticker: string
   network: string
   description: string
-  nodeCount: number
   appCount?: number
   isAvailableForStaking: boolean
 }

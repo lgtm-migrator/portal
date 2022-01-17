@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { animated, useSpring } from 'react-spring'
+import { IAppInfo, UserLB } from '@pokt-foundation/portal-types'
 import {
   ButtonBase,
   Spacer,
@@ -13,13 +14,12 @@ import {
 } from '@pokt-foundation/ui'
 import 'styled-components/macro'
 import Box from '../../../../components/Box/Box'
-import { ILBInfo } from '../../../../hooks/application-hooks'
 
 const EXPANDABLE_LIST_HEIGHT = 258
 const EXPANDABLE_MIN_LENGTH = 3
 
 interface GatewayPanelProps {
-  apps: ILBInfo[]
+  apps: IAppInfo[]
   id: string
   secret: string
 }
@@ -85,7 +85,7 @@ export default function GatewayPanel({ apps, id, secret }: GatewayPanelProps) {
 }
 
 interface AddressPanelProps {
-  apps: ILBInfo[]
+  apps: IAppInfo[]
 }
 
 export function AddressPanel({ apps }: AddressPanelProps) {
