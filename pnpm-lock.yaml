@@ -21,7 +21,7 @@ importers:
       '@babel/runtime': ^7.8.4
       '@influxdata/influxdb-client': ^1.15.0
       '@pokt-foundation/pocket-dashboard-shared': ^0.0.3-alpha.0
-      '@pokt-foundation/portal-types': workspace:^
+      '@pokt-foundation/portal-types': workspace:^0.0.1
       '@pokt-network/pocket-js': ^0.7.0-rc
       '@sendgrid/client': ^7.4.2
       '@sendgrid/mail': ^7.4.2
@@ -192,7 +192,7 @@ importers:
       '@axe-core/react': ^4.1.1
       '@fontsource/manrope': ^4.4.5
       '@originjs/vite-plugin-commonjs': ^1.0.1
-      '@pokt-foundation/portal-types': workspace:^
+      '@pokt-foundation/portal-types': workspace:^0.0.1
       '@pokt-foundation/ui': 0.3.0
       '@reach/visually-hidden': ^0.15.2
       '@react-spring/types': ^9.3.1
