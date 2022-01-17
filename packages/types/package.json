@@ -1,5 +1,6 @@
 {
   "name": "@pokt-foundation/portal-types",
+  "private": false,
   "version": "0.0.1",
   "description": "Typescript types for the Pocket Portal.",
   "main": "lib/index.js",
