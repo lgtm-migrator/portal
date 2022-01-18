@@ -30,16 +30,17 @@ function createCookieFromToken(
   const cookieOptions: CookieOptions = {
     // Expires in 10 days
     expires: new Date(Date.now() + TEN_DAYS),
+    maxAge: TEN_DAYS,
     httpOnly: true,
     sameSite: 'none',
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https' || (!env('PROD')),
   }
 
   res.cookie('jwt', token, cookieOptions)
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: {},
+    data: { user },
   })
 }
 
