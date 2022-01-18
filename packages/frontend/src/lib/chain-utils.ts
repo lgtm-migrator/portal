@@ -82,6 +82,9 @@ export function getPriorityLevelByChain(chainId: string): number {
 }
 
 export function processChains(chains: Chain[]): Chain[] {
+  if (!chains.length) {
+    return chains
+  }
   return chains
     .sort((a, b) => {
       const chainA = a.description.toUpperCase()

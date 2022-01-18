@@ -154,9 +154,7 @@ export default function Create() {
           withCredentials: true,
         })
 
-        const {
-          data: { chains },
-        } = res
+        const { data: chains } = res
 
         return processChains(chains)
       } catch (err) {
