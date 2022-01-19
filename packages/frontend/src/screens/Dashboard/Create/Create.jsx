@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { animated, useTransition } from 'react-spring'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
@@ -120,7 +120,7 @@ function useConfigureState() {
 
 export default function Create() {
   const [creationModalVisible, setCreationModalVisible] = useState(false)
-  const [maintenanceModalVisible, setMaintenanceModalVisible] = useState(true)
+  const [maintenanceModalVisible, setMaintenanceModalVisible] = useState(false)
   const history = useHistory()
   const {
     appConfigData,
@@ -220,6 +220,11 @@ export default function Create() {
 
   const memoizableUserApps = JSON.stringify(userApps)
 
+  useEffect(() => {
+    if (!isAppsLoading) {
+      setMaintenanceModalVisible(true)
+    }
+  }, [isAppsLoading, setMaintenanceModalVisible])
   useEffect(() => {
     if (
       userApps.length >= MAX_USER_APPS &&
