@@ -120,6 +120,7 @@ function useConfigureState() {
 
 export default function Create() {
   const [creationModalVisible, setCreationModalVisible] = useState(false)
+  const [maintenanceModalVisible, setMaintenanceModalVisible] = useState(true)
   const history = useHistory()
   const {
     appConfigData,
@@ -234,6 +235,10 @@ export default function Create() {
     setCreationModalVisible(false)
     history.push('/home')
   }, [history])
+  const onCloseMaintenanceModal = useCallback(() => {
+    setMaintenanceModalVisible(false)
+    history.push('/home')
+  }, [history])
 
   const ActiveScreen = useMemo(
     () => SCREENS.get(screenIndex) ?? null,
@@ -262,18 +267,7 @@ export default function Create() {
   })
 
   const isCreateDisabled = useMemo(
-    () =>
-      !appName ||
-      isAppsLoading ||
-      isChainsError ||
-      isChainsLoading ||
-      isCreateError ||
-      isCreateLoading ||
-      isCreateSuccess ||
-      userLoading ||
-      (userApps.length >= MAX_USER_APPS &&
-        !env('GODMODE_ACCOUNTS').includes(userID)) ||
-      !selectedNetwork,
+    () => true,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       appName,
@@ -325,6 +319,10 @@ export default function Create() {
                 onClose={onCloseCreationModal}
                 visible={creationModalVisible}
               />
+              <MaintenanceModal
+                onClose={onCloseMaintenanceModal}
+                visible={maintenanceModalVisible}
+              />
             </animated.div>
           ))}
         </div>
@@ -354,6 +352,31 @@ function CreationDenialModal({ onClose, visible }) {
           need more, please{' '}
           <Link href="mailto:sales@pokt.network">contact our team</Link> and
           we'll work out a solution for you.
+        </Banner>
+      </div>
+    </Modal>
+  )
+}
+
+function MaintenanceModal({ onClose, visible }) {
+  return (
+    <Modal
+      visible={visible}
+      onClose={onClose}
+      css={`
+        & > div > div > div > div {
+          padding: 0 !important;
+        }
+      `}
+    >
+      <div
+        css={`
+          max-width: ${87 * GU}px;
+        `}
+      >
+        <Banner mode="warning" title="Endpoint creation under maintenance.">
+          Endpoint creation is undergoing maintenance, so no new apps can be
+          created at this time. We'll be back soon!
         </Banner>
       </div>
     </Modal>
