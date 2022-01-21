@@ -19,12 +19,11 @@ const EXPANDABLE_LIST_HEIGHT = 258
 const EXPANDABLE_MIN_LENGTH = 3
 
 interface GatewayPanelProps {
-  apps: IAppInfo[]
   id: string
   secret: string
 }
 
-export default function GatewayPanel({ apps, id, secret }: GatewayPanelProps) {
+export default function GatewayPanel({ id, secret }: GatewayPanelProps) {
   const toast = useToast()
 
   return (

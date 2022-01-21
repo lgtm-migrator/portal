@@ -22,6 +22,7 @@ export interface ILoadBalancer extends Document {
   createdAt: Date | number
   updatedAt?: Date | number
   chain: string
+  gigastakeRedirect?: boolean
 }
 
 const LoadBalancerSchema = new Schema<ILoadBalancer>(
@@ -30,6 +31,7 @@ const LoadBalancerSchema = new Schema<ILoadBalancer>(
     name: String,
     requestTimeOut: String,
     applicationIDs: [],
+    gigastakeRedirect: Boolean,
     createdAt: {
       type: Date,
       default: new Date(Date.now()),

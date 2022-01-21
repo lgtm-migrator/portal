@@ -1,15 +1,13 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import {
   Button,
   DataView,
   Help,
-  IconSearch,
   Link,
   Spacer,
   Split,
-  Switch,
   TextInput,
   textStyle,
   GU,
@@ -31,34 +29,8 @@ export default function BasicSetup({
   updateData,
   chains,
 }) {
-  const [chainName, setChainName] = useState('')
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
-
-  const onSetChainName = useCallback((e) => {
-    setChainName(e.target.value)
-  }, [])
-  const onSwitchClick = useCallback(
-    (chainId) => {
-      if (data.selectedNetwork && data.selectedNetwork === chainId) {
-        updateData({ type: 'UPDATE_SELECTED_NETWORK', payload: '' })
-      } else {
-        updateData({ type: 'UPDATE_SELECTED_NETWORK', payload: chainId })
-      }
-    },
-    [data, updateData]
-  )
-
-  const filteredChains = useMemo(() => {
-    if (!chainName) {
-      return chains
-    }
-    return chains.filter(
-      ({ description: name }) =>
-        name.toLowerCase().indexOf(chainName) >= 0 ||
-        name.indexOf(chainName) >= 0
-    )
-  }, [chainName, chains])
 
   return (
     <>
@@ -107,7 +79,7 @@ export default function BasicSetup({
                   ${textStyle('title2')}
                 `}
               >
-                Select Network
+                Networks
               </h2>
               <Spacer size={1 * GU} />
               <p
@@ -115,63 +87,25 @@ export default function BasicSetup({
                   ${textStyle('body4')}
                 `}
               >
-                Choose the network you want to connect your app to.{' '}
-                <span
-                  css={`
-                    font-weight: bold;
-                  `}
-                >
-                  Be aware that you will only be able to change the selected
-                  network once a week.
-                </span>
-                &nbsp; If you have any issues while using any of our supported
-                chains, let us know on our&nbsp;
+                All of these networks will be available to you when you create
+                your app. You'll have a dropdown which will let you choose the
+                specific network you'd like to connect to. &nbsp; If you have
+                any issues while using any of our supported chains, let us know
+                on our&nbsp;
                 <Link href="https://bit.ly/POKTARCADEdscrd">Discord.</Link>
               </p>
               <Spacer size={3 * GU} />
-              <TextInput
-                value={chainName}
-                onChange={onSetChainName}
-                placeholder="Ethereum Mainnet"
-                adornment={
-                  <div
-                    css={`
-                      height: 100%;
-                      display: flex;
-                      justify-content: center;
-                      align-items: center;
-                      color: white;
-                    `}
-                  >
-                    <IconSearch />
-                  </div>
-                }
-                adornmentPosition="end"
-                wide
-              />
-              <Spacer size={2 * GU} />
               <DataView
                 fields={[
-                  '',
                   { label: 'Network', align: 'start' },
                   { label: 'Apps', align: 'start' },
                   { label: 'Status', align: 'start' },
                 ]}
-                entries={filteredChains}
-                renderEntry={({
-                  appCount,
-                  description,
-                  id,
-                  isAvailableForStaking,
-                }) => {
+                entries={chains}
+                renderEntry={({ appCount, description, id }) => {
                   const chainImage = getImageForChain(description)
 
                   return [
-                    <Switch
-                      onChange={() => onSwitchClick(id)}
-                      checked={data.selectedNetwork === id}
-                      disabled={!isAvailableForStaking}
-                    />,
                     <div
                       css={`
                         height: 100%;

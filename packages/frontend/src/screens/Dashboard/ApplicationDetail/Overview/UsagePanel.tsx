@@ -74,7 +74,11 @@ export default function UsagePanel({
           </h3>
           <Spacer size={5 * GU} />
           <CircleGraph
-            value={Math.min(1, sessionRelays / maxSessionRelays)}
+            value={
+              maxSessionRelays === 0
+                ? 0
+                : Math.min(1, sessionRelays / maxSessionRelays)
+            }
             size={120}
             color={usageColor}
           />

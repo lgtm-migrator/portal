@@ -20,6 +20,7 @@ import {
   NETWORK_AGGREGATES_QUERY,
 } from '../lib/influx'
 import { cache, getResponseFromCache, NETWORK_METRICS_TTL } from '../redis'
+import { KNOWN_CHAINS } from '../known-chains'
 
 const router = express.Router()
 
@@ -33,7 +34,7 @@ router.get(
   asyncMiddleware(async (_: Request, res: Response) => {
     const chains = await Chain.find()
 
-    const processedChains = await Promise.all(
+    const processedChains = (await Promise.all(
       chains.map(async function processChain({
         _id,
         ticker,
@@ -53,28 +54,26 @@ router.get(
           isAvailableForStaking,
         }
       })
-    ) as ChainsResponse
+    )) as ChainsResponse
 
     res.status(200).send(processedChains)
   })
 )
 
 router.get(
-  '/stakeable-chains',
+  '/usable-chains',
   asyncMiddleware(async (_: Request, res: Response) => {
     const chains = await Chain.find()
-    const existentChains = await Promise.all(
-      chains.map(async function filterChain({ _id }) {
-        const exists = await ApplicationPool.exists({
-          chain: _id,
-          status: APPLICATION_STATUSES.SWAPPABLE,
-        })
-
-        return exists
+    const knownChains = Object.values(KNOWN_CHAINS)
+    const serviceableChains = chains.filter((c) =>
+      knownChains.find((chain) => {
+        if (c._id === chain.id) {
+          return true
+        }
+        return false
       })
     )
-    const processedChains = chains.filter((_, i) => existentChains[i])
-    const formattedChains = processedChains.map(function processChain({
+    const formattedChains = serviceableChains.map(function processChain({
       _id,
       appCount,
       description,
@@ -129,7 +128,11 @@ router.get(
     )
 
     const processedDailyRelaysResponse = rawDailyRelays.map(
-      ({ _time, _value }) => ({ total_relays: _value ?? 0, bucket: _time }) as NetworkDailyRelayBucket
+      ({ _time, _value }) =>
+        ({
+          total_relays: _value ?? 0,
+          bucket: _time,
+        } as NetworkDailyRelayBucket)
     ) as NetworkDailyRelaysResponse
 
     await cache.set(

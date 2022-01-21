@@ -1,5 +1,6 @@
 import express, { Response, Request, NextFunction } from 'express'
 import crypto from 'crypto'
+import { Encryptor } from 'strong-cryptor'
 import {
   UserLBDailyRelaysResponse,
   UserLBErrorMetricsResponse,
@@ -11,12 +12,12 @@ import {
   UserLBPreviousTotalSuccessfulRelaysResponse,
   UserLBSessionRelaysResponse,
   UserLBTotalRelaysResponse,
-  UserLBTotalSuccessfulRelaysResponse
-}from '@pokt-foundation/portal-types'
-import { typeGuard, QueryAppResponse } from '@pokt-network/pocket-js'
+  UserLBTotalSuccessfulRelaysResponse,
+} from '@pokt-foundation/portal-types'
+import { typeGuard, QueryAppResponse, PocketAAT } from '@pokt-network/pocket-js'
 import { IAppInfo, GetApplicationQuery } from './types'
 import { cache, getResponseFromCache, LB_METRICS_TTL } from '../redis'
-import env from '../environment'
+import env, { PocketNetworkKeys } from '../environment'
 import asyncMiddleware from '../middlewares/async'
 import { authenticate } from '../middlewares/passport-auth'
 import Application, { IApplication } from '../models/Application'
@@ -36,11 +37,10 @@ import {
   buildTotalAppRelaysQuery,
   buildOriginClassificationQuery,
 } from '../lib/influx'
-import { getApp } from '../lib/pocket'
+import { getApp, createPocketAccount, PocketAccount } from '../lib/pocket'
 import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
-import Blockchains from '../models/Blockchains'
 import axios from 'axios'
 
 const DEFAULT_GATEWAY_SETTINGS = {
@@ -49,8 +49,13 @@ const DEFAULT_GATEWAY_SETTINGS = {
   whitelistOrigins: [],
   whitelistUserAgents: [],
 }
-const DEFAULT_TIMEOUT = 5000
+const DEFAULT_TIMEOUT = 2000
+const DEFAULT_MAX_RELAYS = 42000
 const MAX_USER_ENDPOINTS = 2
+
+const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY') as string
+
+const encryptor = new Encryptor({ key: CRYPTO_KEY })
 
 async function getLBPublicKeys(appIDs: string[], lbID: string) {
   const cachedPublicKeys = await getResponseFromCache(`${lbID}-pks`)
@@ -76,6 +81,20 @@ async function getLBPublicKeys(appIDs: string[], lbID: string) {
   }
 
   return publicKeys
+}
+
+async function getAppChain(address: string): Promise<string> {
+  const onChainApp = ((await getApp(address)) as QueryAppResponse).toJSON()
+
+  const { chains } = onChainApp
+
+  if (!chains) {
+    return 'NOT_FOUND'
+  }
+
+  const [chain] = chains
+
+  return chain
 }
 
 const router = express.Router()
@@ -109,7 +128,6 @@ router.get(
         if (!lb.applicationIDs.length) {
           // Remove user association with empty LBs. This means their apps have no usage and have been removed, so this LB should be removed (and will be done so automatically after some time).
           lb.user = null
-          console.log('hay bobo?')
           return
         }
 
@@ -149,20 +167,13 @@ router.get(
 
         const app = await Application.findById(lb.applicationIDs[0])
 
-        const onChainApp = (
-          (await getApp(
-            app.freeTierApplicationAccount.address
-          )) as QueryAppResponse
-        ).toJSON()
+        const chain = lb.gigastakeRedirect
+          ? ''
+          : await getAppChain(app.freeTierApplicationAccount.address)
 
-        const { chains } = onChainApp
-
-        if (!chains) {
+        if (chain === 'NOT_FOUND') {
           return
         }
-
-        const [chain] = chains
-
         app.chain = chain
 
         const processedLb: GetApplicationQuery = {
@@ -170,6 +181,7 @@ router.get(
           chain: chain,
           createdAt: new Date(Date.now()),
           updatedAt: lb.updatedAt,
+          gigastake: lb.gigastakeRedirect,
           freeTier: app.freeTier,
           gatewaySettings: app.gatewaySettings,
           notificationSettings: app.notificationSettings,
@@ -192,7 +204,7 @@ router.get(
 router.post(
   '',
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const { name, chain, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
+    const { name, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
 
     const id = (req.user as IUser)._id
     const userLBs = await LoadBalancer.find({ user: id })
@@ -213,35 +225,40 @@ router.post(
         })
       )
     }
-    const preStakedApp: IPreStakedApp = await ApplicationPool.findOne({
-      status: APPLICATION_STATUSES.SWAPPABLE,
-      chain,
-    })
 
-    if (!preStakedApp) {
-      return next(
-        HttpError.BAD_REQUEST({
-          errors: [
-            {
-              id: 'POOL_EMPTY',
-              message: 'No pre-staked apps available for this chain.',
-            },
-          ],
-        })
-      )
+    const rawAccount = (await createPocketAccount()) as unknown as PocketAccount
+
+    const encryptedPocketAccount: PocketAccount = {
+      address: rawAccount.address,
+      publicKey: rawAccount.publicKey,
+      privateKey: encryptor.encrypt(rawAccount.privateKey),
+      passPhrase: rawAccount.passPhrase,
     }
+
+    const freeTierAAT = await PocketAAT.from(
+      '0.0.1',
+      (env('POCKET_NETWORK') as PocketNetworkKeys).clientPubKey,
+      rawAccount.publicKey,
+      rawAccount.privateKey
+    )
+
+    const completeGatewaySettings = {
+      ...gatewaySettings,
+      secretKey: crypto.randomBytes(16).toString('hex'),
+    }
+
     const application = new Application({
-      chain,
       name,
       user: id,
       status: APPLICATION_STATUSES.IN_SERVICE,
       lastChangedStatusAt: new Date(Date.now()),
       // We enforce every app to be treated as a free-tier app for now.
       freeTier: true,
-      freeTierApplicationAccount: preStakedApp.freeTierApplicationAccount,
-      gatewayAAT: preStakedApp.gatewayAAT,
+      freeTierApplicationAccount: encryptedPocketAccount,
+      gatewayAAT: freeTierAAT,
+      maxRelays: DEFAULT_MAX_RELAYS,
       gatewaySettings: {
-        ...gatewaySettings,
+        ...completeGatewaySettings,
       },
       notificationSettings: {
         signedUp: false,
@@ -252,36 +269,14 @@ router.post(
       },
     })
 
-    application.gatewaySettings.secretKey = crypto
-      .randomBytes(16)
-      .toString('hex')
-
     await application.save()
-
-    const { ok } = await ApplicationPool.deleteOne({ _id: preStakedApp._id })
-
-    if (ok !== 1) {
-      return next(
-        HttpError.INTERNAL_SERVER_ERROR({
-          errors: [
-            {
-              id: 'DB_ERROR',
-              message: 'There was an error while updating the DB',
-            },
-          ],
-        })
-      )
-    }
-
-    const blockchain = await Blockchains.findOne({ _id: application.chain })
-
-    const timeout = blockchain?.requestTimeOut ?? DEFAULT_TIMEOUT
 
     const loadBalancer: ILoadBalancer = new LoadBalancer({
       user: id,
       name,
-      requestTimeOut: timeout,
+      requestTimeOut: DEFAULT_TIMEOUT,
       applicationIDs: [application._id.toString()],
+      gigastakeRedirect: true,
       updatedAt: new Date(Date.now()),
       createdAt: new Date(Date.now()),
     })
@@ -289,12 +284,13 @@ router.post(
     await loadBalancer.save()
 
     const processedLb: GetApplicationQuery = {
-      chain,
+      chain: '',
       createdAt: new Date(Date.now()),
       updatedAt: loadBalancer.updatedAt,
       name: loadBalancer.name,
       id: loadBalancer._id.toString(),
       freeTier: true,
+      gigastake: true,
       status: application.status,
       apps: [
         {
@@ -410,13 +406,32 @@ router.get(
       )
     }
 
-    const apps = await Promise.all(
+    const dbApps = await Promise.all(
       loadBalancer.applicationIDs.map(async function getApps(applicationId) {
         const application: IApplication = await Application.findById(
           applicationId
         )
 
-        return await getApp(application.freeTierApplicationAccount.address)
+        return application
+      })
+    )
+
+    if (loadBalancer.gigastakeRedirect) {
+      const appsStatus = dbApps.reduce(
+        (status, app) => {
+          return {
+            stake: 0,
+            relays: status.relays + app.maxRelays,
+          }
+        },
+        { stake: 0, relays: 0 }
+      ) as UserLBOnChainDataResponse
+      res.status(200).send(appsStatus)
+    }
+
+    const apps = await Promise.all(
+      dbApps.map(async function getAppsFromChain(app) {
+        return await getApp(app.freeTierApplicationAccount.address)
       })
     )
 
@@ -557,6 +572,19 @@ router.post(
       )
     }
 
+    if (loadBalancer.gigastakeRedirect) {
+      return next(
+        HttpError.BAD_REQUEST({
+          errors: [
+            {
+              id: 'LB_IS_GIGASTAKE',
+              message: 'Load Balancers are not switchable',
+            },
+          ],
+        })
+      )
+    }
+
     if (loadBalancer.applicationIDs.length > appsInPool.length) {
       return next(
         HttpError.BAD_REQUEST({
@@ -632,16 +660,17 @@ router.post(
     const newestApp = await Application.findById(loadBalancer.applicationIDs[0])
 
     const processedLb: GetApplicationQuery = {
-      chain: newestApp.chain,
-      name: loadBalancer.name,
       apps: newApps,
+      chain: newestApp.chain,
       createdAt: loadBalancer.createdAt,
-      updatedAt: loadBalancer.updatedAt,
       freeTier: true,
-      id: loadBalancer._id.toString(),
       gatewaySettings: newestApp.gatewaySettings,
+      gigastake: false,
+      id: loadBalancer._id.toString(),
+      name: loadBalancer.name,
       notificationSettings: newestApp.notificationSettings,
       status: newestApp.status,
+      updatedAt: loadBalancer.updatedAt,
     }
 
     res.status(200).send(processedLb)

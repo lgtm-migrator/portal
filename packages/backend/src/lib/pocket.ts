@@ -1,4 +1,5 @@
 /* global BigInt */
+import crypto from 'crypto'
 import {
   Configuration,
   HttpRpcProvider,
@@ -55,6 +56,13 @@ export const POKT_DENOMINATIONS = {
 }
 
 export const TOTAL_APP_SLOTS = 2000
+
+export type PocketAccount = {
+  privateKey: string
+  publicKey: string
+  address: string
+  passPhrase: string
+}
 
 function getPocketDispatchers() {
   return DEFAULT_DISPATCHER_LIST
@@ -288,6 +296,32 @@ export async function getApp(
     .query.getApp(addressHex)
 
   return applicationResponse
+}
+
+export async function createPocketAccount(): Promise<PocketAccount | Error> {
+  const pocketInstance = new Pocket(
+    getPocketDispatchers(),
+    undefined,
+    POCKET_CONFIGURATION
+  )
+  const generatedPassphrase = crypto.randomBytes(32).toString("hex");
+  const account = await pocketInstance.keybase.createAccount(generatedPassphrase);
+
+  if (typeGuard(account, Error)) {
+    throw Error
+  }
+
+  const exportedPrivateKey = await pocketInstance.keybase.exportAccount(
+    account.addressHex,
+    generatedPassphrase
+  );
+
+  return {
+    address: account.addressHex,
+    passPhrase: generatedPassphrase,
+    privateKey: exportedPrivateKey.toString('hex'),
+    publicKey: account.publicKey.toString('hex'),
+  }
 }
 
 export async function createAppStakeTx(

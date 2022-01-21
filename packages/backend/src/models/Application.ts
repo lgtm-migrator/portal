@@ -44,6 +44,7 @@ export interface IApplication extends Document {
   updatedAt?: Date | number
   encryptPrivateKey: (privateKey: string) => string
   decryptPrivateKey: (privateKey: string) => string
+  maxRelays?: number
   validateMetadata: ({
     name,
     owner,
@@ -65,6 +66,7 @@ const applicationSchema = new Schema<IApplication>(
     freeTier: Boolean,
     status: String,
     lastChangedStatusAt: Date,
+    maxRelays: Number,
     freeTierApplicationAccount: {
       address: String,
       publicKey: String,

@@ -200,7 +200,7 @@ export default function Overview({
   })
 
   const compactMode = within(-1, 'medium')
-  const { id: appID } = appData
+  const { gigastake, id: appID } = appData
 
   const onCloseDenialModal = useCallback(
     () => setNetworkDenialModalVisible(false),
@@ -320,6 +320,7 @@ export default function Overview({
                 {!compactMode && (
                   <>
                     <NavigationOptions
+                      gigastake={gigastake}
                       baseUrl={url}
                       onOpenModal={onOpenModal}
                     />
@@ -327,17 +328,17 @@ export default function Overview({
                   </>
                 )}
                 <AppStatus
+                  gigastake={gigastake}
                   maxDailyRelays={maxDailyRelays}
                   stakedTokens={stakedTokens as number}
                 />
                 <Spacer size={3 * GU} />
                 <GatewayPanel
-                  apps={appData.apps}
                   id={appData.id}
                   secret={appData.gatewaySettings.secretKey}
                 />
                 <Spacer size={3 * GU} />
-                <AddressPanel apps={appData.apps} />
+                {!gigastake && <AddressPanel apps={appData.apps} />}
                 <ButtonBase
                   css={`
                     && {
@@ -382,10 +383,15 @@ export default function Overview({
 
 interface NavigationOptions {
   baseUrl: string
+  gigastake: boolean
   onOpenModal: () => void
 }
 
-function NavigationOptions({ baseUrl, onOpenModal }: NavigationOptions) {
+function NavigationOptions({
+  baseUrl,
+  gigastake,
+  onOpenModal,
+}: NavigationOptions) {
   const history = useHistory()
   const { within } = useViewport()
 
@@ -395,9 +401,11 @@ function NavigationOptions({ baseUrl, onOpenModal }: NavigationOptions) {
     <>
       {!compactMode && (
         <>
-          <Button mode="primary" wide onClick={onOpenModal}>
-            Switch chains
-          </Button>
+          {!gigastake && (
+            <Button mode="primary" wide onClick={onOpenModal}>
+              Switch chains
+            </Button>
+          )}
           <Spacer size={2 * GU} />
           <Button wide onClick={() => history.push(`${baseUrl}/security`)}>
             App Security

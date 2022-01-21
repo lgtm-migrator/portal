@@ -12,6 +12,7 @@ export type GetApplicationQuery = {
   createdAt?: Date | number
   updatedAt?: Date | number
   freeTier: boolean
+  gigastake: boolean
   gatewaySettings: IGatewaySettings
   name: string
   notificationSettings: INotificationSettings

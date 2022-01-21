@@ -6,11 +6,7 @@ const DEV_DB_URL =
 
 function composeMongoUrl(production = false) {
   return production
-    ? `mongodb+srv://${env('DATABASE_USER')}:${env(
-        'DATABASE_PASSWORD'
-      )}@clusteruse2.qufus.mongodb.net/${env(
-        'DATABASE_NAME'
-      )}?retryWrites=true&w=majority`
+    ? `${env('DATABASE_URL')}`
     : `${DEV_DB_URL}`
 }
 

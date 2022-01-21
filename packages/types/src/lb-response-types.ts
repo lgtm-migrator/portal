@@ -12,6 +12,7 @@ export type UserLB = {
   createdAt?: Date | number;
   freeTier: boolean;
   gatewaySettings: IGatewaySettings;
+  gigastake: boolean;
   id: string;
   name: string;
   notificationSettings: INotificationSettings;

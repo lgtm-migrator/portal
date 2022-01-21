@@ -5,11 +5,13 @@ import 'styled-components/macro'
 import Box from '../Box/Box'
 
 interface AppStatusProps {
+  gigastake: boolean
   stakedTokens: number
   maxDailyRelays: number
 }
 
 export default function AppStatus({
+  gigastake,
   stakedTokens,
   maxDailyRelays,
 }: AppStatusProps) {
@@ -64,18 +66,20 @@ export default function AppStatus({
           </Tag>
         </li>
         <Spacer size={2 * GU} />
-        <li>
-          Staked Amount
-          <span
-            css={`
-              ${textStyle('body3')}
-            `}
-          >
-            {TokenAmount.format(stakedTokens, 6, {
-              symbol: 'POKT',
-            })}
-          </span>
-        </li>
+        {!gigastake && (
+          <li>
+            Staked Amount
+            <span
+              css={`
+                ${textStyle('body3')}
+              `}
+            >
+              {TokenAmount.format(stakedTokens, 6, {
+                symbol: 'POKT',
+              })}
+            </span>
+          </li>
+        )}
         <Spacer size={2 * GU} />
         <li>
           Max Relays Per Day

@@ -12,16 +12,17 @@ export type Chain = {
   isAvailableForStaking: boolean
 }
 
-const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
+export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   ['0001', { prefix: 'mainnet', name: 'Pocket Mainnet' }],
-  ['0002', { prefix: 'btc-mainnet', name: 'Bitcoin Mainnet' }],
   ['0003', { prefix: 'avax-mainnet', name: 'Avalanche Mainnet' }],
-  ['0004', { prefix: 'bsc-mainnet', name: 'Binance Smart Chain Mainnet' }],
   ['0005', { prefix: 'fuse-mainnet', name: 'Fuse Mainnet' }],
   ['0006', { prefix: 'solana-mainnet', name: 'Solana Mainnet' }],
   ['0009', { prefix: 'poly-mainnet', name: 'Polygon (Matic) Mainnet' }],
   ['000B', { prefix: 'poly-archival', name: 'Polygon (Matic) Archival' }],
-  ['000C', { prefix: 'poa-xdai-archival', name: 'XDAI Mainnet (Archival)' }],
+  [
+    '000C',
+    { prefix: 'poa-xdai-archival', name: 'Gnosis Chain Mainnet (Archival)' },
+  ],
   ['000D', { prefix: 'algo-archival', name: 'Algorand Mainnet (Archival)' }],
   ['00A3', { prefix: 'avax-archival', name: 'Avalanche Mainnet (Archival)' }],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet' }],
@@ -30,7 +31,7 @@ const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   ['0024', { prefix: 'poa-kovan', name: 'Kovan' }],
   ['0025', { prefix: 'eth-rinkeby', name: 'Ethereum Rinkeby' }],
   ['0026', { prefix: 'eth-goerli', name: 'Ethereum Goerli' }],
-  ['0027', { prefix: 'poa-xdai', name: 'XDAI Mainnet' }],
+  ['0027', { prefix: 'poa-xdai', name: 'Gnosis Chain Mainnet' }],
   ['0028', { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)' }],
   ['0029', { prefix: 'algo-mainnet', name: 'Algorand Mainnet' }],
   ['0040', { prefix: 'harmony-0', name: 'Harmony Shard 0' }],

@@ -61,6 +61,8 @@ export default function Security({
   const toast = useToast()
   const queryClient = useQueryClient()
 
+  const { gigastake } = appData
+
   useEffect(() => {
     setUserAgents((agents) => {
       const currentUserAgents = appData.gatewaySettings.whitelistUserAgents
@@ -321,6 +323,7 @@ export default function Security({
                 </Button>
                 <Spacer size={2 * GU} />
                 <AppStatus
+                  gigastake={gigastake}
                   stakedTokens={stakedTokens}
                   maxDailyRelays={maxDailyRelays}
                 />
