@@ -100,6 +100,9 @@ export const ENV_VARS = {
   POCKET_PROVIDER_NODE(): string {
     return process.env.POCKET_NETWORK_HTTP_PROVIDER_NODE
   },
+  PROD_DB_URL(): string {
+    return process.env.PROD_DB_URL
+  },
   POCKET_NETWORK(): PocketNetworkKeys {
     return {
       aatVersion: process.env.POCKET_NETWORK_AAT_VERSION,
@@ -155,6 +158,7 @@ type envVarCategory =
   | 'POCKET_NETWORK'
   | 'POCKET_PROVIDER_NODE'
   | 'PROD'
+  | 'PROD_DB_URL'
   | 'REDIS_ENDPOINT'
   | 'SECRET_KEY'
 

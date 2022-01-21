@@ -28,6 +28,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
+          envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
           envkey_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           envkey_CLOUDWATCH_GROUP_NAME: ${{ secrets.CLOUDWATCH_GROUP_NAME }}

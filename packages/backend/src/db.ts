@@ -6,7 +6,11 @@ const DEV_DB_URL =
 
 function composeMongoUrl(production = false) {
   return production
-    ? `${env('DATABASE_URL')}`
+    ? `mongodb+srv://${env('DATABASE_USER')}:${env(
+        'DATABASE_PASSWORD'
+      )}@portal-api.kxobp.mongodb.net/${env(
+        'DATABASE_NAME'
+      )}?retryWrites=true&w=majority`
     : `${DEV_DB_URL}`
 }
 
