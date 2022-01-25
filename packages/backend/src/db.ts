@@ -10,7 +10,7 @@ function composeMongoUrl(production = false) {
         'DATABASE_PASSWORD'
       )}@portal-api.kxobp.mongodb.net/${env(
         'DATABASE_NAME'
-      )}?retryWrites=true&w=majority`
+      )}?authSource=admin `
     : `${DEV_DB_URL}`
 }
 
