@@ -7,6 +7,11 @@ import poktImage from './images/pokt.png'
 import polygonImage from './images/polygon.png'
 import solanaImage from './images/solana.png'
 import xdaiImage from './images/xdai.png'
+import algorandImage from './images/algorand.png'
+import evmosImage from './images/evmos.png'
+import gnosisImage from './images/gnosis.png'
+import harmonyImage from './images/harmony.png'
+import iotexImage from './images/iotex.png'
 
 /**
  * Gets the corresponding image for a specific chain.
@@ -53,6 +58,26 @@ export function getImageForChain(chain: string): string {
 
   if (chain.toLowerCase().includes('xdai')) {
     return xdaiImage
+  }
+
+  if (chain.toLowerCase().includes('algorand')) {
+    return algorandImage
+  }
+
+  if (chain.toLowerCase().includes('evmos')) {
+    return evmosImage
+  }
+
+  if (chain.toLowerCase().includes('gnosis')) {
+    return gnosisImage
+  }
+
+  if (chain.toLowerCase().includes('harmony')) {
+    return harmonyImage
+  }
+
+  if (chain.toLowerCase().includes('iotex')) {
+    return iotexImage
   }
 
   return ''
