@@ -8,7 +8,7 @@ function composeMongoUrl(production = false) {
   return production
     ? `mongodb+srv://${env('DATABASE_USER')}:${env(
         'DATABASE_PASSWORD'
-      )}@clusteruse2.qufus.mongodb.net/${env(
+      )}@portal-api.kxobp.mongodb.net/${env(
         'DATABASE_NAME'
       )}?retryWrites=true&w=majority`
     : `${DEV_DB_URL}`

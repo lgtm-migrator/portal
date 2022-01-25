@@ -267,17 +267,17 @@ export default function Create() {
   )
 
   const isCreateDisabled = useMemo(
-    () => true,
-    //!appName ||
-    //isAppsLoading ||
-    //isChainsError ||
-    //isChainsLoading ||
-    //isCreateError ||
-    //isCreateLoading ||
-    //isCreateSuccess ||
-    //userLoading ||
-    //(userApps.length >= MAX_USER_APPS &&
-    //!env('GODMODE_ACCOUNTS').includes(userID)),
+    () =>
+      !appName ||
+      isAppsLoading ||
+      isChainsError ||
+      isChainsLoading ||
+      isCreateError ||
+      isCreateLoading ||
+      isCreateSuccess ||
+      userLoading ||
+      (userApps.length >= MAX_USER_APPS &&
+        !env('GODMODE_ACCOUNTS').includes(userID)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       appName,
