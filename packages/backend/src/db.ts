@@ -5,13 +5,7 @@ const DEV_DB_URL =
   'mongodb://mongo-client:mongo-password@localhost:27017/gateway-testnet?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
 
 function composeMongoUrl(production = false) {
-  return production
-    ? `mongodb+srv://${env('DATABASE_USER')}:${env(
-        'DATABASE_PASSWORD'
-      )}@portal-api.kxobp.mongodb.net/${env(
-        'DATABASE_NAME'
-      )}?authSource=admin`
-    : `${DEV_DB_URL}`
+  return production ? `${env('DATABASE_URL')}` : `${DEV_DB_URL}`
 }
 
 export const connect = (
