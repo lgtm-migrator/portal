@@ -1,9 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useHistory, useParams, useRouteMatch } from 'react-router'
 import { useMutation } from 'react-query'
 import axios from 'axios'
-import dayjs from 'dayjs/esm'
-import dayJsutcPlugin from 'dayjs/esm/plugin/utc'
 import { useViewport } from 'use-viewport'
 import {
   UserLB,
@@ -22,11 +20,7 @@ import {
   Split,
   useTheme,
 } from '@pokt-foundation/ui'
-import {
-  RemoveAppModal,
-  SwitchDenialModal,
-  SwitchInfoModal,
-} from './ActionModals'
+import { RemoveAppModal } from './ActionModals'
 import EndpointDetails from './EndpointDetails'
 import GatewayPanel, { AddressPanel } from './GatewayPanel'
 import LatencyPanel from './LatencyPanel'
@@ -59,8 +53,9 @@ interface OverviewProps {
   totalRelays: number
 }
 
+type UseMetricValuesProps = Omit<OverviewProps, 'appData'>
+
 function useMetricValues({
-  appData,
   currentSessionRelays,
   dailyRelays,
   hourlyLatency,
@@ -69,7 +64,7 @@ function useMetricValues({
   previousSuccessfulRelays,
   successfulRelays,
   totalRelays,
-}: OverviewProps) {
+}: UseMetricValuesProps) {
   const successRate = useMemo(() => {
     return totalRelays === 0 ? 0 : successfulRelays / totalRelays
   }, [successfulRelays, totalRelays])
@@ -108,16 +103,6 @@ function useMetricValues({
     )
   }, [hourlyLatency])
 
-  const isSwitchable = useMemo(() => {
-    dayjs.extend(dayJsutcPlugin)
-    const today = dayjs.utc()
-    const appLastUpdated = dayjs.utc(appData.updatedAt ?? appData.createdAt)
-
-    const diff = today.diff(appLastUpdated, 'day')
-
-    return diff >= 7
-  }, [appData])
-
   const exceedsMaxRelays = useMemo(() => {
     return totalRelays >= maxDailyRelays
   }, [maxDailyRelays, totalRelays])
@@ -131,7 +116,6 @@ function useMetricValues({
     barValues,
     exceedsMaxRelays,
     exceedsSessionRelays,
-    isSwitchable,
     latencyLabels,
     latencyScales,
     previousSuccessRate,
@@ -154,10 +138,7 @@ export default function Overview({
   successfulRelays,
   totalRelays,
 }: OverviewProps) {
-  const [networkModalVisible, setNetworkModalVisible] = useState(false)
   const [removeModalVisible, setRemoveModalVisible] = useState(false)
-  const [networkDenialModalVisible, setNetworkDenialModalVisible] =
-    useState(false)
   const history = useHistory()
   const { url } = useRouteMatch()
   const { appId } = useParams<{ appId: string }>()
@@ -179,7 +160,6 @@ export default function Overview({
     barValues,
     exceedsMaxRelays,
     exceedsSessionRelays,
-    isSwitchable,
     latencyLabels,
     latencyScales,
     previousSuccessRate,
@@ -188,7 +168,6 @@ export default function Overview({
     usageLines,
     usageScales,
   } = useMetricValues({
-    appData,
     currentSessionRelays,
     dailyRelays,
     hourlyLatency,
@@ -202,28 +181,9 @@ export default function Overview({
   const compactMode = within(-1, 'medium')
   const { gigastake, id: appID } = appData
 
-  const onCloseDenialModal = useCallback(
-    () => setNetworkDenialModalVisible(false),
-    []
-  )
-  const onCloseNetworkModal = useCallback(
-    () => setNetworkModalVisible(false),
-    []
-  )
   const onCloseRemoveModal = useCallback(() => setRemoveModalVisible(false), [])
 
-  const onOpenModal = useCallback(() => {
-    if (isSwitchable) {
-      setNetworkModalVisible(true)
-    } else {
-      setNetworkDenialModalVisible(true)
-    }
-  }, [isSwitchable])
   const onOpenRemoveModal = useCallback(() => setRemoveModalVisible(true), [])
-
-  const onSwitchChains = useCallback(() => {
-    history.push(`${url}/chains`)
-  }, [history, url])
 
   return (
     <FloatUp
@@ -234,10 +194,7 @@ export default function Overview({
               <>
                 {compactMode && (
                   <>
-                    <NavigationOptions
-                      baseUrl={url}
-                      onOpenModal={onOpenModal}
-                    />
+                    <NavigationOptions baseUrl={url} />
                     <Spacer size={3 * GU} />
                   </>
                 )}
@@ -319,11 +276,7 @@ export default function Overview({
               <>
                 {!compactMode && (
                   <>
-                    <NavigationOptions
-                      gigastake={gigastake}
-                      baseUrl={url}
-                      onOpenModal={onOpenModal}
-                    />
+                    <NavigationOptions baseUrl={url} />
                     <Spacer size={3 * GU} />
                   </>
                 )}
@@ -361,19 +314,10 @@ export default function Overview({
               </>
             }
           />
-          <SwitchInfoModal
-            onClose={onCloseNetworkModal}
-            onSwitch={onSwitchChains}
-            visible={networkModalVisible}
-          />
           <RemoveAppModal
             onClose={onCloseRemoveModal}
             onRemove={onRemoveApp}
             visible={removeModalVisible}
-          />
-          <SwitchDenialModal
-            onClose={onCloseDenialModal}
-            visible={networkDenialModalVisible}
           />
         </>
       )}
@@ -383,15 +327,9 @@ export default function Overview({
 
 interface NavigationOptions {
   baseUrl: string
-  gigastake: boolean
-  onOpenModal: () => void
 }
 
-function NavigationOptions({
-  baseUrl,
-  gigastake,
-  onOpenModal,
-}: NavigationOptions) {
+function NavigationOptions({ baseUrl }: NavigationOptions) {
   const history = useHistory()
   const { within } = useViewport()
 
@@ -401,12 +339,6 @@ function NavigationOptions({
     <>
       {!compactMode && (
         <>
-          {!gigastake && (
-            <Button mode="primary" wide onClick={onOpenModal}>
-              Switch chains
-            </Button>
-          )}
-          <Spacer size={2 * GU} />
           <Button wide onClick={() => history.push(`${baseUrl}/security`)}>
             App Security
           </Button>

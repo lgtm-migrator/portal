@@ -7,80 +7,6 @@ interface ModalProps {
   visible: boolean
 }
 
-interface SwitchInfoModalProps extends ModalProps {
-  onSwitch: () => void
-}
-
-export function SwitchInfoModal({
-  onClose,
-  onSwitch,
-  visible,
-}: SwitchInfoModalProps) {
-  const { within } = useViewport()
-
-  const compactMode = within(-1, 'medium')
-
-  return (
-    <Modal
-      visible={visible}
-      onClose={onClose}
-      width={compactMode ? '300px' : '696px'}
-      css={`
-        & > div > div > div > div {
-          padding: 0 !important;
-        }
-      `}
-    >
-      <div
-        css={`
-          max-width: ${87 * GU}px;
-        `}
-      >
-        <Banner
-          mode="info"
-          title="Free tier applications can only change networks once a week"
-        >
-          <p>
-            This action will change your endpoint URL, which means you'll need
-            to update it across your apps to maintain service. The previous
-            endpoint will remain available for 24 hours before it is unstaked.
-          </p>
-          <Spacer size={3 * GU} />
-          <p
-            css={`
-              ${!compactMode && `text-align: center;`}
-            `}
-          >
-            Do you want to continue?
-          </p>
-          <Spacer size={5 * GU} />
-          <div
-            css={`
-              display: flex;
-              ${compactMode && `flex-direction: column-reverse;`}
-              justify-content: center;
-              align-items: center;
-              padding-left: ${2 * GU}px;
-              padding-right: ${2 * GU}px;
-            `}
-          >
-            <Spacer size={6 * GU} />
-            <Button onClick={onClose} wide>
-              Cancel
-            </Button>
-            <Spacer size={6 * GU} />
-            <Button mode="primary" wide onClick={onSwitch}>
-              Switch chains
-            </Button>
-            <Spacer size={6 * GU} />
-          </div>
-          <Spacer size={3 * GU} />
-        </Banner>
-      </div>
-    </Modal>
-  )
-}
-
 interface RemoveAppModalProps extends ModalProps {
   onRemove: () => void
 }
@@ -146,36 +72,6 @@ export function RemoveAppModal({
               Remove
             </Button>
           </div>
-        </Banner>
-      </div>
-    </Modal>
-  )
-}
-
-export function SwitchDenialModal({ onClose, visible }: ModalProps) {
-  const { within } = useViewport()
-
-  const compactMode = within(-1, 'medium')
-
-  return (
-    <Modal
-      visible={visible}
-      onClose={onClose}
-      width={compactMode ? '300px' : '696px'}
-      css={`
-        & > div > div > div > div {
-          padding: 0 !important;
-        }
-      `}
-    >
-      <div
-        css={`
-          max-width: ${87 * GU}px;
-        `}
-      >
-        <Banner mode="warning" title="You've already switched chains this week">
-          Once a week has elapsed you will be able to switch chains again. In
-          the interim, we invite you to join our Discord community.
         </Banner>
       </div>
     </Modal>

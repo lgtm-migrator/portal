@@ -4,7 +4,6 @@ import 'styled-components/macro'
 import { UserLB } from '@pokt-foundation/portal-types'
 import { Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
-import Chains from '../../Dashboard/ApplicationDetail/Chains'
 import Notifications from '../../Dashboard/ApplicationDetail/Notifications'
 import Overview from '../../Dashboard/ApplicationDetail/Overview/Overview'
 import Security from '../../Dashboard/ApplicationDetail/Security'
@@ -38,7 +37,6 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
     activeApplication,
   })
 
-  // @ts-ignore
   const [
     totalRelaysData,
     successfulRelaysData,
@@ -145,9 +143,6 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
           dailyRelays={dailyRelays}
           maxDailyRelays={maxDailyRelays}
         />
-      </Route>
-      <Route path={`${path}/chains`}>
-        <Chains appData={activeApplication} />
       </Route>
     </Switch>
   )

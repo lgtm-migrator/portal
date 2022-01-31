@@ -107,7 +107,7 @@ export default function Notifications({
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
             scope.setTransactionName(
-              `QUERY ${KNOWN_MUTATION_SUFFIXES.SWITCH_CHAINS_MUTATION}`
+              `QUERY ${KNOWN_MUTATION_SUFFIXES.NOTIFICATION_UPDATE_MUTATION}`
             )
           })
           Sentry.captureException(err)
