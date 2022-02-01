@@ -200,44 +200,6 @@ export default function Overview({
                 )}
                 <EndpointDetails appData={appData} />
                 <Spacer size={3 * GU} />
-                {exceedsMaxRelays && (
-                  <>
-                    <Banner
-                      mode="warning"
-                      title="It's time to up your stake; your app is over the daily limit"
-                    >
-                      Don't worry, we've got you covered. To maintain service,
-                      the Portal automatically redirects all surplus relays to
-                      our backup infrastructure. If you want all relays to be
-                      served by Pocket Network, you'll need to stake more POKT.
-                      Please{' '}
-                      <Link href="mailto:sales@pokt.network">
-                        contact the team
-                      </Link>{' '}
-                      for further assistance.
-                    </Banner>
-                    <Spacer size={2 * GU} />
-                  </>
-                )}
-                {!exceedsMaxRelays && exceedsSessionRelays && (
-                  <>
-                    <Banner
-                      mode="warning"
-                      title="It's time to up your stake; your app is over the session limit"
-                    >
-                      Don't worry, we've got you covered. To maintain service,
-                      the Portal automatically redirects all surplus relays to
-                      our backup infrastructure. If you want all relays to be
-                      served by Pocket Network, you'll need to stake more POKT.
-                      Please{' '}
-                      <Link href="mailto:sales@pokt.network">
-                        contact the team
-                      </Link>{' '}
-                      for further assistance.
-                    </Banner>
-                    <Spacer size={3 * GU} />
-                  </>
-                )}
                 <div
                   css={`
                     width: 100%;
