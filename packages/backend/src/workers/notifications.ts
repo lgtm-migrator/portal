@@ -49,7 +49,7 @@ export async function fetchUsedApps(): Promise<Map<string, number>> {
 
 export async function mapUsageToLBs(
   appsUsed: Map<string, number>,
-  _ctx: any
+  ctx: any
 ): Promise<{
   emailsByID: Map<string, string>
   limitsByID: Map<string, number>
@@ -85,18 +85,25 @@ export async function mapUsageToLBs(
 
     const id = lb ? lb._id.toString() : app._id.toString()
 
-    const LBUserType = lb
-      ? lb.user.toString().includes('@')
-        ? 'email'
-        : 'id'
-      : 'nonexistent'
+    const type = lb ? 'lb' : 'app'
 
-    const userID = lb ? lb.user.toString() : app.user.toString()
+    const LBUserType =
+      type === 'lb' && lb?.user
+        ? lb.user.toString().includes('@')
+          ? 'email'
+          : 'id'
+        : app?.user
+        ? 'id'
+        : 'nonexistent'
+
+    ctx.logger.warn(`Found nonexistent user type for ${type} ${id} [${lb.name}]`)
+
+    const userID = lb && lb?.user ? lb.user.toString() : app.user.toString()
     const userSearchTerm = lb
       ? LBUserType === 'email'
         ? { email: userID }
         : { _id: userID }
-      : { email: userID }
+      : { _id: userID }
 
     const user = await User.findOne(userSearchTerm)
 
