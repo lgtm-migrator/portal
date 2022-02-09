@@ -247,15 +247,16 @@ router.post(
     }
 
     const application = new Application({
-      name,
-      user: id,
-      status: APPLICATION_STATUSES.IN_SERVICE,
-      lastChangedStatusAt: new Date(Date.now()),
       // We enforce every app to be treated as a free-tier app for now.
+      dummy: true,
       freeTier: true,
       freeTierApplicationAccount: encryptedPocketAccount,
       gatewayAAT: freeTierAAT,
+      lastChangedStatusAt: new Date(Date.now()),
       maxRelays: DEFAULT_MAX_RELAYS,
+      name,
+      status: APPLICATION_STATUSES.IN_SERVICE,
+      user: id,
       gatewaySettings: {
         ...completeGatewaySettings,
       },

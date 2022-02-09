@@ -31,20 +31,21 @@ export interface INotificationSettings {
 
 export interface IApplication extends Document {
   chain: string
-  name: string
-  user: Types.ObjectId
+  createdAt?: Date | number
+  decryptPrivateKey: (privateKey: string) => string
+  dummy: true
+  encryptPrivateKey: (privateKey: string) => string
   freeTier: boolean
-  status: string
-  lastChangedStatusAt: Date | number
   freeTierApplicationAccount: IFreeTierApplicationAccount
   gatewayAAT: IGatewayAAT
   gatewaySettings: IGatewaySettings
-  notificationSettings: INotificationSettings
-  createdAt?: Date | number
-  updatedAt?: Date | number
-  encryptPrivateKey: (privateKey: string) => string
-  decryptPrivateKey: (privateKey: string) => string
+  lastChangedStatusAt: Date | number
   maxRelays?: number
+  name: string
+  notificationSettings: INotificationSettings
+  status: string
+  updatedAt?: Date | number
+  user: Types.ObjectId
   validateMetadata: ({
     name,
     owner,
