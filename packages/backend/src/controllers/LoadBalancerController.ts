@@ -770,14 +770,15 @@ router.get(
     const appIds = loadBalancer.applicationIDs
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
-    const rawDailyRelays = await influx.collectRows(
-      buildDailyAppRelaysQuery({
-        publicKeys,
-        start: composeDaysFromNowUtcDate(7),
-        stop: composeHoursFromNowUtcDate(0),
-      })
-    )
+    //const rawDailyRelays = await influx.collectRows(
+      //buildDailyAppRelaysQuery({
+        //publicKeys,
+        //start: composeDaysFromNowUtcDate(7),
+        //stop: composeHoursFromNowUtcDate(0),
+      //})
+    //)
 
+    const rawDailyRelays = Array(7).fill({ _value: 0, _time: '' })
     const processedDailyRelays = rawDailyRelays.map(
       ({ _value }: { _value: number; _time: string }, i) => {
         return {
