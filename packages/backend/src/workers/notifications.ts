@@ -80,39 +80,34 @@ export async function mapUsageToLBs(
     const { max_relays: maxRelays } = onChainApp.toJSON()
 
     const lb = await LoadBalancer.findOne({
-      applicationIDs: `${app?.id.toString()}`,
+      applicationIDs: `${app.id.toString()}`,
     })
 
+    if (!lb) {
+      ctx.logger.warn(`App ${app.freeTierApplicationAccount.address} ${app.name} is not associated with any load balancer but presents usage.`)
+    }
+
+    let userID = (lb && lb.user) ? lb?.user : app?.user
+
+    if (!userID) {
+      ctx.logger.log(`Didn't find an user for ${lb ? 'lb' : 'app'} ${lb ? lb?._id.toString() : app._id.toString()}`)
+      continue
+    }
+
+    const lbUserType = userID.toString().includes('@') ? 'email' : 'id'
+
+    const user = await User.findOne(
+      lbUserType === 'email' ? { email: userID.toString() } : { _id: userID }
+    )
+
     const id = lb ? lb._id.toString() : app._id.toString()
-
-    const type = lb ? 'lb' : 'app'
-
-    const LBUserType =
-      type === 'lb' && lb?.user
-        ? lb.user.toString().includes('@')
-          ? 'email'
-          : 'id'
-        : app?.user
-        ? 'id'
-        : 'nonexistent'
-
-    ctx.logger.warn(`Found nonexistent user type for ${type} ${id} [${lb.name}]`)
-
-    const userID = lb && lb?.user ? lb.user.toString() : app.user.toString()
-    const userSearchTerm = lb
-      ? LBUserType === 'email'
-        ? { email: userID }
-        : { _id: userID }
-      : { _id: userID }
-
-    const user = await User.findOne(userSearchTerm)
 
     const totalUsage = LBsUsed.get(id) ?? 0
     const totalLimit = LBLimits.get(id) ?? 0
 
     LBsUsed.set(id, totalUsage + relays)
     LBEmails.set(id, user?.email)
-    LBNames.set(id, lb ? lb.name : app.name)
+    LBNames.set(id, lb ? lb?.name : app.name)
     LBLimits.set(id, totalLimit + maxRelays)
     if (!LBPreferences.has(id)) {
       LBPreferences.set(id, app.notificationSettings)
