@@ -102,6 +102,16 @@ export const KNOWN_CHAINS = {
   EVMOS_TESTNET: {
     ticker: 'EVMOS',
     id: '0046',
-    limit: 10,
+    limit: 0,
   },
+  OEC_MAINNET: {
+    ticker: 'OEC',
+    id: '0047',
+    limit: 0
+  },
+  BSC_MAINNET: {
+    ticker: 'BSC',
+    id: '0004',
+    limit: 0
+  }
 }
