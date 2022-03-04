@@ -36,7 +36,7 @@ function useRouteTitle(applications: UserLB[] = []) {
   }
 
   if (pathname.includes('success-details')) {
-    return 'Request Status Details'
+    return 'Request Details'
   }
 
   if (pathname.includes('security')) {
