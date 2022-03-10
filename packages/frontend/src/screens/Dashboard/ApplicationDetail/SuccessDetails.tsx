@@ -219,6 +219,7 @@ export default function SuccessDetails({
                     <div>
                       <h2
                         css={`
+                          font-weight: bold;
                           ${textStyle('title2')}
                         `}
                       >
@@ -236,6 +237,7 @@ export default function SuccessDetails({
                       </h2>
                       <h2
                         css={`
+                          font-weight: bold;
                           ${textStyle('title3')}
                         `}
                       >
