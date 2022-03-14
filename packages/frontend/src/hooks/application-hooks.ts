@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useQuery } from 'react-query'
 import { UserLB, UserLBOriginBucket } from '@pokt-foundation/portal-types'
 import * as Sentry from '@sentry/react'
+import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
 import { sentryEnabled } from '../sentry'
@@ -12,26 +13,33 @@ export function useUserApplications(): {
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
+  const { token, userLoading } = useUser()
+
   const {
     isLoading: isAppsLoading,
     isError: isAppsError,
     data: appsData,
     refetch: refetchUserApps,
   } = useQuery(
-    KNOWN_QUERY_SUFFIXES.USER_APPS,
+    [KNOWN_QUERY_SUFFIXES.USER_APPS],
     async function getUserApplications() {
+      if (userLoading) {
+        console.log('Auth User Loading')
+        return
+      }
       const lbPath = `${env('BACKEND_URL')}/api/lb`
 
       try {
         const { data: lbData } = await axios.get(lbPath, {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
           ...rest,
         })) as UserLB[]
-
         return [...userLbs]
       } catch (err) {
         if (sentryEnabled) {
@@ -42,7 +50,10 @@ export function useUserApplications(): {
         }
         throw err
       }
-    }
+    },
+    {
+      enabled: !userLoading,
+    }    
   )
 
   return {
@@ -58,6 +69,7 @@ export function useOriginClassification({ id }: { id: string }): {
   isError: boolean
   originData: UserLBOriginBucket[] | undefined
 } {
+  const { token, userLoading } = useUser()
   const {
     isLoading,
     isError,
@@ -72,7 +84,9 @@ export function useOriginClassification({ id }: { id: string }): {
 
       try {
         const { data } = await axios.get(path, {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
 
         return data.origin_classification as UserLBOriginBucket[]
@@ -90,6 +104,7 @@ export function useOriginClassification({ id }: { id: string }): {
     },
     {
       keepPreviousData: true,
+      enabled: !userLoading,
     }
   )
 

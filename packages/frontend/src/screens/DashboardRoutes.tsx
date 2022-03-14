@@ -45,9 +45,9 @@ export default function DashboardRoutes() {
       <ErrorBoundary fallback={Fallback}>
         <Switch>
           <Route exact path={`/`}>
-            <Login />
+            {true ? <Login /> : <OAuthLogin />}
           </Route>
-          <Route exact path={`/signup`}>
+          {false ? <Route exact path={`/signup`}>
             <Signup />
           </Route>
           <Route exact path={`/login`}>
@@ -61,7 +61,8 @@ export default function DashboardRoutes() {
           </Route>
           <Route exact path={`/newpassword`}>
             <NewPassword />
-          </Route>
+          </Route> : null}
+          
           <Dashboard>
             <Route exact path={`/home`}>
               <NetworkStatus />

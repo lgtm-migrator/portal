@@ -25,6 +25,7 @@ import { log, shorten } from '../../../lib/utils'
 import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
+import { useUser } from '../../../contexts/UserContext'
 
 const REFETCH_INTERVAL = 60 * 1000
 
@@ -50,6 +51,7 @@ export default function SuccessDetails({
   successfulRelays,
   totalRelays,
 }: SuccessDetailsProps) {
+  const { token, userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
   const { within } = useViewport()
@@ -67,7 +69,9 @@ export default function SuccessDetails({
 
       try {
         const { data } = await axios.get(errorMetricsURL, {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
 
         const transformedErrorMetrics = await Promise.all(
@@ -106,6 +110,7 @@ export default function SuccessDetails({
     {
       keepPreviousData: true,
       refetchInterval: REFETCH_INTERVAL,
+      enabled: !userLoading,
     }
   )
 

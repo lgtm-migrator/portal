@@ -4,6 +4,7 @@ import { useMutation } from 'react-query'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
+import { useAuth0 } from '@auth0/auth0-react'
 import { UserLB } from '@pokt-foundation/portal-types'
 import * as Sentry from '@sentry/react'
 import {
@@ -75,19 +76,13 @@ export default function NavigationBar({
   const history = useHistory()
   const title = useRouteTitle(applications)
   const theme = useTheme()
-  const { mutate: onLogout } = useMutation(async function logout() {
-    const path = `${env('BACKEND_URL')}/api/users/logout`
+  const { logout } = useAuth0()
+  const { mutate: onLogout } = useMutation(async function() {
 
     try {
-      await axios.post(
-        path,
-        {},
-        {
-          withCredentials: true,
-        }
-      )
+      logout()
 
-      history.push('/login')
+      history.push('/')
     } catch (err) {
       if (sentryEnabled) {
         Sentry.captureException(err)

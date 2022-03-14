@@ -12,6 +12,7 @@ import {
   UserLBTotalRelaysResponse,
   UserLBTotalSuccessfulRelaysResponse,
 } from '@pokt-foundation/portal-types'
+import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
 
@@ -34,6 +35,7 @@ export function useAppMetrics({
       ]
     | []
 } {
+  const { token, userLoading } = useUser()
   const { id: appId = '' } = activeApplication
   const type = 'lb'
 
@@ -65,45 +67,47 @@ export function useAppMetrics({
         'BACKEND_URL'
       )}/api/${type}/status/${appId}`
 
+      const headers = { Authorization: `Bearer ${token}` }
+
       try {
         const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, {
-          withCredentials: true,
+          headers,
         })
         const { data: successfulRelaysResponse } = await axios.get(
           successfulRelaysPath,
           {
-            withCredentials: true,
+            headers,
           }
         )
         const { data: dailyRelaysResponse } = await axios.get(dailyRelaysPath, {
-          withCredentials: true,
+          headers,
         })
         const { data: sessionRelaysResponse } = await axios.get(
           sessionRelaysPath,
           {
-            withCredentials: true,
+            headers,
           }
         )
         const { data: previousSuccessfulRelaysResponse } = await axios.get(
           previousSuccessfulRelaysPath,
           {
-            withCredentials: true,
+            headers,
           }
         )
         const { data: previousTotalRelaysResponse } = await axios.get(
           previousTotalRelaysPath,
           {
-            withCredentials: true,
+            headers,
           }
         )
         const { data: hourlyLatencyResponse } = await axios.get(
           hourlyLatencyPath,
           {
-            withCredentials: true,
+            headers,
           }
         )
         const { data: onChainDataResponse } = await axios.get(onChainDataPath, {
-          withCredentials: true,
+          headers,
         })
 
         return [
@@ -119,7 +123,8 @@ export function useAppMetrics({
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    { enabled: !userLoading }
   )
 
   return { metricsLoading: isLoading, metrics: data || [] }
