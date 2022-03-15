@@ -45,9 +45,9 @@ export default function DashboardRoutes() {
       <ErrorBoundary fallback={Fallback}>
         <Switch>
           <Route exact path={`/`}>
-            {true ? <Login /> : <OAuthLogin />}
+            <Login />
           </Route>
-          {false ? <Route exact path={`/signup`}>
+          <Route exact path={`/signup`}>
             <Signup />
           </Route>
           <Route exact path={`/login`}>

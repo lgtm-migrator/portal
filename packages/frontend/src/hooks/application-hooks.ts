@@ -1,3 +1,4 @@
+import React, { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { UserLB, UserLBOriginBucket } from '@pokt-foundation/portal-types'
@@ -6,6 +7,8 @@ import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
 import { sentryEnabled } from '../sentry'
+import { FlagContext } from '../contexts/flagsContext'
+
 
 export function useUserApplications(): {
   appsData: UserLB[] | undefined
@@ -13,6 +16,7 @@ export function useUserApplications(): {
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
 
   const {
@@ -30,11 +34,7 @@ export function useUserApplications(): {
       const lbPath = `${env('BACKEND_URL')}/api/lb`
 
       try {
-        const { data: lbData } = await axios.get(lbPath, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const { data: lbData } = await axios.get(lbPath, flagContext.hookState.authHeaders)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
@@ -69,6 +69,7 @@ export function useOriginClassification({ id }: { id: string }): {
   isError: boolean
   originData: UserLBOriginBucket[] | undefined
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
   const {
     isLoading,
@@ -83,11 +84,7 @@ export function useOriginClassification({ id }: { id: string }): {
       const path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
 
       try {
-        const { data } = await axios.get(path, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const { data } = await axios.get(path, flagContext.hookState.authHeaders)
 
         return data.origin_classification as UserLBOriginBucket[]
       } catch (err) {

@@ -1,8 +1,10 @@
+import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import env from '../environment'
 import { useUser } from '../contexts/UserContext'
 import { processChains, Chain } from '../lib/chain-utils'
+import { FlagContext } from '../contexts/flagsContext'
 
 export type SummaryData = {
   appsStaked: number
@@ -25,6 +27,7 @@ export function useNetworkSummary(): {
   isSummaryError: boolean
   summaryData: SummaryData
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
 
   const {
@@ -35,11 +38,7 @@ export function useNetworkSummary(): {
     const path = `${env('BACKEND_URL')}/api/network/summary`
 
     try {
-      const { data } = await axios.get(path, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const { data } = await axios.get(path, flagContext.hookState.authHeaders)
 
         return data
       } catch (err) {
@@ -61,6 +60,7 @@ export function useChains(): {
   isChainsLoading: boolean
   chains: Chain[] | undefined
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
   const {
     isLoading: isChainsLoading,
@@ -72,11 +72,7 @@ export function useChains(): {
     }chains`
 
     try {
-      const res = await axios.get(path, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const res = await axios.get(path, flagContext.hookState.authHeaders)
 
       const { data } = res
 
@@ -100,6 +96,7 @@ export function useTotalWeeklyRelays(): {
   isRelaysLoading: boolean
   relayData: DailyRelayBucket[]
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
 
   const {
@@ -109,11 +106,7 @@ export function useTotalWeeklyRelays(): {
   } = useQuery('network/weekly-relays', async function getWeeklyRelays() {
     try {
       const path = `${env('BACKEND_URL')}/api/network/daily-relays`
-      const { data } = await axios.get(path, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-      })
+      const { data } = await axios.get(path, flagContext.hookState.authHeaders)
 
       return data
     } catch (err) {}
@@ -133,6 +126,7 @@ export function useNetworkStats(): {
   isNetworkStatsError: boolean
   networkStats: NetworkRelayStats | undefined
 } {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
 
   const {
@@ -150,11 +144,7 @@ export function useNetworkStats(): {
             successful_relays: successfulRelays,
             total_relays: totalRelays,
           },
-        } = await axios.get(path, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        } = await axios.get(path, flagContext.hookState.authHeaders)
 
         return { successfulRelays, totalRelays }
       } catch (err) {

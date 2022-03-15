@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import {
@@ -15,6 +16,7 @@ import {
 import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { FlagContext } from '../contexts/flagsContext'
 
 export function useAppMetrics({
   activeApplication,
@@ -35,7 +37,8 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const { token, userLoading } = useUser()
+  const flagContext = useContext(FlagContext)
+  const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
   const type = 'lb'
 
@@ -67,48 +70,30 @@ export function useAppMetrics({
         'BACKEND_URL'
       )}/api/${type}/status/${appId}`
 
-      const headers = { Authorization: `Bearer ${token}` }
-
       try {
-        const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, {
-          headers,
-        })
-        const { data: successfulRelaysResponse } = await axios.get(
-          successfulRelaysPath,
-          {
-            headers,
-          }
+        const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, 
+          flagContext.hookState.authHeaders
         )
-        const { data: dailyRelaysResponse } = await axios.get(dailyRelaysPath, {
-          headers,
-        })
-        const { data: sessionRelaysResponse } = await axios.get(
-          sessionRelaysPath,
-          {
-            headers,
-          }
-        )
-        const { data: previousSuccessfulRelaysResponse } = await axios.get(
-          previousSuccessfulRelaysPath,
-          {
-            headers,
-          }
-        )
-        const { data: previousTotalRelaysResponse } = await axios.get(
-          previousTotalRelaysPath,
-          {
-            headers,
-          }
-        )
-        const { data: hourlyLatencyResponse } = await axios.get(
-          hourlyLatencyPath,
-          {
-            headers,
-          }
-        )
-        const { data: onChainDataResponse } = await axios.get(onChainDataPath, {
-          headers,
-        })
+        const { data: successfulRelaysResponse } = await 
+          axios.get(successfulRelaysPath, flagContext.hookState.authHeaders)
+
+        const { data: dailyRelaysResponse } = await 
+          axios.get(dailyRelaysPath, flagContext.hookState.authHeaders)
+
+        const { data: sessionRelaysResponse } = await 
+          axios.get(sessionRelaysPath, flagContext.hookState.authHeaders)
+
+        const { data: previousSuccessfulRelaysResponse } = await 
+          axios.get(previousSuccessfulRelaysPath, flagContext.hookState.authHeaders)
+
+        const { data: previousTotalRelaysResponse } = await 
+          axios.get(previousTotalRelaysPath, flagContext.hookState.authHeaders)
+
+        const { data: hourlyLatencyResponse } = await 
+          axios.get(hourlyLatencyPath, flagContext.hookState.authHeaders)
+
+        const { data: onChainDataResponse } = await 
+          axios.get(onChainDataPath, flagContext.hookState.authHeaders)
 
         return [
           totalRelaysResponse as UserLBTotalRelaysResponse,

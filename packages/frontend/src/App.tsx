@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ViewportProvider } from 'use-viewport'
 import { Auth0Provider, CacheLocation } from '@auth0/auth0-react'
 import { Main } from '@pokt-foundation/ui'
+import { FlagContextProvider } from './contexts/flagsContext'
 import DashboardRoutes from './screens/DashboardRoutes'
 import env from './environment'
 
@@ -20,6 +21,7 @@ const queryClient = new QueryClient({
 function App(): React.ReactElement {
   return (
     <QueryClientProvider client={queryClient}>
+      <FlagContextProvider>
       <Main>
         <ViewportProvider>
           <Router>
@@ -37,6 +39,7 @@ function App(): React.ReactElement {
           </Router>
         </ViewportProvider>
       </Main>
+      </FlagContextProvider>
     </QueryClientProvider>
   )
 }

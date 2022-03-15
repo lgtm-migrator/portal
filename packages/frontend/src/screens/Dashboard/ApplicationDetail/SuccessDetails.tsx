@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
@@ -26,6 +26,7 @@ import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import { useUser } from '../../../contexts/UserContext'
+import { FlagContext } from '../../../contexts/flagsContext'
 
 const REFETCH_INTERVAL = 60 * 1000
 
@@ -51,6 +52,7 @@ export default function SuccessDetails({
   successfulRelays,
   totalRelays,
 }: SuccessDetailsProps) {
+  const flagContext = useContext(FlagContext)
   const { token, userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
@@ -68,11 +70,7 @@ export default function SuccessDetails({
       }
 
       try {
-        const { data } = await axios.get(errorMetricsURL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const { data } = await axios.get(errorMetricsURL, flagContext.hookState.authHeaders)
 
         const transformedErrorMetrics = await Promise.all(
           data.map(async (e: EndpointRpcError) => {

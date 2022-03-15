@@ -17,4 +17,9 @@ export default defineConfig({
     svgr(),
     babelMacros(),
   ],
+  server: {
+    watch: {
+      usePolling: true
+    }
+  }
 })

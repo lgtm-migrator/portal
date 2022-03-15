@@ -17,6 +17,7 @@ if (!env('PROD')) {
   ALLOWED_DOMAINS.push('http://localhost:3001')
   ALLOWED_DOMAINS.push('http://localhost:3002')
   ALLOWED_DOMAINS.push('http://localhost:3003')
+  ALLOWED_DOMAINS.push('http://localhost:3004')
 }
 
 const app = express()

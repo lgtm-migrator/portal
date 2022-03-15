@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState, useContext } from 'react'
 import { Link as RouterLink, useHistory } from 'react-router-dom'
 import { useMutation } from 'react-query'
 import axios from 'axios'
@@ -16,8 +16,10 @@ import {
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
+import { FlagContext } from '../../contexts/flagsContext'
 
 export default function Login() {
+  const flagContext = useContext(FlagContext)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState(null)
   const [password, setPassword] = useState('')
@@ -27,7 +29,9 @@ export default function Login() {
   const history = useHistory()
 
   const { isLoading, mutate } = useMutation(async function login(e) {
-    /*
+
+console.log(flagContext.hookState.useAuth0)
+if (!flagContext.hookState.useAuth0) {
     try {
       const path = `${env('BACKEND_URL')}/api/users/login`
       const res = await axios.post(
@@ -50,8 +54,10 @@ export default function Login() {
       const { errors = [] } = err?.response?.data
 
       setErrors(() => [...errors])
-    } */
+    } 
+  } else{
     await loginWithRedirect()
+  }
   })
 
   React.useEffect(() => {
