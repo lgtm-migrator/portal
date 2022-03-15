@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useMutation } from 'react-query'
-import axios from 'axios'
+// import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import { useAuth0 } from '@auth0/auth0-react'
@@ -22,7 +22,7 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import IconMenu from '../../components/MenuPanel/IconMenu'
-import env from '../../environment'
+// import env from '../../environment'
 import { shorten } from '../../lib/utils'
 import { sentryEnabled } from '../../sentry'
 

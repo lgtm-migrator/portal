@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { UserLB, UserLBOriginBucket } from '@pokt-foundation/portal-types'
@@ -17,7 +17,7 @@ export function useUserApplications(): {
   refetchUserApps: unknown
 } {
   const flagContext = useContext(FlagContext)
-  const { token, userLoading } = useUser()
+  const { userLoading } = useUser()
 
   const {
     isLoading: isAppsLoading,
@@ -28,7 +28,6 @@ export function useUserApplications(): {
     [KNOWN_QUERY_SUFFIXES.USER_APPS],
     async function getUserApplications() {
       if (userLoading) {
-        console.log('Auth User Loading')
         return
       }
       const lbPath = `${env('BACKEND_URL')}/api/lb`
@@ -70,7 +69,7 @@ export function useOriginClassification({ id }: { id: string }): {
   originData: UserLBOriginBucket[] | undefined
 } {
   const flagContext = useContext(FlagContext)
-  const { token, userLoading } = useUser()
+  const { userLoading } = useUser()
   const {
     isLoading,
     isError,

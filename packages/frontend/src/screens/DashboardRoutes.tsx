@@ -61,7 +61,7 @@ export default function DashboardRoutes() {
           </Route>
           <Route exact path={`/newpassword`}>
             <NewPassword />
-          </Route> : null}
+          </Route>
           
           <Dashboard>
             <Route exact path={`/home`}>

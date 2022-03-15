@@ -53,7 +53,7 @@ export default function SuccessDetails({
   totalRelays,
 }: SuccessDetailsProps) {
   const flagContext = useContext(FlagContext)
-  const { token, userLoading } = useUser()
+  const { userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
   const { within } = useViewport()

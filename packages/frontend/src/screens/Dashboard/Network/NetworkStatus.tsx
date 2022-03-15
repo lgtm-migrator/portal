@@ -90,7 +90,7 @@ export default function NetworkStatus() {
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
-  const { user } = useAuth0()
+//  const { user } = useAuth0()
 
   const {
     labels = [],
