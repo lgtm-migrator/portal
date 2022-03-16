@@ -19,7 +19,10 @@ import iotexImage from './images/iotex.png'
  * @returns image {string}
  */
 export function getImageForChain(chain: string): string {
-  if (chain.toLowerCase().includes('avax')) {
+  if (
+    chain.toLowerCase().includes('avax') ||
+    chain.toLocaleLowerCase().includes('avalanche')
+  ) {
     return avaxImage
   }
 

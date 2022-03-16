@@ -311,7 +311,7 @@ export default function NetworkStatus() {
                   >
                     <CircleGraph
                       size={compactMode ? 18 * GU : 18 * GU}
-                      strokeWidth={GU}
+                      strokeWidth={GU * 3}
                       value={
                         networkStats.successfulRelays / networkStats.totalRelays
                       }

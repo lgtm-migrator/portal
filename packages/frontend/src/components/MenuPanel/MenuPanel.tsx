@@ -12,17 +12,21 @@ import 'styled-components/macro'
 import { UserLB } from '@pokt-foundation/portal-types'
 import {
   ButtonBase,
+  Button,
   Spacer,
   useTheme,
   springs,
   GU,
   RADIUS,
+  textStyle,
+  Link,
 } from '@pokt-foundation/ui'
 import IconApp from './IconApp'
 import IconNetwork from './IconNetwork'
 import PortalLogo from '../../assets/portal_logo.svg'
 import { lerp } from '../../lib/math-utils'
 import { shorten } from '../../lib/utils'
+import Create from '../../screens/Dashboard/Create/createModal'
 
 type MenuRoute = {
   icon?: React.ReactNode
@@ -103,7 +107,7 @@ export default function MenuPanel({
     )
 
     if (!compactMode) {
-      groups[1].push(...CREATE_APP_ROUTE)
+      groups.push(CREATE_APP_ROUTE)
     }
 
     return groups
@@ -200,6 +204,7 @@ export default function MenuPanel({
                 height: ${6 * GU}px;
                 position: relative;
                 justify-self: center;
+                margin-bottom: ${GU * 9}px;
                 &:active {
                   top: 1px;
                 }
@@ -210,6 +215,46 @@ export default function MenuPanel({
           </ButtonBase>
           <Spacer size={5 * GU} />
           {instanceGroups.map((group) => renderInstanceGroup(group))}
+
+          <div
+            css={`
+              margin-top: auto;
+            `}
+          >
+            <p
+              css={`
+                font-size: ${GU + 2}px;
+                margin-bottom: ${GU + 4}px;
+              `}
+            >
+              © 2022 Pocket Network Inc
+            </p>
+            <div
+              css={`
+                font-size: ${GU}px;
+                display: flex;
+                justify-content: space-between;
+              `}
+            >
+              <Link
+                href="https://www.pokt.network/site-terms-of-use"
+                css={`
+                  color: white;
+                `}
+              >
+                Site Terms of Use
+              </Link>
+              •{' '}
+              <Link
+                href="https://www.pokt.network/privacy-policy"
+                css={`
+                  color: white;
+                `}
+              >
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
       </animated.div>
     </div>
@@ -236,10 +281,16 @@ function MenuPanelGroup({
   const { pathname } = useLocation()
   const history = useHistory()
   const theme = useTheme()
+  const [createVisible, setCreateVisible] = useState<boolean>(false)
 
   const [primaryInstance, ...childInstances] = instances
 
   const handleInstanceClick = useCallback(() => {
+    if (primaryInstance.id === '/create') {
+      setCreateVisible(true)
+      return
+    }
+
     if (!childInstances.length) {
       history.push({
         pathname: `${primaryInstance.id}`,
@@ -256,10 +307,6 @@ function MenuPanelGroup({
 
   const activeChildInstanceIndex = childInstances.reduce(
     (activeIndex, { appId }, index) => {
-      if (pathname.includes('create')) {
-        return childInstances.length - 1
-      }
-
       if (!pathname.includes(appId as string) && activeIndex === -1) {
         return -1
       }
@@ -276,6 +323,19 @@ function MenuPanelGroup({
     },
     -1
   )
+
+  const handleChildInstaceClick = useCallback(
+    (id: string) => {
+      history.push({
+        pathname: id,
+      })
+    },
+    [history]
+  )
+
+  const onCloseCreate = useCallback(() => {
+    setCreateVisible(false)
+  }, [])
 
   return (
     <div
@@ -295,7 +355,7 @@ function MenuPanelGroup({
           left: 0;
           top: 0;
           width: ${GU / 2}px;
-          height: ${11 * GU}px;
+          height: ${6 * GU}px;
           background: ${theme.accent};
           border-radius: ${RADIUS}px;
         `}
@@ -310,13 +370,19 @@ function MenuPanelGroup({
         active={active}
         instance={primaryInstance}
         onClick={handleInstanceClick}
+        alternateStyle={primaryInstance.id === '/create'}
       />
-      {childInstances.length ? (
+      {childInstances.length > 0 && (
         <animated.ul
           css={`
             overflow: hidden;
             list-style: none;
             width: 100%;
+            background: linear-gradient(
+              90.22deg,
+              rgba(197, 236, 75, 0.381757) -435.12%,
+              rgba(197, 236, 75, 0) 99.62%
+            );
           `}
           style={{
             height: openProgress.interpolate(
@@ -337,41 +403,50 @@ function MenuPanelGroup({
                 `}
               >
                 <ButtonBase
-                  onClick={() => history.push({ pathname: `${id}` })}
+                  onClick={() => handleChildInstaceClick(id)}
                   css={`
                     && {
-                      background: ${activeChildInstanceIndex === index
-                        ? `linear-gradient(90.3deg, ${theme.accent} -434.38%, rgba(197, 236, 75, 0) 99.62%)`
-                        : 'transparent'};
-                      display: flex;
-                      align-items: center;
+                      background: transparent;
                       border-radius: 0px;
-                      text-align: left;
+                      text-align: center;
                       height: ${6 * GU}px;
                       width: 100%;
                       font-weight: ${active ? 'bold' : 'normal'};
                       transition: background 150ms ease-in-out;
+                      color: ${activeChildInstanceIndex === index
+                        ? theme.content
+                        : theme.placeholder};
                     }
                   `}
                 >
                   <span
                     css={`
-                      width: 100%;
+                      display: block;
+                      width: ${GU * 9}px;
                       overflow: hidden;
                       white-space: nowrap;
                       text-overflow: ellipsis;
-                      text-align: center;
+                      text-align: left;
+                      margin-left: ${GU * 3}px;
+                      font-weight: ${activeChildInstanceIndex === index
+                        ? '600'
+                        : 'normal'};
+                      font-size: ${GU + 2}px;
+                      opacity: ${activeChildInstanceIndex === index ? 1 : 0.5};
                     `}
                   >
-                    {shorten(label, 10)}
+                    {activeChildInstanceIndex === index
+                      ? `> ${shorten(label, 10)}`
+                      : shorten(label, 10)}
                   </span>
                 </ButtonBase>
               </li>
             </Fragment>
           ))}
         </animated.ul>
-      ) : (
-        ''
+      )}
+      {createVisible && (
+        <Create visible={createVisible} onClose={onCloseCreate} />
       )}
     </div>
   )
@@ -381,17 +456,35 @@ interface MenuPanelButtonProps {
   active: boolean
   instance: MenuRoute
   onClick: () => void
+  alternateStyle?: boolean
 }
 
 function MenuPanelButton({
   active,
   instance,
   onClick,
+  alternateStyle,
   ...props
 }: MenuPanelButtonProps) {
   const theme = useTheme()
 
-  const InstanceIcon = instance.icon
+  const InstanceIcon = instance?.icon
+
+  if (alternateStyle) {
+    return (
+      <Button
+        onClick={onClick}
+        mode="primary"
+        css={`
+          width: 90%;
+          font-size: ${GU + 4}px;
+          margin-top: ${GU * 3}px;
+        `}
+      >
+        {instance.label}
+      </Button>
+    )
+  }
 
   return (
     <ButtonBase
@@ -401,7 +494,7 @@ function MenuPanelButton({
             ? `linear-gradient(90.3deg, ${theme.accent} -434.38%, rgba(197, 236, 75, 0) 99.62%)`
             : 'transparent'};
           width: 100%;
-          height: ${11 * GU}px;
+          height: ${6 * GU}px;
           padding-top: ${1 * GU}px;
           border-radius: 0px;
           color: ${theme.content};
@@ -414,18 +507,21 @@ function MenuPanelButton({
       <div
         css={`
           display: flex;
-          flex-direction: column;
-          justify-content: center;
+          justify-content: start;
           align-items: center;
           height: 100%;
+          color: ${active ? theme.accent : theme.content};
+          margin-left: ${GU * 3}px;
           img {
             display: block;
-            width: ${5 * GU}px;
+            width: ${5 * GU}p>x;
             height: ${5 * GU}px;
           }
         `}
       >
-        <InstanceIcon color={theme.content} />
+        {InstanceIcon && (
+          <InstanceIcon color={active ? theme.accent : theme.content} />
+        )}
         <Spacer size={1 * GU} />
         {instance.label}
       </div>
