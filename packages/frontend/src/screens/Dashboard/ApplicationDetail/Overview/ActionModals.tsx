@@ -1,5 +1,12 @@
 import { useViewport } from 'use-viewport'
-import { Banner, Button, Modal, Spacer, GU } from '@pokt-foundation/ui'
+import {
+  Banner,
+  Button,
+  Modal,
+  Spacer,
+  GU,
+  textStyle,
+} from '@pokt-foundation/ui'
 import 'styled-components/macro'
 
 interface ModalProps {
@@ -34,18 +41,46 @@ export function RemoveAppModal({
       <div
         css={`
           max-width: ${87 * GU}px;
+
+          > div {
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+          }
         `}
       >
         <Banner mode="error" title="You're about to remove this application.">
           <p>
             Once you remove this application from the Portal, the endpoint
-            associated with it will remain available for 24 hours before it is
-            unstaked.
+            associated with it wont be able to send any relays.
           </p>
           <Spacer size={3 * GU} />
+        </Banner>
+
+        <div
+          css={`
+            background: #1e232d;
+            ${compactMode ? `height: ${34 * GU}px;` : `height: ${21 * GU}px;`}
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          `}
+        >
+          <p
+            css={`
+              ${textStyle('body3')};
+              margin-top: ${5 * GU}px;
+            `}
+          >
+            Do you want to continue
+          </p>
           <div
             css={`
+              width: 100%;
+              height: 100%;
               display: flex;
+              align-items: center;
+              justify-content: center;
               ${compactMode && `flex-direction: column-reverse;`}
             `}
           >
@@ -72,7 +107,7 @@ export function RemoveAppModal({
               Remove
             </Button>
           </div>
-        </Banner>
+        </div>
       </div>
     </Modal>
   )

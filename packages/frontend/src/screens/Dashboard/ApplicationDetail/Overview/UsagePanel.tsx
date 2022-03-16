@@ -81,6 +81,7 @@ export default function UsagePanel({
             }
             size={120}
             color={usageColor}
+            strokeWidth={GU * 2 + 4}
           />
           <Spacer size={4 * GU} />
           <h4

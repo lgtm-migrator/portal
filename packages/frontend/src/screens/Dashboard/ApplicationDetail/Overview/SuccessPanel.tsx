@@ -9,6 +9,7 @@ import {
   useTheme,
   GU,
   RADIUS,
+  Help,
 } from '@pokt-foundation/ui'
 import 'styled-components/macro'
 import { useSuccessRateColor } from '../application-utils'
@@ -43,6 +44,13 @@ export default function SuccessPanel({
 
     return (((successRate - actualPreviousSuccessRate) / 1) * 100).toFixed(2)
   }, [previousSuccessRate, successRate])
+
+  const errorRateDelta = useMemo(() => {
+    if (successRate >= 0.9999 || (totalRequests === 0 && successRate === 0)) {
+      return Number((0).toFixed(2))
+    }
+    return Number((100 - successRate * 100).toFixed(2))
+  }, [successRate, totalRequests])
 
   const mode = successRateDelta > 0 ? 'positive' : 'negative'
 
@@ -98,10 +106,25 @@ export default function SuccessPanel({
         >
           <h3
             css={`
-              ${textStyle('title2')}
+              ${textStyle('title2')};
+              display: flex;
+              align-items: center;
+
+              button {
+                margin-left: 8px;
+              }
             `}
           >
             Success Rate
+            <Help
+              placement="top"
+              css={`
+                display: inline-flex;
+              `}
+            >
+              Percentage of success among the total request attempted to perform
+              by the application on the last 24h.
+            </Help>
           </h3>
           <div
             css={`
@@ -134,6 +157,61 @@ export default function SuccessPanel({
             >
               Last 24 hours
             </p>
+          </div>
+        </div>
+        <div
+          css={`
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          `}
+        >
+          <h3
+            css={`
+              ${textStyle('title2')};
+              display: flex;
+              align-items: center;
+
+              button {
+                margin-left: 8px;
+              }
+            `}
+          >
+            Error Rate
+            <Help
+              placement="top"
+              css={`
+                display: inline-flex;
+              `}
+            >
+              Percentage of error among the total request attempted to perform
+              by the application.
+            </Help>
+          </h3>
+          <div
+            css={`
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+            `}
+          >
+            <div
+              css={`
+                display: flex;
+                align-items: center;
+              `}
+            >
+              <span
+                css={`
+                  ${textStyle('body3')};
+                  font-weight: 800;
+                  color: ${errorRateDelta > 0 ? theme.negative : null};
+                `}
+              >
+                {Math.abs(errorRateDelta as number)}%
+              </span>
+            </div>
           </div>
         </div>
         <Spacer size={1 * GU} />

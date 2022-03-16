@@ -1,19 +1,21 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { UserLB } from '@pokt-foundation/portal-types'
 import {
   GU,
   Spacer,
   TextCopy,
-  IconCog,
+  IconPlus,
   ButtonBase,
   Popover,
   textStyle,
   useTheme,
   useToast,
-  RADIUS,
+  TextInput,
+  IconDown,
+  Button,
 } from '@pokt-foundation/ui'
-import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
+import { useViewport } from 'use-viewport'
 import Box from '../../../../components/Box/Box'
 import {
   ChainMetadata,
@@ -26,9 +28,85 @@ interface EndpointDetailsProps {
   appData: UserLB
 }
 
+const MAX_SELECTED_CHAINS = 5
+
+enum UpdateTypes {
+  SelectedChains = 'selectedChains',
+}
+
+function loadEndpointData(chainId: string, key: string) {
+  const savedSelectedChains = localStorage.getItem(key)
+
+  if (savedSelectedChains) {
+    return JSON.parse(savedSelectedChains)
+  }
+
+  return [chainId || '0021']
+}
+
+function useEndpointData(appData: UserLB) {
+  const { chain: chainId, id: appId } = appData
+  const [selectedChains, setSelectedChains] = useState<Array<string>>([
+    chainId || '0021',
+  ])
+
+  const LS_KEY = `${UpdateTypes.SelectedChains}-${appId}`
+
+  useEffect(() => {
+    setSelectedChains(loadEndpointData(chainId, LS_KEY))
+  }, [chainId, LS_KEY])
+
+  const updateSelectedChains = useCallback(
+    (chainID) => {
+      const isSelected = selectedChains.find((chain) => chain === chainID)
+
+      if (isSelected) {
+        return
+      }
+
+      setSelectedChains((prevSelectedChains) => {
+        const newChains =
+          prevSelectedChains.length === MAX_SELECTED_CHAINS
+            ? [...prevSelectedChains.slice(1), chainID]
+            : [...prevSelectedChains, chainID]
+
+        localStorage.setItem(LS_KEY, JSON.stringify(newChains))
+        return newChains
+      })
+    },
+    [selectedChains, LS_KEY]
+  )
+
+  const removeSelectedChain = useCallback(
+    (chainID) => {
+      if (selectedChains.length === 1) {
+        return
+      }
+
+      const updatedChains = []
+
+      for (const id of selectedChains) {
+        if (id === chainID) {
+          continue
+        }
+
+        updatedChains.push(id)
+      }
+
+      setSelectedChains(updatedChains)
+
+      localStorage.setItem(LS_KEY, JSON.stringify(updatedChains))
+    },
+    [selectedChains, LS_KEY]
+  )
+
+  return { updateSelectedChains, removeSelectedChain, selectedChains }
+}
+
 export default function EndpointDetails({ appData }: EndpointDetailsProps) {
-  const { chain: chainId, id: appId, gigastake } = appData
-  const [selectedChain, setSelectedChain] = useState(chainId || '0021')
+  const { id: appId, gigastake } = appData
+  const { removeSelectedChain, updateSelectedChains, selectedChains } =
+    useEndpointData(appData)
 
   return (
     <Box>
@@ -58,19 +136,24 @@ export default function EndpointDetails({ appData }: EndpointDetailsProps) {
         >
           {gigastake ? (
             <ChainDropdown
-              selectedChain={selectedChain}
-              setSelectedChain={setSelectedChain}
+              selectedChain={selectedChains[0]}
+              updateSelectedChains={updateSelectedChains}
             />
           ) : (
-            <LegacyChainName chainId={selectedChain} />
+            <LegacyChainName chainId={selectedChains[0]} />
           )}
         </div>
       </div>
-      <EndpointUrl
-        appId={appId}
-        chainId={selectedChain}
-        gigastake={gigastake}
-      />
+
+      {selectedChains.map((chain) => (
+        <EndpointUrl
+          appId={appId}
+          chainId={chain}
+          gigastake={gigastake}
+          removeSelectedChain={removeSelectedChain}
+          key={chain}
+        />
+      ))}
     </Box>
   )
 }
@@ -110,52 +193,123 @@ interface EndpointUrlProps {
   appId: string
   chainId: string
   gigastake: boolean
+  removeSelectedChain: (chainID: string) => void
 }
 
-function EndpointUrl({ appId, chainId, gigastake }: EndpointUrlProps) {
+function EndpointUrl({
+  appId,
+  chainId,
+  gigastake,
+  removeSelectedChain,
+}: EndpointUrlProps) {
+  const [isBtnHovered, setIsBtnHovered] = useState<boolean>(false)
   const toast = useToast()
-  const { prefix } = prefixFromChainId(chainId) as ChainMetadata
+  const theme = useTheme()
+  const { prefix, abbrv, name } = prefixFromChainId(chainId) as ChainMetadata
+  const { below } = useViewport()
+
+  const chainImg = useMemo(() => getImageForChain(name), [name])
 
   const endpoint = useMemo(
     () => `https://${prefix}.gateway.pokt.network/v1/lb/${appId}`,
     [appId, prefix]
   )
 
+  const handleHovered = useCallback(() => {
+    setIsBtnHovered((prevHovered) => !prevHovered)
+  }, [])
+
   return (
-    <TextCopy
-      value={endpoint}
+    <div
       css={`
-        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 0 ${GU * 2}px 0;
+        flex-wrap: wrap;
       `}
-      onCopy={() => toast('Endpoint copied to clipboard')}
-    />
+    >
+      <Button
+        onClick={() => removeSelectedChain(chainId)}
+        onMouseEnter={handleHovered}
+        onMouseLeave={handleHovered}
+        css={`
+          width: ${8 * 10}px;
+          height: ${GU * 4}px;
+          text-overflow: ellipsis;
+          overflow: auto;
+          border-radius: 0;
+          font-size: ${GU + 4}px;
+          padding: 0;
+          white-space: break-spaces;
+          border: 1px solid ${theme.contentBorder};
+          text-transform: uppercase;
+
+          &:hover {
+            background: ${theme.negative};
+            border: 2px solid ${theme.negative};
+            content: '-';
+          }
+        `}
+      >
+        {chainImg && !isBtnHovered ? (
+          <img
+            src={getImageForChain(name)}
+            alt={abbrv}
+            css={`
+              width: ${GU * 2}px;
+              height: ${GU * 2}px;
+              margin-right: ${GU}px;
+            `}
+          />
+        ) : null}
+        {isBtnHovered ? (
+          <div
+            css={`
+              width: ${GU + 4}px;
+              height: 2px;
+              background-color: ${theme.content};
+            `}
+          />
+        ) : (
+          abbrv
+        )}
+      </Button>
+      <TextCopy
+        value={endpoint}
+        css={`
+          ${below('medium')
+            ? `width: 100%; margin-top: ${GU}px;`
+            : 'width: 85%;'}
+        `}
+        onCopy={() => toast('Endpoint copied to clipboard')}
+      />
+    </div>
   )
 }
 
 interface ChainDropdownProps {
   selectedChain: string
-  setSelectedChain: (chainID: string) => void
+  updateSelectedChains: (chainID: string) => void
 }
 
 function ChainDropdown({
   selectedChain,
-  setSelectedChain,
+  updateSelectedChains,
 }: ChainDropdownProps) {
   const theme = useTheme()
   const [opened, setOpened] = useState(false)
-  const containerRef = useRef()
-  const { below } = useViewport()
-  const compact = below('medium')
+  const containerRef = useRef<HTMLDivElement>(null)
   const { name } = prefixFromChainId(selectedChain) as ChainMetadata
 
   const handleToggle = useCallback(() => setOpened((opened) => !opened), [])
   const handleClose = useCallback(() => setOpened(false), [])
   const handleSelectChain = useCallback(
     (chainID) => {
-      setSelectedChain(chainID)
+      updateSelectedChains(chainID)
       setOpened(false)
     },
-    [setSelectedChain]
+    [updateSelectedChains]
   )
 
   return (
@@ -167,18 +321,25 @@ function ChainDropdown({
           label="Preferences"
           onClick={handleToggle}
           css={`
-            border: 1px solid #fff;
-            min-width: ${compact ? 20 * GU : 30 * GU}px;
-            height: ${5 * GU}px;
+            border: 1px solid ${theme.accentAlternative};
+            border-radius: ${GU - 4}px;
+            width: ${4 * GU}px;
+            height: ${4 * GU}px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
           `}
         >
-          {name}
+          <IconPlus
+            css={`
+              width: ${GU * 2}px;
+              height: ${GU * 2}px;
+            `}
+          />
         </ButtonBase>
       </div>
+
       <Popover
         closeOnOpenerFocus
         placement="bottom-end"
@@ -187,26 +348,40 @@ function ChainDropdown({
         opener={containerRef.current}
         css={``}
       >
+        <TextInput
+          value={name}
+          wide
+          placeholder="Select Chain"
+          adornment={<IconDown />}
+          adornmentPosition="end"
+          onClick={handleToggle}
+          readOnly
+          css={`
+            border: 2px solid ${theme.surfaceInteractiveBorder} !important;
+            color: ${theme.surfaceContent} !important;
+            width: ${GU * 31};
+          `}
+        />
+
         <ul
           css={`
-            /* Use 20px as the padding setting for popper is 10px */
             box-sizing: border-box;
-            width: ${below('medium') ? `calc(100vw - 20px)` : `${30 * GU}px`};
-            height: ${7 * 5 * GU}px;
+            width: ${GU * 31};
+            height: ${20 * GU}px;
             overflow-y: scroll;
-            overflow-x: hidden;
             padding: 0;
             margin: 0;
             list-style: none;
-            background: ${theme.surface};
+            background: #141a21;
             color: ${theme.content};
-            border-radius: ${RADIUS}px;
           `}
         >
           {Array.from(CHAIN_ID_PREFIXES.entries()).map(([k, v]) => (
             <Item
-              onClick={() => handleSelectChain(k)}
-              icon={IconCog}
+              onClick={() => {
+                handleSelectChain(k)
+              }}
+              icon={getImageForChain(v.name)}
               label={v.name}
             />
           ))}
@@ -217,7 +392,6 @@ function ChainDropdown({
 }
 
 interface ItemProps {
-  href?: string
   icon: string
   label: string
   onClick?: () => void
@@ -229,8 +403,8 @@ function Item({ icon, label, onClick }: ItemProps) {
   return (
     <li
       css={`
-        & + & {
-          border-top: 1px solid ${theme.border};
+        &:hover {
+          background-color: #20262c;
         }
       `}
     >
@@ -239,15 +413,13 @@ function Item({ icon, label, onClick }: ItemProps) {
         label={label}
         css={`
           width: 100%;
-          height: ${7 * GU}px;
-          border-radius: 0;
+          height: ${6 * GU}px;
         `}
       >
         <div
           css={`
             display: flex;
             width: 100%;
-            height: 100%;
             padding: ${2 * GU}px;
             justify-content: left;
             align-items: center;
@@ -258,7 +430,16 @@ function Item({ icon, label, onClick }: ItemProps) {
             }
           `}
         >
-          {icon && <img src={icon} alt="" />}
+          {icon && (
+            <img
+              src={icon}
+              alt={label}
+              css={`
+                width: ${2 * GU}px;
+                height: ${2 * GU}px;
+              `}
+            />
+          )}
           <div
             css={`
               flex-grow: 1;

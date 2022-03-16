@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { animated, useSpring } from 'react-spring'
-import { IAppInfo, UserLB } from '@pokt-foundation/portal-types'
+import { IAppInfo } from '@pokt-foundation/portal-types'
 import {
   ButtonBase,
   Spacer,
   TextCopy,
+  TextCopyWithPassword,
   springs,
   textStyle,
   useTheme,
@@ -21,9 +22,14 @@ const EXPANDABLE_MIN_LENGTH = 3
 interface GatewayPanelProps {
   id: string
   secret: string
+  publicKey: string
 }
 
-export default function GatewayPanel({ id, secret }: GatewayPanelProps) {
+export default function GatewayPanel({
+  id,
+  secret,
+  publicKey,
+}: GatewayPanelProps) {
   const toast = useToast()
 
   return (
@@ -73,12 +79,33 @@ export default function GatewayPanel({ id, secret }: GatewayPanelProps) {
           >
             Secret Key
           </h3>
-          <TextCopy
+          <TextCopyWithPassword
             value={secret}
             onCopy={() => toast('Secret key copied to clipboard')}
           />
         </div>
       )}
+      <div
+        css={`
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+        `}
+      >
+        <h3
+          css={`
+            ${textStyle('body1')};
+            font-weight: 600;
+            margin-bottom: ${2 * GU}px;
+          `}
+        >
+          Public Key
+        </h3>
+        <TextCopyWithPassword
+          value={publicKey}
+          onCopy={() => toast('Public key copied to clipboard')}
+        />
+      </div>
     </Box>
   )
 }

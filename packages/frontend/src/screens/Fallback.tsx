@@ -25,6 +25,11 @@ export default function Fallback(): React.ReactElement {
       <div
         css={`
           max-width: ${87 * GU}px;
+
+          > div {
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+          }
         `}
       >
         <Banner mode="error" title="Something went wrong">
@@ -41,26 +46,28 @@ export default function Fallback(): React.ReactElement {
             </Link>
           </p>
           <Spacer size={5 * GU} />
-          <div
+        </Banner>
+        <div
+          css={`
+            width: 100%;
+            height: ${16 * GU}px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1e232d;
+          `}
+        >
+          <Button
+            onClick={() => window.location.reload()}
             css={`
-              width: 100%;
-              display: flex;
-              justify-content: center;
-              align-items: center;
+              && {
+                width: ${27 * GU}px;
+              }
             `}
           >
-            <Button
-              onClick={() => window.location.reload()}
-              css={`
-                && {
-                  width: ${27 * GU}px;
-                }
-              `}
-            >
-              Reload
-            </Button>
-          </div>
-        </Banner>
+            Reload
+          </Button>
+        </div>
       </div>
     </div>
   )

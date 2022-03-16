@@ -30,6 +30,7 @@ import {
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import { UserLBDailyRelayBucket } from 'packages/types/src'
+import { useUsageColor } from './application-utils'
 
 const GRAPH_SIZE = 130
 
@@ -38,24 +39,6 @@ const DEFAULT_PERCENTAGES = {
   half: false,
   threeQuarters: true,
   full: true,
-}
-
-function useUsageColor(usage: number): string {
-  const theme = useTheme()
-
-  if (usage <= 0.25) {
-    return theme.positive
-  }
-
-  if (usage <= 0.5) {
-    return theme.yellow
-  }
-
-  if (usage <= 0.75) {
-    return theme.warning
-  }
-
-  return theme.negative
 }
 
 interface NotificationsProps {
@@ -239,6 +222,7 @@ export default function Notifications({
                       value={Math.min(totalDailyRelays / maxDailyRelays, 1)}
                       size={GRAPH_SIZE}
                       color={averageUsageColor}
+                      strokeWidth={GU * 2 + 4}
                     />
                     <Spacer size={1 * GU} />
                     <Stack
@@ -262,6 +246,7 @@ export default function Notifications({
                       value={Math.min(highestDailyAmount / maxDailyRelays, 1)}
                       size={GRAPH_SIZE}
                       color={maxUsageColor}
+                      strokeWidth={GU * 2 + 4}
                     />
                     <Spacer size={1 * GU} />
                     <Stack
@@ -282,6 +267,7 @@ export default function Notifications({
                       value={lowestDailyAmount / maxDailyRelays}
                       size={GRAPH_SIZE}
                       color={minUsageColor}
+                      strokeWidth={GU * 2 + 4}
                     />
                     <Spacer size={1 * GU} />
                     <Stack
@@ -305,6 +291,7 @@ export default function Notifications({
                 <p
                   css={`
                     ${textStyle('body4')}
+                    text-align: center;
                   `}
                 >
                   These values are calculated on a period of 7 days.
@@ -351,28 +338,28 @@ export default function Notifications({
                 level="quarter"
                 checked={chosenPercentages.quarter}
                 onChange={() => onChosePercentageChange('quarter')}
-                maxRelays={Number(maxRelays)}
+                maxRelays={maxRelays}
               />
               <Spacer size={2 * GU} />
               <NotificationPreference
                 level="half"
                 checked={chosenPercentages.half}
                 onChange={() => onChosePercentageChange('half')}
-                maxRelays={Number(maxRelays)}
+                maxRelays={maxRelays}
               />
               <Spacer size={2 * GU} />
               <NotificationPreference
                 level="threeQuarters"
                 checked={chosenPercentages.threeQuarters}
                 onChange={() => onChosePercentageChange('threeQuarters')}
-                maxRelays={Number(maxRelays)}
+                maxRelays={maxRelays}
               />
               <Spacer size={2 * GU} />
               <NotificationPreference
                 level="full"
                 checked={chosenPercentages.full}
                 onChange={() => onChosePercentageChange('full')}
-                maxRelays={Number(maxRelays)}
+                maxRelays={maxRelays}
               />
             </>
           }
@@ -392,7 +379,7 @@ function NavigationOptions({ onChangeSave, disabled }: NavigationOptionsProps) {
 
   return (
     <>
-      <Button wide mode="primary" onClick={onChangeSave} disabled={disabled}>
+      <Button wide onClick={onChangeSave} disabled={disabled}>
         Save changes
       </Button>
       <Spacer size={2 * GU} />
@@ -407,7 +394,7 @@ interface NotificationPreferenceProps {
   level: string
   checked: boolean
   onChange: () => void
-  maxRelays: number
+  maxRelays: string
 }
 
 function NotificationPreference({

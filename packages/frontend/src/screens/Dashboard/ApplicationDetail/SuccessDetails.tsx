@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
@@ -17,6 +17,7 @@ import {
   useToast,
   GU,
   TextCopy,
+  IconClock,
 } from '@pokt-foundation/ui'
 import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
@@ -27,6 +28,34 @@ import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 
 const REFETCH_INTERVAL = 60 * 1000
+
+const getDateFromTimestamp = (timestamp: string): string => {
+  const months: { [key: number]: string } = {
+    0: 'Jan',
+    1: 'Feb',
+    2: 'Mar',
+    3: 'Apr',
+    4: 'May',
+    5: 'Jun',
+    6: 'Jul',
+    7: 'Aug',
+    8: 'Sep',
+    9: 'Oct',
+    10: 'Nov',
+    11: 'Dec',
+  }
+
+  const date = new Date(timestamp)
+  const year = date.getFullYear()
+  const month = months[date.getUTCMonth()]
+  const day = date.getUTCDate()
+  const hour = date.getUTCHours()
+  const minutes = date.getUTCMinutes()
+
+  return `${day} ${month} ${year}, ${hour}:${
+    minutes.toString().length < 2 ? `0${minutes}` : minutes
+  }`
+}
 
 interface SuccessDetailsProps {
   id: string
@@ -41,6 +70,7 @@ interface EndpointRpcError {
   message: string
   method: string
   nodepublickey: string
+  timestamp: string
 }
 
 export default function SuccessDetails({
@@ -52,7 +82,19 @@ export default function SuccessDetails({
 }: SuccessDetailsProps) {
   const theme = useTheme()
   const toast = useToast()
+  const [activeClockElement, setActiveClockElement] = useState<string>('')
+  const [clockMsgVisible, setClockMsgVisible] = useState<boolean>(false)
   const { within } = useViewport()
+
+  const onClockMsgOpen = useCallback((timestamp: string) => {
+    setActiveClockElement(timestamp)
+    setClockMsgVisible(true)
+  }, [])
+
+  const onClockMsgClose = useCallback(() => {
+    setActiveClockElement('')
+    setClockMsgVisible(false)
+  }, [])
 
   const compactMode = within(-1, 'medium')
 
@@ -78,6 +120,7 @@ export default function SuccessDetails({
               bytes: e.bytes,
               message: e.message,
               method: e.method,
+              timestamp: e.timestamp,
               nodeAddress,
             }
           })
@@ -179,6 +222,7 @@ export default function SuccessDetails({
                       value={Math.min(successRate, 1)}
                       size={12 * GU}
                       color={theme.positive}
+                      strokeWidth={GU * 2}
                     />
                     <Spacer size={1 * GU} />
                     <div>
@@ -214,6 +258,7 @@ export default function SuccessDetails({
                       value={Math.max(0, failureRate)}
                       size={12 * GU}
                       color={theme.negative}
+                      strokeWidth={GU * 2}
                     />
                     <Spacer size={1 * GU} />
                     <div>
@@ -262,6 +307,7 @@ export default function SuccessDetails({
                     bytes,
                     method,
                     nodeAddress,
+                    timestamp,
                   }: EndpointRpcError & { nodeAddress: string }) => {
                     return [
                       <div
@@ -288,16 +334,83 @@ export default function SuccessDetails({
                       >
                         {bytes}B
                       </p>,
-                      <TextCopy
-                        value={shorten(nodeAddress, 16)}
-                        onCopy={() => toast('Node address copied to cliboard')}
+                      <div
                         css={`
-                          width: 100%;
-                          > div > input {
-                            background: transparent;
-                          }
+                          display: flex;
+                          align-items: center;
                         `}
-                      />,
+                      >
+                        <TextCopy
+                          value={shorten(nodeAddress, 16)}
+                          onCopy={() =>
+                            toast('Node address copied to cliboard')
+                          }
+                          css={`
+                            width: 100%;
+                            > div > input {
+                              background: transparent;
+                            }
+                          `}
+                        />
+                        <div
+                          onMouseEnter={() => onClockMsgOpen(timestamp)}
+                          onMouseLeave={onClockMsgClose}
+                          css={`
+                            position: relative;
+                          `}
+                        >
+                          <IconClock
+                            css={`
+                              color: ${theme.accentAlternative};
+                              width: ${GU * 2}px;
+                              height: ${GU * 2}px;
+                            `}
+                          />
+                          {clockMsgVisible && timestamp === activeClockElement && (
+                            <div
+                              css={`
+                                border: 0;
+                                ${textStyle('body3')};
+                                background: white;
+                                color: ${theme.contentInverted};
+                                position: absolute;
+                                top: -34px;
+                                left: -95px;
+                                z-index: 9999;
+                                height: ${GU * 4}px;
+                                width: ${GU * 16}px;
+                                border-radius: ${GU - 4}px;
+
+                                &:before {
+                                  content: ' ';
+                                  position: absolute;
+                                  width: 12px;
+                                  height: 6px;
+                                  left: auto;
+                                  right: 16px;
+                                  top: ${GU * 4}px;
+                                  bottom: -40px;
+                                  border: 10px solid;
+                                  border-color: ${theme.helpContent} transparent
+                                    transparent;
+                                }
+                              `}
+                            >
+                              <div
+                                css={`
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  height: 100%;
+                                  width: 100%;
+                                `}
+                              >
+                                {getDateFromTimestamp(timestamp)}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>,
                     ]
                   }}
                   renderEntryExpansion={({ message }: EndpointRpcError) => {
@@ -339,7 +452,7 @@ function NavigationOptions() {
   const history = useHistory()
 
   return (
-    <Button wide mode="primary" onClick={() => history.goBack()}>
+    <Button wide mode="secondary" onClick={() => history.goBack()}>
       Back to application
     </Button>
   )

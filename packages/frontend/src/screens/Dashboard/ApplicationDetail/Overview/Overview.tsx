@@ -158,8 +158,8 @@ export default function Overview({
   const {
     avgLatency,
     barValues,
-    exceedsMaxRelays,
     exceedsSessionRelays,
+    exceedsMaxRelays,
     latencyLabels,
     latencyScales,
     previousSuccessRate,
@@ -200,6 +200,25 @@ export default function Overview({
                 )}
                 <EndpointDetails appData={appData} />
                 <Spacer size={3 * GU} />
+                {exceedsSessionRelays || exceedsMaxRelays ? (
+                  <>
+                    <Banner
+                      mode="warning"
+                      title="It's time to up your stake; your app is over the session limit"
+                    >
+                      Don't worry, we've got you covered. To maintain service,
+                      the Portal automatically redirects all surplus relays to
+                      our backup infrastructure. If you want all relays to be
+                      served by Pocket Network, you'll need to stake more POKT.
+                      Please{' '}
+                      <Link href="mailto:sales@pokt.network">
+                        contact the team
+                      </Link>{' '}
+                      for further assistance.
+                    </Banner>
+                    <Spacer size={3 * GU} />
+                  </>
+                ) : null}
                 <div
                   css={`
                     width: 100%;
@@ -251,6 +270,7 @@ export default function Overview({
                 <GatewayPanel
                   id={appData.id}
                   secret={appData.gatewaySettings.secretKey}
+                  publicKey={appData.apps[0].publicKey}
                 />
                 <Spacer size={3 * GU} />
                 {!gigastake && <AddressPanel apps={appData.apps} />}
