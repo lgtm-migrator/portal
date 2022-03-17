@@ -215,9 +215,8 @@ function EndpointUrl({
     [appId, prefix]
   )
 
-  const handleHovered = useCallback(() => {
-    setIsBtnHovered((prevHovered) => !prevHovered)
-  }, [])
+  const handleChainOnMouseEnter = useCallback(() => setIsBtnHovered(true), [])
+  const handleChainOnMouseLeave = useCallback(() => setIsBtnHovered(false), [])
 
   return (
     <div
@@ -231,8 +230,8 @@ function EndpointUrl({
     >
       <Button
         onClick={() => removeSelectedChain(chainId)}
-        onMouseEnter={handleHovered}
-        onMouseLeave={handleHovered}
+        onMouseEnter={handleChainOnMouseEnter}
+        onMouseLeave={handleChainOnMouseLeave}
         css={`
           width: ${8 * 10}px;
           height: ${GU * 4}px;
@@ -252,7 +251,7 @@ function EndpointUrl({
           }
         `}
       >
-        {chainImg && !isBtnHovered ? (
+        {chainImg && !isBtnHovered && (
           <img
             src={getImageForChain(name)}
             alt={abbrv}
@@ -262,7 +261,7 @@ function EndpointUrl({
               margin-right: ${GU}px;
             `}
           />
-        ) : null}
+        )}
         {isBtnHovered ? (
           <div
             css={`
