@@ -375,6 +375,20 @@ function ChainDropdown({ updateAppChain }) {
             width: ${below('medium') ? `calc(100vw - 20px)` : `${69 * GU}px`};
             height: ${opened && 16 * GU}px;
           }
+
+          *::-webkit-scrollbar {
+            width: 5px !important;
+            height: 32px !important;
+          }
+
+          *::-webkit-scrollbar-thumb {
+            height: 32px !important;
+          }
+
+          * {
+            overflow: -moz-scrollbars-vertical;
+            -ms-overflow-style: none;
+          }
         `}
       >
         {chains.length > 0 ? (
