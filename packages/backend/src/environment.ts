@@ -19,6 +19,15 @@ export type PocketNetworkKeys = {
 }
 
 export const ENV_VARS = {
+  AUTH0_JWKS_URI(): string {
+    return process.env.AUTH0_JWKS_URI?.trim() ?? ''
+  },
+  AUTH0_AUDIENCE(): string {
+    return process.env.AUTH0_AUDIENCE?.trim() ?? ''
+  },
+  AUTH0_ISSUER(): string {
+    return process.env.AUTH0_ISSUER?.trim() ?? ''
+  },
   PROD(): boolean {
     return process.env.NODE_ENV === 'production'
   },
@@ -131,6 +140,9 @@ export const ENV_VARS = {
 
 type envVarCategory =
   | 'ALLOWED_DOMAINS'
+  | 'AUTH0_AUDIENCE'
+  | 'AUTH0_ISSUER'
+  | 'AUTH0_JWKS_URI'
   | 'CLOUDWATCH_ACCESS_KEY'
   | 'CLOUDWATCH_GROUP_NAME'
   | 'CLOUDWATCH_REGION'

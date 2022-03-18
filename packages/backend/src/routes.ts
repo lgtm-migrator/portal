@@ -8,8 +8,10 @@ export function configureRoutes(expressApp: ExpressApplication): void {
   expressApp.use('/', Index)
 
   expressApp.use('/api/users', User)
+  expressApp.use('/api/v2/users', User)
 
   expressApp.use('/api/lb', LoadBalancer)
+  expressApp.use('/api/v2/lb', LoadBalancer)
 
   expressApp.use('/api/network', Network)
 }

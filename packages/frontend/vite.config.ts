@@ -18,6 +18,7 @@ export default defineConfig({
     babelMacros(),
   ],
   server: {
+    port: 3001,
     watch: {
       usePolling: true
     }

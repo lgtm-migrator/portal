@@ -30,7 +30,13 @@ export function useUserApplications(): {
       if (userLoading) {
         return
       }
-      const lbPath = `${env('BACKEND_URL')}/api/lb`
+
+      let lbPath = null
+      if (flagContext.hookstate.useAuth0) {
+        lbPath = `${env('BACKEND_URL')}/api/v2/lb`
+      } else {
+        lbPath = `${env('BACKEND_URL')}/api/lb`
+      }
 
       try {
         const { data: lbData } = await axios.get(lbPath, flagContext.hookState.authHeaders)
@@ -80,7 +86,12 @@ export function useOriginClassification({ id }: { id: string }): {
       if (!id) {
         return []
       }
-      const path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
+      let path = null
+      if (flagContext.hookstate.useAuth0) {
+        path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
+      } else {
+        path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
+      }
 
       try {
         const { data } = await axios.get(path, flagContext.hookState.authHeaders)
