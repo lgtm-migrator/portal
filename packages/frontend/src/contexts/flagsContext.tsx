@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const FlagContext = React.createContext()
+const FlagContext = React.createContext({})
 
 const FlagContextProvider = ({ 
     children 
@@ -9,15 +9,15 @@ const FlagContextProvider = ({
     }) => {
   const [hookState, setHookState] = useState({
     authHeaders: 
-        sessionStorage.getItem('useAuth0') ? 
+        sessionStorage.getItem('useAuth0') === 'true' ? 
             {headers: {Authorization: `Bearer ${sessionStorage.getItem('AuthToken')}`}} :
             {withCredentials: true},
-    useAuth0: !!sessionStorage.getItem('useAuth0'),
+    useAuth0: sessionStorage.getItem('useAuth0') === 'true',
     flags: true, 
     otherValue: false
 }) 
 
-const updateHookState = (key, value) => {
+const updateHookState = (key: string, value: string) => {
   setHookState(prevState => ({
     ...prevState,
     [key]: value

@@ -30,7 +30,6 @@ export default function Login() {
 
   const { isLoading, mutate } = useMutation(async function login(e) {
 
-console.log(flagContext.hookState.useAuth0)
 if (!flagContext.hookState.useAuth0) {
     try {
       const path = `${env('BACKEND_URL')}/api/users/login`
@@ -123,132 +122,132 @@ if (!flagContext.hookState.useAuth0) {
         `}
       >
         {!flagContext.hookState.useAuth0 ? 
-        <form
-          onSubmit={!isSubmitDisabled ? mutate : undefined}
-          css={`
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <Field label="Email" required>
-            <TextInput
-              wide
-              value={email}
-              placeholder="example@pokt.network"
-              onChange={onEmailChange}
-              onFocus={onInputFocus}
-              onBlur={onEmailBlur}
-            />
-            <Spacer size={GU / 2} />
-            {emailError && <ErrorMessage>{emailError.message}</ErrorMessage>}
-            <ul
+          <form
+            onSubmit={!isSubmitDisabled ? mutate : undefined}
+            css={`
+              display: flex;
+              flex-direction: column;
+            `}
+          >
+            <Field label="Email" required>
+              <TextInput
+                wide
+                value={email}
+                placeholder="example@pokt.network"
+                onChange={onEmailChange}
+                onFocus={onInputFocus}
+                onBlur={onEmailBlur}
+              />
+              <Spacer size={GU / 2} />
+              {emailError && <ErrorMessage>{emailError.message}</ErrorMessage>}
+              <ul
+                css={`
+                  list-style-type: none;
+                `}
+              >
+                {errors.map(({ id, message }) => (
+                  <li key={`${id}_${message}`}>
+                    <ErrorMessage>{message}</ErrorMessage>
+                  </li>
+                ))}
+              </ul>
+            </Field>
+            <Field label="Password" required>
+              <TextInput
+                wide
+                value={password}
+                placeholder="********"
+                onChange={onPasswordChange}
+                onFocus={onInputFocus}
+                onBlur={onPasswordBlur}
+                type="password"
+              />
+              <Spacer size={GU / 2} />
+              {passwordError && (
+                <ErrorMessage>{passwordError.message}</ErrorMessage>
+              )}
+            </Field>
+            {passwordError && <Spacer size={3 * GU} />}
+            <RouterLink
+              to={{
+                pathname: '/forgotpassword',
+              }}
+              component={Link}
+              external={false}
               css={`
-                list-style-type: none;
+                && {
+                  ${textStyle('body3')};
+                  width: auto;
+                  text-align: left;
+                }
               `}
             >
-              {errors.map(({ id, message }) => (
-                <li key={`${id}_${message}`}>
-                  <ErrorMessage>{message}</ErrorMessage>
-                </li>
-              ))}
-            </ul>
-          </Field>
-          <Field label="Password" required>
-            <TextInput
-              wide
-              value={password}
-              placeholder="********"
-              onChange={onPasswordChange}
-              onFocus={onInputFocus}
-              onBlur={onPasswordBlur}
-              type="password"
-            />
-            <Spacer size={GU / 2} />
-            {passwordError && (
-              <ErrorMessage>{passwordError.message}</ErrorMessage>
-            )}
-          </Field>
-          {passwordError && <Spacer size={3 * GU} />}
-          <RouterLink
-            to={{
-              pathname: '/forgotpassword',
-            }}
-            component={Link}
-            external={false}
-            css={`
-              && {
-                ${textStyle('body3')};
-                width: auto;
-                text-align: left;
-              }
-            `}
-          >
-            Forgot your password?
-          </RouterLink>
-          <Spacer size={3 * GU} />
+              Forgot your password?
+            </RouterLink>
+            <Spacer size={3 * GU} />
+            <Button
+              type="submit"
+              mode="primary"
+              disabled={isSubmitDisabled}
+              onClick={(e) => {
+                e.preventDefault()
+                mutate()
+              }}
+              css={`
+                max-width: ${22.5 * GU}px;
+                margin-bottom: ${2 * GU}px;
+              `}
+            >
+              Log in
+            </Button>
+            <p
+              css={`
+                ${textStyle('body3')}
+              `}
+            >
+              Don't have an account?{' '}
+              <RouterLink
+                to={{
+                  pathname: '/signup',
+                }}
+                component={Link}
+                external={false}
+              >
+                Get started.
+              </RouterLink>
+            </p>
+          </form> :
+          <>
           <Button
-            type="submit"
-            mode="primary"
-            disabled={isSubmitDisabled}
-            onClick={(e) => {
-              e.preventDefault()
-              mutate()
-            }}
-            css={`
-              max-width: ${22.5 * GU}px;
-              margin-bottom: ${2 * GU}px;
-            `}
-          >
-            Log in
-          </Button>
-          <p
-            css={`
-              ${textStyle('body3')}
-            `}
-          >
-            Don't have an account?{' '}
-            <RouterLink
-              to={{
-                pathname: '/signup',
-              }}
-              component={Link}
-              external={false}
+              type="submit"
+              mode="primary"
+              disabled={false}
+              onClick={() => loginWithRedirect()}
+              css={`
+                max-width: ${22.5 * GU}px;
+                margin-bottom: ${2 * GU}px;
+              `}
             >
-              Get started.
-            </RouterLink>
-          </p>
-        </form> :
-        <>
-        <Button
-            type="submit"
-            mode="primary"
-            disabled={isSubmitDisabled}
-            onClick={() => loginWithRedirect()}
-            css={`
-              max-width: ${22.5 * GU}px;
-              margin-bottom: ${2 * GU}px;
-            `}
-          >
-            Log in
-          </Button>
-          <p
-            css={`
-              ${textStyle('body3')}
-            `}
-          >
-            Don't have an account?{' '}
-            <RouterLink
-              to={{
-                pathname: '/signup',
-              }}
-              component={Link}
-              external={false}
+              Log in
+            </Button>
+            <p
+              css={`
+                ${textStyle('body3')}
+              `}
             >
-              Get started.
-            </RouterLink>
-          </p>
-        </>
-
+              Don't have an account?{' '}
+              <RouterLink
+                to={{
+                  pathname: '/signup',
+                }}
+                component={Link}
+                external={false}
+              >
+                Get started.
+              </RouterLink>
+            </p>
+          </>
+        }
       </div>
     </Onboarding>
   )
