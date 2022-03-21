@@ -32,13 +32,13 @@ export const ENV_VARS = {
     return process.env.NODE_ENV === 'production'
   },
   FRONTEND_URL(): string {
-    return process.env.FRONTEND_URL || 'http://localhost:3000'
+    return process.env.FRONTEND_URL || 'http://localhost:3001'
   },
   ERROR_METRICS_URL(): string {
     return process.env.ERROR_METRICS_URL?.trim() ?? ''
   },
   ALLOWED_DOMAINS(): string[] {
-    return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3000']
+    return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3001']
   },
   CLOUDWATCH_GROUP_NAME(): string {
     return process.env.CLOUDWATCH_GROUP_NAME?.trim() ?? ''

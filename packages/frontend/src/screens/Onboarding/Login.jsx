@@ -122,6 +122,7 @@ if (!flagContext.hookState.useAuth0) {
           height: auto;
         `}
       >
+        {!flagContext.hookState.useAuth0 ? 
         <form
           onSubmit={!isSubmitDisabled ? mutate : undefined}
           css={`
@@ -216,7 +217,38 @@ if (!flagContext.hookState.useAuth0) {
               Get started.
             </RouterLink>
           </p>
-        </form>
+        </form> :
+        <>
+        <Button
+            type="submit"
+            mode="primary"
+            disabled={isSubmitDisabled}
+            onClick={() => loginWithRedirect()}
+            css={`
+              max-width: ${22.5 * GU}px;
+              margin-bottom: ${2 * GU}px;
+            `}
+          >
+            Log in
+          </Button>
+          <p
+            css={`
+              ${textStyle('body3')}
+            `}
+          >
+            Don't have an account?{' '}
+            <RouterLink
+              to={{
+                pathname: '/signup',
+              }}
+              component={Link}
+              external={false}
+            >
+              Get started.
+            </RouterLink>
+          </p>
+        </>
+
       </div>
     </Onboarding>
   )
