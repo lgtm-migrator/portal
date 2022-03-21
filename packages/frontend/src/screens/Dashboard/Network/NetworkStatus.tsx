@@ -15,7 +15,6 @@ import {
   GU,
   RADIUS,
 } from '@pokt-foundation/ui'
-import VisuallyHidden from '@reach/visually-hidden'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
@@ -27,7 +26,7 @@ import {
   useNetworkSummary,
   useTotalWeeklyRelays,
 } from '../../../hooks/network-hooks'
-import Economics from '../../../assets/economics.jpg'
+import Economics from '../../../assets/economicsDevs.png'
 import {
   getServiceLevelByChain,
   ALPHA_CHAINS,
@@ -35,6 +34,10 @@ import {
   Chain,
 } from '../../../lib/chain-utils'
 import { norm } from '../../../lib/math-utils'
+import NetworkSummaryNodesImg from '../../../assets/networkSummaryNodes.png'
+import NetworkSummaryAppsImg from '../../../assets/networkSummaryApps.png'
+import NetworkSummaryNetworksImg from '../../../assets/networkSummaryNetworks.png'
+import Card from '../../../components/Card/Card'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -148,6 +151,37 @@ export default function NetworkStatus() {
           <Split
             primary={
               <>
+                <h3
+                  css={`
+                    ${textStyle('title3')};
+                    margin-bottom: ${GU * 3}px;
+                  `}
+                >
+                  Network Summary
+                </h3>
+                <div
+                  css={`
+                    display: flex;
+                    justify-content: space-evenly;
+                    margin-bottom: ${GU * 4}px;
+                  `}
+                >
+                  <NetworkSummaryCard
+                    title="Nodes Staked"
+                    subtitle="7000+"
+                    imgSrc={NetworkSummaryNodesImg}
+                  />
+                  <NetworkSummaryCard
+                    title="Apps Staked"
+                    subtitle={`${summaryData?.appsStaked}`}
+                    imgSrc={NetworkSummaryAppsImg}
+                  />
+                  <NetworkSummaryCard
+                    title="Networks"
+                    subtitle={`${chains?.length}`}
+                    imgSrc={NetworkSummaryNetworksImg}
+                  />
+                </div>
                 <Box>
                   <div
                     css={`
@@ -200,12 +234,6 @@ export default function NetworkStatus() {
                     scales={scales}
                   />
                 </Box>
-                {!compactMode && (
-                  <>
-                    <Spacer size={4 * GU} />
-                    <EconomicsSection />
-                  </>
-                )}
                 <Spacer size={4 * GU} />
                 <Box title="Available Networks">
                   <DataView
@@ -295,7 +323,16 @@ export default function NetworkStatus() {
             }
             secondary={
               <>
-                <Box title="Network Success Rate">
+                <h3
+                  css={`
+                    ${textStyle('title3')};
+                    margin-bottom: ${GU * 3}px;
+                  `}
+                >
+                  Network Success Rate
+                </h3>
+
+                <Box>
                   <div
                     css={`
                       display: flex;
@@ -345,62 +382,12 @@ export default function NetworkStatus() {
                   </div>
                   <Spacer size={1 * GU} />
                 </Box>
-                <Spacer size={4 * GU} />
-                <Box
-                  title="Network Summary"
-                  css={`
-                    h3 {
-                      color: ${theme.accentAlternative};
-                    }
-                  `}
-                >
-                  <ul
-                    css={`
-                      list-style: none;
-                      height: 100%;
-                      li {
-                        display: flex;
-                        justify-content: space-between;
-                      }
-                    `}
-                  >
-                    <li>
-                      <h2
-                        css={`
-                          ${textStyle('title3')}
-                          font-weight: bold;
-                        `}
-                      >
-                        Apps Staked
-                      </h2>{' '}
-                      <span>{summaryData.appsStaked} </span>
-                    </li>
-                    <Spacer size={2 * GU} />
-                    <li>
-                      <h2
-                        css={`
-                          ${textStyle('title3')}
-                          font-weight: bold;
-                        `}
-                      >
-                        Nodes Staked
-                      </h2>{' '}
-                      <span>{7000}+</span>
-                    </li>
-                    <Spacer size={2 * GU} />
-                    <li>
-                      <h2
-                        css={`
-                          ${textStyle('title3')}
-                          font-weight: bold;
-                        `}
-                      >
-                        POKT Staked
-                      </h2>{' '}
-                      <span>{12}m+</span>
-                    </li>
-                  </ul>
-                </Box>
+                {!compactMode && (
+                  <>
+                    <Spacer size={4 * GU} />
+                    <EconomicsSection />
+                  </>
+                )}
               </>
             }
           />
@@ -420,41 +407,121 @@ function EconomicsSection() {
         width: 100%;
         height: 100%;
         max-height: ${33 * GU}px;
-        background-color: linear-gradient(
-          180deg,
-          ${theme.surfaceGradient1} 0%,
-          ${theme.surfaceGradient2} 100%
-        );
-        background-image: url(${Economics});
+        background: url(${Economics}),
+          linear-gradient(
+            180deg,
+            ${theme.surfaceGradient1} 0%,
+            ${theme.surfaceGradient2} 100%
+          );
         background-size: cover;
         background-repeat: no-repeat;
-        border-radius: ${RADIUS}px;
+        background-blend-mode: overlay;
+        background-position: bottom;
+        border-radius: ${RADIUS + 2}px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       `}
     >
-      <VisuallyHidden>Pocket Economics for App Developers</VisuallyHidden>
+      <h3
+        css={`
+          font-weight: 700;
+        `}
+      >
+        Pocket Economics for{' '}
+        <span
+          css={`
+            color: ${theme.accentAlternative};
+            ${textStyle('title2')};
+            display: block;
+          `}
+        >
+          {' '}
+          App Developers
+        </span>
+      </h3>
       <ButtonBase
         href="https://medium.com/pocket-network/pocket-economics-for-app-developers-487a6ce290c2"
-        mode="primary"
+        mode="normal"
         css={`
           && {
-            position: absolute;
-            left: ${6 * GU}px;
-            bottom: ${4 * GU}px;
-            min-width: ${20 * GU}px;
+            width: ${28 * GU}px;
             display: inline-block;
             ${textStyle('body3')};
             line-height: ${0 * GU}px;
             font-weight: bold;
             height: ${5 * GU}px;
             padding: ${3 * GU}px;
-            background: ${theme.accent};
-            color: ${theme.contentInverted};
+            background: transparent;
+            border: 2px solid ${theme.contentBorder};
+            color: ${theme.surfaceContent};
             border: '0';
+            margin-top: ${GU * 4}px;
           }
         `}
       >
         Read More
       </ButtonBase>
     </section>
+  )
+}
+
+interface NetworkSummaryCardProps {
+  title: string
+  subtitle: string
+  imgSrc: string
+}
+
+function NetworkSummaryCard({
+  imgSrc,
+  subtitle,
+  title,
+}: NetworkSummaryCardProps) {
+  const theme = useTheme()
+
+  return (
+    <Card
+      css={`
+        display: flex;
+        justify-content: space-between;
+        width: ${GU * 28}px;
+        height: ${GU * 16}px;
+        margin-right: ${GU * 2}px;
+      `}
+    >
+      <div
+        css={`
+          display: flex;
+          flex-direction: column;
+          margin-left: ${GU * 3}px;
+        `}
+      >
+        <h3
+          css={`
+            color: ${theme.disabledContent};
+            ${textStyle('title4')};
+          `}
+        >
+          {title}
+        </h3>
+        <p
+          css={`
+            ${textStyle('title2')};
+            margin-top: auto;
+          `}
+        >
+          {subtitle}
+        </p>
+      </div>
+      <img
+        src={imgSrc}
+        alt="network summary nodes"
+        css={`
+          width: 86px;
+          height: 90px;
+        `}
+      />
+    </Card>
   )
 }
