@@ -107,7 +107,7 @@ export default function MenuPanel({
     )
 
     if (!compactMode) {
-      groups.push(CREATE_APP_ROUTE)
+      groups[1].push(...CREATE_APP_ROUTE)
     }
 
     return groups
@@ -281,16 +281,13 @@ function MenuPanelGroup({
   const { pathname } = useLocation()
   const history = useHistory()
   const theme = useTheme()
+  const { height } = useViewport()
+  const compactMode = useMemo(() => height <= 800, [height])
   const [createVisible, setCreateVisible] = useState<boolean>(false)
 
   const [primaryInstance, ...childInstances] = instances
 
   const handleInstanceClick = useCallback(() => {
-    if (primaryInstance.id === '/create') {
-      setCreateVisible(true)
-      return
-    }
-
     if (!childInstances.length) {
       history.push({
         pathname: `${primaryInstance.id}`,
@@ -370,7 +367,6 @@ function MenuPanelGroup({
         active={active}
         instance={primaryInstance}
         onClick={handleInstanceClick}
-        alternateStyle={primaryInstance.id === '/create'}
       />
       {childInstances.length > 0 && (
         <animated.ul
@@ -389,61 +385,90 @@ function MenuPanelGroup({
               (v: number) =>
                 `${childInstances.length * (CHILD_INSTANCE_HEIGHT + GU) * v}px`
             ),
-            maxHeight: '400px',
+            maxHeight: compactMode ? '160px' : '300px',
             overflowY: 'scroll',
           }}
         >
           {childInstances.map(({ id, label }, index) => (
-            <Fragment key={id}>
-              <Spacer size={1 * GU} />
-              <li
-                key={id}
-                css={`
-                  width: 100%;
-                `}
-              >
-                <ButtonBase
-                  onClick={() => handleChildInstaceClick(id)}
-                  css={`
-                    && {
-                      background: transparent;
-                      border-radius: 0px;
-                      text-align: center;
-                      height: ${6 * GU}px;
-                      width: 100%;
-                      font-weight: ${active ? 'bold' : 'normal'};
-                      transition: background 150ms ease-in-out;
-                      color: ${activeChildInstanceIndex === index
-                        ? theme.content
-                        : theme.placeholder};
-                    }
-                  `}
-                >
-                  <span
+            <>
+              {id !== '/create' && (
+                <Fragment key={id}>
+                  <Spacer size={1 * GU} />
+                  <li
+                    key={id}
                     css={`
-                      display: block;
-                      width: ${GU * 9}px;
-                      overflow: hidden;
-                      white-space: nowrap;
-                      text-overflow: ellipsis;
-                      text-align: left;
-                      margin-left: ${GU * 3}px;
-                      font-weight: ${activeChildInstanceIndex === index
-                        ? '600'
-                        : 'normal'};
-                      font-size: ${GU + 2}px;
-                      opacity: ${activeChildInstanceIndex === index ? 1 : 0.5};
+                      width: 100%;
                     `}
                   >
-                    {activeChildInstanceIndex === index
-                      ? `> ${shorten(label, 10)}`
-                      : shorten(label, 10)}
-                  </span>
-                </ButtonBase>
-              </li>
-            </Fragment>
+                    <ButtonBase
+                      onClick={() => handleChildInstaceClick(id)}
+                      css={`
+                        && {
+                          background: transparent;
+                          border-radius: 0px;
+                          text-align: center;
+                          height: ${6 * GU}px;
+                          width: 100%;
+                          font-weight: ${active ? 'bold' : 'normal'};
+                          transition: background 150ms ease-in-out;
+                          color: ${activeChildInstanceIndex === index
+                            ? theme.content
+                            : theme.placeholder};
+                        }
+                      `}
+                    >
+                      <span
+                        css={`
+                          display: flex;
+                          align-items: center;
+                          width: ${GU * 9}px;
+                          overflow: hidden;
+                          white-space: nowrap;
+                          text-overflow: ellipsis;
+                          text-align: left;
+                          margin-left: ${GU * 3}px;
+                          font-weight: ${activeChildInstanceIndex === index
+                            ? '600'
+                            : 'normal'};
+                          font-size: ${GU + 4}px;
+                          opacity: ${activeChildInstanceIndex === index
+                            ? 1
+                            : 0.5};
+                        `}
+                      >
+                        {activeChildInstanceIndex === index && (
+                          <span
+                            css={`
+                              font-size: ${GU * 3}px;
+                              font-weight: normal;
+                              margin: 0 ${GU + 2}px ${GU - 3}px 0;
+                            `}
+                          >
+                            {'>'}
+                          </span>
+                        )}
+                        {shorten(label, 10)}
+                      </span>
+                    </ButtonBase>
+                  </li>
+                </Fragment>
+              )}
+            </>
           ))}
         </animated.ul>
+      )}
+      {primaryInstance.id === '/apps' && active && (
+        <Button
+          onClick={() => setCreateVisible(true)}
+          mode="primary"
+          css={`
+            width: 90%;
+            font-size: ${GU + 4}px;
+            margin-top: ${GU * 3}px;
+          `}
+        >
+          Create
+        </Button>
       )}
       {createVisible && (
         <Create visible={createVisible} onClose={onCloseCreate} />
@@ -456,35 +481,17 @@ interface MenuPanelButtonProps {
   active: boolean
   instance: MenuRoute
   onClick: () => void
-  alternateStyle?: boolean
 }
 
 function MenuPanelButton({
   active,
   instance,
   onClick,
-  alternateStyle,
   ...props
 }: MenuPanelButtonProps) {
   const theme = useTheme()
 
   const InstanceIcon = instance?.icon
-
-  if (alternateStyle) {
-    return (
-      <Button
-        onClick={onClick}
-        mode="primary"
-        css={`
-          width: 90%;
-          font-size: ${GU + 4}px;
-          margin-top: ${GU * 3}px;
-        `}
-      >
-        {instance.label}
-      </Button>
-    )
-  }
 
   return (
     <ButtonBase
