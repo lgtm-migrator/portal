@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { UserLB } from '@pokt-foundation/portal-types'
 import {
   GU,
@@ -6,13 +6,13 @@ import {
   TextCopy,
   IconPlus,
   ButtonBase,
-  Popover,
   textStyle,
   useTheme,
   useToast,
-  TextInput,
-  IconDown,
   Button,
+  Dropdown,
+  DropdownItem,
+  EscapeOutside,
 } from '@pokt-foundation/ui'
 import 'styled-components/macro'
 import { useViewport } from 'use-viewport'
@@ -29,6 +29,7 @@ interface EndpointDetailsProps {
 }
 
 const MAX_SELECTED_CHAINS = 5
+const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
 enum UpdateTypes {
   SelectedChains = 'selectedChains',
@@ -135,10 +136,7 @@ export default function EndpointDetails({ appData }: EndpointDetailsProps) {
           `}
         >
           {gigastake ? (
-            <ChainDropdown
-              selectedChain={selectedChains[0]}
-              updateSelectedChains={updateSelectedChains}
-            />
+            <ChainDropdown updateSelectedChains={updateSelectedChains} />
           ) : (
             <LegacyChainName chainId={selectedChains[0]} />
           )}
@@ -215,9 +213,8 @@ function EndpointUrl({
     [appId, prefix]
   )
 
-  const handleHovered = useCallback(() => {
-    setIsBtnHovered((prevHovered) => !prevHovered)
-  }, [])
+  const handleChainOnMouseEnter = useCallback(() => setIsBtnHovered(true), [])
+  const handleChainOnMouseLeave = useCallback(() => setIsBtnHovered(false), [])
 
   return (
     <div
@@ -231,8 +228,8 @@ function EndpointUrl({
     >
       <Button
         onClick={() => removeSelectedChain(chainId)}
-        onMouseEnter={handleHovered}
-        onMouseLeave={handleHovered}
+        onMouseEnter={handleChainOnMouseEnter}
+        onMouseLeave={handleChainOnMouseLeave}
         css={`
           width: ${8 * 10}px;
           height: ${GU * 4}px;
@@ -252,7 +249,7 @@ function EndpointUrl({
           }
         `}
       >
-        {chainImg && !isBtnHovered ? (
+        {chainImg && !isBtnHovered && (
           <img
             src={getImageForChain(name)}
             alt={abbrv}
@@ -262,7 +259,7 @@ function EndpointUrl({
               margin-right: ${GU}px;
             `}
           />
-        ) : null}
+        )}
         {isBtnHovered ? (
           <div
             css={`
@@ -289,169 +286,124 @@ function EndpointUrl({
 }
 
 interface ChainDropdownProps {
-  selectedChain: string
   updateSelectedChains: (chainID: string) => void
 }
 
-function ChainDropdown({
-  selectedChain,
-  updateSelectedChains,
-}: ChainDropdownProps) {
+function ChainDropdown({ updateSelectedChains }: ChainDropdownProps) {
   const theme = useTheme()
   const [opened, setOpened] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { name } = prefixFromChainId(selectedChain) as ChainMetadata
+  const [chainName, setChainName] = useState('')
+  const [chains, setChains] = useState(NORMALIZED_CHAIN_ID_PREFIXES)
 
-  const handleToggle = useCallback(() => setOpened((opened) => !opened), [])
+  const resetChainsData = useCallback(() => {
+    setChainName('')
+    setChains(NORMALIZED_CHAIN_ID_PREFIXES)
+  }, [])
+
+  const handleToggle = useCallback(() => {
+    resetChainsData()
+    setOpened((opened) => !opened)
+  }, [resetChainsData])
+
   const handleClose = useCallback(() => setOpened(false), [])
+
   const handleSelectChain = useCallback(
-    (chainID) => {
+    (chainID: string) => {
       updateSelectedChains(chainID)
+      resetChainsData()
       setOpened(false)
     },
-    [updateSelectedChains]
+    [updateSelectedChains, resetChainsData]
   )
 
-  return (
-    <React.Fragment>
-      <div ref={containerRef}>
-        <ButtonBase
-          element="div"
-          description="Preferences"
-          label="Preferences"
-          onClick={handleToggle}
-          css={`
-            border: 1px solid ${theme.accentAlternative};
-            border-radius: ${GU - 4}px;
-            width: ${4 * GU}px;
-            height: ${4 * GU}px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-          `}
-        >
-          <IconPlus
-            css={`
-              width: ${GU * 2}px;
-              height: ${GU * 2}px;
-            `}
-          />
-        </ButtonBase>
-      </div>
+  const handleChainsSearch = useCallback((searchedChain: string) => {
+    setChainName(searchedChain)
 
-      <Popover
-        closeOnOpenerFocus
-        placement="bottom-end"
-        onClose={handleClose}
-        visible={opened}
-        opener={containerRef.current}
-        css={``}
-      >
-        <TextInput
-          value={name}
-          wide
-          placeholder="Select Chain"
-          adornment={<IconDown />}
-          adornmentPosition="end"
-          onClick={handleToggle}
-          readOnly
-          css={`
-            border: 2px solid ${theme.surfaceInteractiveBorder} !important;
-            color: ${theme.surfaceContent} !important;
-            width: ${GU * 31};
-          `}
-        />
+    if (searchedChain.length === 0) {
+      setChains(NORMALIZED_CHAIN_ID_PREFIXES)
+    }
 
-        <ul
-          css={`
-            box-sizing: border-box;
-            width: ${GU * 31};
-            height: ${20 * GU}px;
-            overflow-y: scroll;
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            background: #141a21;
-            color: ${theme.content};
-          `}
-        >
-          {Array.from(CHAIN_ID_PREFIXES.entries()).map(([k, v]) => (
-            <Item
-              onClick={() => {
-                handleSelectChain(k)
-              }}
-              icon={getImageForChain(v.name)}
-              label={v.name}
-            />
-          ))}
-        </ul>
-      </Popover>
-    </React.Fragment>
-  )
-}
+    const tempChains = []
 
-interface ItemProps {
-  icon: string
-  label: string
-  onClick?: () => void
-}
+    for (const chain of NORMALIZED_CHAIN_ID_PREFIXES) {
+      if (chain[1].name.toLowerCase().includes(searchedChain.toLowerCase())) {
+        tempChains.push(chain)
+      }
+    }
 
-function Item({ icon, label, onClick }: ItemProps) {
-  const theme = useTheme()
+    setChains(tempChains)
+  }, [])
 
   return (
-    <li
-      css={`
-        &:hover {
-          background-color: #20262c;
-        }
-      `}
-    >
+    <div>
       <ButtonBase
-        onClick={onClick}
-        label={label}
+        element="div"
+        description="Preferences"
+        label="Preferences"
+        onClick={handleToggle}
         css={`
-          width: 100%;
-          height: ${6 * GU}px;
+          border: 1px solid ${theme.accentAlternative};
+          border-radius: ${GU - 4}px;
+          width: ${4 * GU}px;
+          height: ${4 * GU}px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: white;
         `}
       >
-        <div
+        <IconPlus
           css={`
-            display: flex;
-            width: 100%;
-            padding: ${2 * GU}px;
-            justify-content: left;
-            align-items: center;
-
-            &:active,
-            &:focus {
-              background: ${theme.surfacePressed};
-            }
+            width: ${GU * 2}px;
+            height: ${GU * 2}px;
           `}
-        >
-          {icon && (
-            <img
-              src={icon}
-              alt={label}
-              css={`
-                width: ${2 * GU}px;
-                height: ${2 * GU}px;
-              `}
-            />
-          )}
-          <div
+        />
+      </ButtonBase>
+      <EscapeOutside onEscapeOutside={handleClose} useCapture>
+        {opened && (
+          <Dropdown
+            value={chainName}
+            visible={opened}
+            placeholder="Select Chain"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChainsSearch(e.target.value)
+            }
             css={`
-              flex-grow: 1;
-              display: flex;
-              align-items: center;
-              margin-left: ${icon ? 1 * GU : 0}px;
+              position: absolute;
+              z-index: 9999;
+              right: 20px;
+
+              *::-webkit-scrollbar {
+                width: ${GU - 3}px !important;
+                height: ${GU * 4}px !important;
+              }
+
+              *::-webkit-scrollbar-thumb {
+                height: ${GU * 4}px !important;
+              }
+
+              * {
+                overflow: -moz-scrollbars-vertical;
+                -ms-overflow-style: none;
+              }
             `}
           >
-            {label}
-          </div>
-        </div>
-      </ButtonBase>
-    </li>
+            {chains.length > 0 ? (
+              chains.map(([k, v]) => (
+                <DropdownItem
+                  onClick={() => {
+                    handleSelectChain(k)
+                  }}
+                  icon={getImageForChain(v.name)}
+                  label={v.name}
+                />
+              ))
+            ) : (
+              <DropdownItem label="No chains found with that name" />
+            )}
+          </Dropdown>
+        )}
+      </EscapeOutside>
+    </div>
   )
 }
