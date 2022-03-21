@@ -230,3 +230,8 @@ build/
 
 # End of https://www.gitignore.io/api/node,intellij
 .vercel
+
+
+# ignore lock files
+pnpm-lock.yaml
+package-lock.json
