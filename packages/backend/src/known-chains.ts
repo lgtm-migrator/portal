@@ -113,5 +113,10 @@ export const KNOWN_CHAINS = {
     ticker: 'BSC',
     id: '0004',
     limit: 0
+  },
+  BOBA_MAINNET: {
+    ticker: 'BOBA',
+    id: '0048',
+    limit: 0,
   }
 }
