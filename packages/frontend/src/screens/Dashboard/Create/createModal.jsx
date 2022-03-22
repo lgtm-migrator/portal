@@ -152,7 +152,7 @@ export default function CreateModal({ visible, onClose }) {
       userApps.length >= MAX_USER_APPS &&
       userID &&
       !env('GODMODE_ACCOUNTS').includes(userID) &&
-      !env('PROD')
+      env('PROD')
     ) {
       setCreationModalVisible(true)
     }
