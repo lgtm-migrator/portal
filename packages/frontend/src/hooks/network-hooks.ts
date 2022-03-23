@@ -27,7 +27,7 @@ export function useNetworkSummary(): {
   isSummaryError: boolean
   summaryData: SummaryData
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookState } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -38,7 +38,7 @@ export function useNetworkSummary(): {
     const path = `${env('BACKEND_URL')}/api/network/summary`
 
     try {
-      const { data } = await axios.get(path, flagContext.hookState.authHeaders)
+      const { data } = await axios.get(path, hookState.authHeaders)
 
         return data
       } catch (err) {
@@ -60,7 +60,7 @@ export function useChains(): {
   isChainsLoading: boolean
   chains: Chain[] | undefined
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookState } = useContext(FlagContext)
   const { userLoading } = useUser()
   const {
     isLoading: isChainsLoading,
@@ -72,7 +72,7 @@ export function useChains(): {
     }chains`
 
     try {
-      const res = await axios.get(path, flagContext.hookState.authHeaders)
+      const res = await axios.get(path, hookState.authHeaders)
 
       const { data } = res
 
@@ -96,7 +96,7 @@ export function useTotalWeeklyRelays(): {
   isRelaysLoading: boolean
   relayData: DailyRelayBucket[]
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookstate } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -106,7 +106,7 @@ export function useTotalWeeklyRelays(): {
   } = useQuery('network/weekly-relays', async function getWeeklyRelays() {
     try {
       const path = `${env('BACKEND_URL')}/api/network/daily-relays`
-      const { data } = await axios.get(path, flagContext.hookState.authHeaders)
+      const { data } = await axios.get(path, hookState.authHeaders)
 
       return data
     } catch (err) {}
@@ -126,7 +126,7 @@ export function useNetworkStats(): {
   isNetworkStatsError: boolean
   networkStats: NetworkRelayStats | undefined
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookstate } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -144,7 +144,7 @@ export function useNetworkStats(): {
             successful_relays: successfulRelays,
             total_relays: totalRelays,
           },
-        } = await axios.get(path, flagContext.hookState.authHeaders)
+        } = await axios.get(path, hookState.authHeaders)
 
         return { successfulRelays, totalRelays }
       } catch (err) {

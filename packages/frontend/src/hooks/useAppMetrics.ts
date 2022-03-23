@@ -37,7 +37,7 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookstate } = useContext(FlagContext)
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
   const type = 'lb'
@@ -72,28 +72,28 @@ export function useAppMetrics({
 
       try {
         const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, 
-          flagContext.hookState.authHeaders
+          hookState.authHeaders
         )
         const { data: successfulRelaysResponse } = await 
-          axios.get(successfulRelaysPath, flagContext.hookState.authHeaders)
+          axios.get(successfulRelaysPath, hookState.authHeaders)
 
         const { data: dailyRelaysResponse } = await 
-          axios.get(dailyRelaysPath, flagContext.hookState.authHeaders)
+          axios.get(dailyRelaysPath, hookState.authHeaders)
 
         const { data: sessionRelaysResponse } = await 
-          axios.get(sessionRelaysPath, flagContext.hookState.authHeaders)
+          axios.get(sessionRelaysPath, hookState.authHeaders)
 
         const { data: previousSuccessfulRelaysResponse } = await 
-          axios.get(previousSuccessfulRelaysPath, flagContext.hookState.authHeaders)
+          axios.get(previousSuccessfulRelaysPath, hookState.authHeaders)
 
         const { data: previousTotalRelaysResponse } = await 
-          axios.get(previousTotalRelaysPath, flagContext.hookState.authHeaders)
+          axios.get(previousTotalRelaysPath, hookState.authHeaders)
 
         const { data: hourlyLatencyResponse } = await 
-          axios.get(hourlyLatencyPath, flagContext.hookState.authHeaders)
+          axios.get(hourlyLatencyPath, hookState.authHeaders)
 
         const { data: onChainDataResponse } = await 
-          axios.get(onChainDataPath, flagContext.hookState.authHeaders)
+          axios.get(onChainDataPath, hookState.authHeaders)
 
         return [
           totalRelaysResponse as UserLBTotalRelaysResponse,

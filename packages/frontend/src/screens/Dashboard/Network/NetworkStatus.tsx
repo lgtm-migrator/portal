@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { format } from 'd3-format'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
-import { useAuth0 } from '@auth0/auth0-react'
+// import { useAuth0 } from '@auth0/auth0-react'
 import {
   ButtonBase,
   CircleGraph,
@@ -90,7 +90,7 @@ export default function NetworkStatus() {
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
-//  const { user } = useAuth0()
+//   const { user } = useAuth0()
 
   const {
     labels = [],

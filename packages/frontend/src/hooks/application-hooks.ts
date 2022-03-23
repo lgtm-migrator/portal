@@ -16,7 +16,7 @@ export function useUserApplications(): {
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookState } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -32,14 +32,14 @@ export function useUserApplications(): {
       }
 
       let lbPath = null
-      if (flagContext.hookstate.useAuth0) {
+      if (hookstate.useAuth0) {
         lbPath = `${env('BACKEND_URL')}/api/v2/lb`
       } else {
         lbPath = `${env('BACKEND_URL')}/api/lb`
       }
 
       try {
-        const { data: lbData } = await axios.get(lbPath, flagContext.hookState.authHeaders)
+        const { data: lbData } = await axios.get(lbPath, hookState.authHeaders)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
@@ -74,7 +74,7 @@ export function useOriginClassification({ id }: { id: string }): {
   isError: boolean
   originData: UserLBOriginBucket[] | undefined
 } {
-  const flagContext = useContext(FlagContext)
+  const { hookState } = useContext(FlagContext)
   const { userLoading } = useUser()
   const {
     isLoading,
@@ -87,14 +87,14 @@ export function useOriginClassification({ id }: { id: string }): {
         return []
       }
       let path = null
-      if (flagContext.hookstate.useAuth0) {
+      if (hookstate.useAuth0) {
         path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
       } else {
         path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
       }
 
       try {
-        const { data } = await axios.get(path, flagContext.hookState.authHeaders)
+        const { data } = await axios.get(path, hookState.authHeaders)
 
         return data.origin_classification as UserLBOriginBucket[]
       } catch (err) {

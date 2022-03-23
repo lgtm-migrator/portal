@@ -82,7 +82,7 @@ export default function SuccessDetails({
   successfulRelays,
   totalRelays,
 }: SuccessDetailsProps) {
-  const flagContext = useContext(FlagContext)
+  const { hookstate } = useContext(FlagContext)
   const { userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
@@ -112,7 +112,7 @@ export default function SuccessDetails({
       }
 
       try {
-        const { data } = await axios.get(errorMetricsURL, flagContext.hookState.authHeaders)
+        const { data } = await axios.get(errorMetricsURL, hookState.authHeaders)
 
         const transformedErrorMetrics = await Promise.all(
           data.map(async (e: EndpointRpcError) => {

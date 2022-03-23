@@ -13,8 +13,7 @@ const FlagContextProvider = ({
             {headers: {Authorization: `Bearer ${sessionStorage.getItem('AuthToken')}`}} :
             {withCredentials: true},
     useAuth0: sessionStorage.getItem('useAuth0') === 'true',
-    flags: true, 
-    otherValue: false
+    flags: true
 }) 
 
 const updateHookState = (key: string, value: string) => {

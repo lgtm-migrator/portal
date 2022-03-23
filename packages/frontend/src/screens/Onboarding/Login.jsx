@@ -13,13 +13,14 @@ import {
   textStyle,
   useTheme,
   GU,
+  IconCog
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
 import { FlagContext } from '../../contexts/flagsContext'
 
 export default function Login() {
-  const flagContext = useContext(FlagContext)
+  const { hookState } = useContext(FlagContext)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState(null)
   const [password, setPassword] = useState('')
@@ -30,7 +31,7 @@ export default function Login() {
 
   const { isLoading, mutate } = useMutation(async function login(e) {
 
-if (!flagContext.hookState.useAuth0) {
+if (!hookState.useAuth0) {
     try {
       const path = `${env('BACKEND_URL')}/api/users/login`
       const res = await axios.post(
@@ -60,6 +61,7 @@ if (!flagContext.hookState.useAuth0) {
   })
 
   React.useEffect(() => {
+    console.log(hookState)
     console.log(user, isAuthenticated)
   }, [user, isAuthenticated])
 
@@ -121,7 +123,7 @@ if (!flagContext.hookState.useAuth0) {
           height: auto;
         `}
       >
-        {!flagContext.hookState.useAuth0 ? 
+        {!hookState.useAuth0 ? 
           <form
             onSubmit={!isSubmitDisabled ? mutate : undefined}
             css={`
