@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory, useParams, useRouteMatch } from 'react-router'
 import { useMutation } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import {
@@ -36,6 +37,7 @@ import {
 import env from '../../../../environment'
 // @ts-ignore
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
+import { AmplitudeEvents } from '../../../../lib/analytics'
 
 const LATENCY_UPPER_BOUND = 1.25 // 1.25 seconds
 const SESSIONS_PER_DAY = 24
@@ -149,6 +151,12 @@ export default function Overview({
       const path = `${env('BACKEND_URL')}/api/lb/remove/${appId}`
 
       await axios.post(path, {}, { withCredentials: true })
+
+      if (env('PROD')) {
+        amplitude.getInstance().logEvent(AmplitudeEvents.EndpointRemoval, {
+          endpointId: appId,
+        })
+      }
 
       history.push('/home')
     } catch (err) {

@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link as RouterLink, useHistory } from 'react-router-dom'
 import { useMutation } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import 'styled-components/macro'
 import {
@@ -15,6 +16,7 @@ import {
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
+import { AmplitudeEvents } from '../../lib/analytics'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -39,6 +41,14 @@ export default function Login() {
       )
 
       if (res.status === 200 || res.status === 204) {
+        const userID = res.data.data.user._id
+
+        if (env('PROD')) {
+          amplitude.getInstance().setUserId(userID)
+          amplitude.getInstance().logEvent(AmplitudeEvents.LoginComplete, {
+            lastActiveDate: new Date().toISOString(),
+          })
+        }
         history.push({
           pathname: '/home',
         })

@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { useMutation } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import { isEmail, isStrongPassword } from 'validator'
 import styled from 'styled-components/macro'
@@ -21,6 +22,7 @@ import Onboarding from '../../components/Onboarding/Onboarding'
 import VerifyResetNotice from '../../components/VerifyResetNotice/VerifyResetNotice'
 import env from '../../environment'
 import { sentryEnabled } from '../../sentry'
+import { AmplitudeEvents } from '../../lib/analytics'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -40,6 +42,11 @@ export default function Signup() {
           email,
           password,
         })
+        if (env('PROD')) {
+          amplitude.getInstance().logEvent(AmplitudeEvents.SignupComplete, {
+            signupDate: new Date().toISOString(),
+          })
+        }
       } catch (err) {
         const { errors = [] } = err?.response?.data
 

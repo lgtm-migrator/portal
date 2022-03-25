@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import { useHistory } from 'react-router'
 import { useMutation, useQueryClient } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import styled from 'styled-components/macro'
 import { UserLB } from '@pokt-foundation/portal-types'
@@ -34,6 +35,7 @@ import {
   KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
+import { AmplitudeEvents } from '../../../lib/analytics'
 
 const INPUT_ADORNMENT_SETTINGS = {
   width: 4.5 * GU,
@@ -109,6 +111,14 @@ export default function Security({
       )
 
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
+
+      if (env('PROD')) {
+        amplitude
+          .getInstance()
+          .logEvent(AmplitudeEvents.SecuritySettingsUpdate, {
+            endpointId: appData.id,
+          })
+      }
 
       toast('Security preferences updated')
       history.goBack()

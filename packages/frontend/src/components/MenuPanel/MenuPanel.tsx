@@ -18,7 +18,6 @@ import {
   springs,
   GU,
   RADIUS,
-  textStyle,
   Link,
 } from '@pokt-foundation/ui'
 import IconApp from './IconApp'

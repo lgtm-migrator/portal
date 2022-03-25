@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, Fragment } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useMutation, useQueryClient } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
@@ -29,6 +30,7 @@ import {
 import { sentryEnabled } from '../../../sentry'
 import { useViewport } from 'use-viewport'
 import { getImageForChain } from '../../../known-chains/known-chains'
+import { AmplitudeEvents } from '../../../lib/analytics'
 
 const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
@@ -124,6 +126,16 @@ export default function CreateModal({ visible, onClose }) {
       const { id } = data
 
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
+
+      if (env('PROD') && data) {
+        amplitude.getInstance().logEvent(AmplitudeEvents.EndpointCreation, {
+          creationDate: new Date().toISOString(),
+          endpointId: id,
+          endpointName: data.name,
+          chainId: appConfigData.appChain,
+          publicKeys: [data.apps[0].publicKey],
+        })
+      }
 
       onClose()
 

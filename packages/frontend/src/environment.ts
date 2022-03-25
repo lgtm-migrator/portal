@@ -1,6 +1,7 @@
 import pkg from '../package.json'
 
 type EnvVarKey =
+  | 'AMPLITUDE_API_KEY'
   | 'BACKEND_URL'
   | 'BUILD'
   | 'GODMODE_ACCOUNTS'
@@ -8,6 +9,9 @@ type EnvVarKey =
   | 'SENTRY_DSN'
 
 const ENV_VARS = {
+  AMPLITUDE_API_KEY(): string {
+    return import.meta.env.VITE_APP_AMPLITUDE_API_KEY as string
+  },
   BACKEND_URL(): string {
     return import.meta.env.VITE_APP_BACKEND_URL ?? ''
   },

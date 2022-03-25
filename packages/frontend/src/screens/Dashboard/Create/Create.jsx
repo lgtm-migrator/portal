@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { animated, useTransition } from 'react-spring'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
@@ -11,6 +12,7 @@ import SecuritySetup from './SecuritySetup'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { useUser } from '../../../contexts/UserContext'
 import { useUserApps } from '../../../contexts/AppsContext'
+import { AmplitudeEvents } from '../../../lib/analytics'
 import { processChains } from '../../../lib/chain-utils'
 import { MAX_USER_APPS } from '../../../lib/pocket-utils'
 import { log } from '../../../lib/utils'
@@ -191,6 +193,12 @@ export default function Create() {
 
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 
+      if (env('PROD')) {
+        amplitude.getInstance().logEvent(AmplitudeEvents.EndpointCreation, {
+          creationDate: new Date().toISOString(),
+        })
+      }
+
       history.push({
         pathname: `/app/${id}`,
       })
@@ -218,7 +226,7 @@ export default function Create() {
       !env('GODMODE_ACCOUNTS').includes(userID) &&
       env('PROD')
     ) {
-      setCreationModalVisible(true)
+      console.log('yeah')
     }
   }, [memoizableUserApps, userApps.length, userID])
 
