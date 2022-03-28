@@ -10,6 +10,10 @@ importers:
 
   packages/backend:
     specifiers:
+      '@amplitude/identify': ^1.9.2
+      '@amplitude/node': ^1.9.2
+      '@amplitude/types': ^1.9.2
+      '@amplitude/utils': ^1.9.2
       '@aws-sdk/client-cloudwatch-logs': ^3.54.1
       '@babel/cli': ^7.8.4
       '@babel/core': ^7.8.6
@@ -100,6 +104,10 @@ importers:
       winston: ^3.3.3
       winston-cloudwatch: ^3.0.1
     dependencies:
+      '@amplitude/identify': 1.9.2
+      '@amplitude/node': 1.9.2
+      '@amplitude/types': 1.9.2
+      '@amplitude/utils': 1.9.2
       '@aws-sdk/client-cloudwatch-logs': 3.55.0
       '@babel/runtime': 7.16.3
       '@influxdata/influxdb-client': 1.20.0
@@ -354,6 +362,25 @@ packages:
     resolution: {integrity: sha512-6RZwSMjhO9VD5rw5FV5U7pU00drDQAQqA+ZTv4mSop8XEws9TimzynGYzLYLijV0vnK7h6j7D3+VJtM4f4MlNA==}
     dependencies:
       '@amplitude/ua-parser-js': 0.7.26
+    dev: false
+
+  /@amplitude/identify/1.9.2:
+    resolution: {integrity: sha512-6PEOBQZIfUdKaLjx0PNInC53n5gheqfRnM8R3vGF6eHCNYv0zPRp9XP9VgpdtqzwHYDeguw23pendC+uqAzfXg==}
+    engines: {node: '>=10'}
+    dependencies:
+      '@amplitude/types': 1.9.2
+      '@amplitude/utils': 1.9.2
+      tslib: 1.14.1
+    dev: false
+
+  /@amplitude/node/1.9.2:
+    resolution: {integrity: sha512-J0zSPF3B64mChYP8jofNDU8tE8mG+E1ydyedt/EcIq3oqqo54AarPyAjFAQjzE2M4rpJJXoKXkkR0sU36i6MiA==}
+    engines: {node: '>=10'}
+    dependencies:
+      '@amplitude/identify': 1.9.2
+      '@amplitude/types': 1.9.2
+      '@amplitude/utils': 1.9.2
+      tslib: 1.14.1
     dev: false
 
   /@amplitude/types/1.9.2:

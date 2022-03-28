@@ -27,6 +27,10 @@
     ]
   },
   "dependencies": {
+    "@amplitude/identify": "^1.9.2",
+    "@amplitude/node": "^1.9.2",
+    "@amplitude/types": "^1.9.2",
+    "@amplitude/utils": "^1.9.2",
     "@aws-sdk/client-cloudwatch-logs": "^3.54.1",
     "@babel/runtime": "^7.8.4",
     "@influxdata/influxdb-client": "^1.15.0",
