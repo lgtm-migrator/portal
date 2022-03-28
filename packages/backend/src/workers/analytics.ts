@@ -31,6 +31,7 @@ export async function mapUsageToLBs(
   emailsByID: Map<string, string>
   userIDsByID: Map<string, string>
   usageByID: Map<string, number>
+  lbNamesByID: Map<string, string>
 }> {
   const LBsUsed = new Map<string, number>()
   const LBEmails = new Map<string, string>()
@@ -94,6 +95,7 @@ export async function mapUsageToLBs(
     emailsByID: LBEmails,
     userIDsByID: LBUserIDs,
     usageByID: LBsUsed,
+    lbNamesByID: LBNames,
   }
 }
 
@@ -122,11 +124,14 @@ export async function sendRelayCountByEmail({
 
     ctx.logger.info(`${email} logged ${usage} usage in the past 1h`)
 
-    amplitudeClient.logEvent({
+    await amplitudeClient.logEvent({
       event_type: 'RELAY_METRIC_UPDATE',
       user_id: id,
       event_properties: { amount: usage },
+      user_properties: { email: emailsByID.get(id) },
     })
+
+    await amplitudeClient.flush()
   }
 }
 
