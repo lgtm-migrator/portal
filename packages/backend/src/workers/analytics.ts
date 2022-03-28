@@ -60,7 +60,7 @@ export async function mapUsageToLBs(
     let userID = lb?.user
 
     if (!userID) {
-      ctx.logger.log(
+      ctx.logger.info(
         `Didn't find an user for ${lb ? 'lb' : 'app'} ${
           lb ? lb?._id.toString() : app._id.toString()
         }`
@@ -76,7 +76,7 @@ export async function mapUsageToLBs(
     )
 
     if (!user) {
-      ctx.logger.log(`Didn't find user with ${userID}`)
+      ctx.logger.info(`Didn't find user with ${userID}`)
       continue
     }
 
@@ -112,7 +112,7 @@ export async function sendRelayCountByEmail({
     const userID = userIDsByID.get(id)
 
     if (!userID) {
-      ctx.logger.log(`Unknown ID ${userID}`)
+      ctx.logger.info(`Unknown ID ${userID}`)
       continue
     }
 
@@ -120,7 +120,7 @@ export async function sendRelayCountByEmail({
     // send email
     const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY') as string)
 
-    ctx.logger.log(`${email} logged ${usage} usage in the past 1h`)
+    ctx.logger.info(`${email} logged ${usage} usage in the past 1h`)
 
     amplitudeClient.logEvent({
       event_type: 'RELAY_METRIC_UPDATE',
