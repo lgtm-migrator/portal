@@ -32,11 +32,13 @@ export async function mapUsageToLBs(
   userIDsByID: Map<string, string>
   usageByID: Map<string, number>
   lbNamesByID: Map<string, string>
+  publicKeysByID: Map<string, string[]>
 }> {
   const LBsUsed = new Map<string, number>()
   const LBEmails = new Map<string, string>()
   const LBNames = new Map<string, string>()
   const LBUserIDs = new Map<string, string>()
+  const publicKeysByID = new Map<string, string[]>()
 
   for (const [publicKey, relays] of appsUsed) {
     const app = await Application.findOne({
@@ -59,6 +61,8 @@ export async function mapUsageToLBs(
     }
 
     let userID = lb?.user
+
+    publicKeysByID.set(lb._id.toString(), lb.applicationIDs ?? [])
 
     if (!userID) {
       ctx.logger.info(
@@ -93,21 +97,26 @@ export async function mapUsageToLBs(
 
   return {
     emailsByID: LBEmails,
-    userIDsByID: LBUserIDs,
-    usageByID: LBsUsed,
     lbNamesByID: LBNames,
+    publicKeysByID,
+    usageByID: LBsUsed,
+    userIDsByID: LBUserIDs,
   }
 }
 
 export async function sendRelayCountByEmail({
   emailsByID,
-  userIDsByID,
+  lbNamesByID,
+  publicKeysByID,
   usageByID,
+  userIDsByID,
   ctx,
 }: {
   emailsByID: Map<string, string>
-  userIDsByID: Map<string, string>
+  lbNamesByID: Map<string, string>
+  publicKeysByID: Map<string, string[]>
   usageByID: Map<string, number>
+  userIDsByID: Map<string, string>
   ctx: any
 }): Promise<void> {
   for (const [id, usage] of usageByID) {
@@ -128,7 +137,14 @@ export async function sendRelayCountByEmail({
       event_type: 'RELAY_METRIC_UPDATE',
       user_id: id,
       event_properties: { amount: usage },
-      user_properties: { email: emailsByID.get(id) },
+      user_properties: {
+        email: emailsByID.get(id),
+        endpointIds: [id],
+        endpointNames: [lbNamesByID.get(id)],
+        numberOfEndpoints: 1,
+        publicKeysPerEndpoint: [publicKeysByID.get(id).length],
+        publicKeys: publicKeysByID.get(id),
+      },
     })
 
     await amplitudeClient.flush()
@@ -138,12 +154,15 @@ export async function sendRelayCountByEmail({
 export async function registerAnalytics(ctx): Promise<void> {
   const apps = await fetchUsedApps()
 
-  const { emailsByID, userIDsByID, usageByID } = await mapUsageToLBs(apps, ctx)
+  const { emailsByID, lbNamesByID, publicKeysByID, usageByID, userIDsByID } =
+    await mapUsageToLBs(apps, ctx)
 
   await sendRelayCountByEmail({
-    emailsByID,
-    userIDsByID,
-    usageByID,
     ctx,
+    emailsByID,
+    lbNamesByID,
+    publicKeysByID,
+    usageByID,
+    userIDsByID,
   })
 }
