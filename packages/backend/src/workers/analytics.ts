@@ -62,7 +62,7 @@ export async function mapUsageToLBs(
 
     let userID = lb?.user
 
-    publicKeysByID.set(lb._id.toString(), lb.applicationIDs ?? [])
+    publicKeysByID.set(lb._id.toString(), [publicKey])
 
     if (!userID) {
       ctx.logger.info(
