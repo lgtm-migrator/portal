@@ -64,6 +64,14 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       abbrv: 'AVAX',
     },
   ],
+  [
+    '03DF',
+    {
+      prefix: 'avax-dfk',
+      name: 'Avalanche DFK Subnet',
+      abbrv: 'DFK',
+    },
+  ],
   ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet', abbrv: 'ETH' }],
   [
     '0022',
@@ -100,6 +108,7 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
 export const PRODUCTION_CHAINS = [
   '0001',
   '0003',
+  '03DF',
   '0004',
   '0005',
   '0009',
