@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { format } from 'd3-format'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
@@ -14,6 +14,8 @@ import {
   useTheme,
   GU,
   RADIUS,
+  TextInput,
+  IconSearch,
 } from '@pokt-foundation/ui'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
 import Box from '../../../components/Box/Box'
@@ -235,89 +237,7 @@ export default function NetworkStatus() {
                   />
                 </Box>
                 <Spacer size={4 * GU} />
-                <Box title="Available Networks">
-                  <DataView
-                    fields={[
-                      { label: 'Network', align: 'start' },
-                      { label: 'Apps', align: 'start' },
-                      { label: 'ID', align: 'start' },
-                      { label: 'Status', align: 'start' },
-                    ]}
-                    entries={chains}
-                    mode={compactMode ? 'list' : 'table'}
-                    entriesPerPage={PER_PAGE}
-                    renderEntry={({
-                      appCount,
-                      description,
-                      id,
-                      network,
-                    }: Chain) => {
-                      const chainImage = getImageForChain(description)
-
-                      return [
-                        <div
-                          css={`
-                            height: 100%;
-                            width: ${35 * GU}px;
-                            display: flex;
-                            justify-content: flex-start;
-                            align-items: center;
-                          `}
-                        >
-                          <img
-                            src={chainImage}
-                            css={`
-                              max-height: ${2 * GU}px;
-                              max-width: auto;
-                            `}
-                            alt=""
-                          />
-                          <Spacer size={compactMode ? 1 * GU : 2 * GU} />
-                          <p
-                            css={`
-                              overflow-wrap: break-word;
-                              word-break: break-word;
-                              hyphens: auto;
-                            `}
-                          >
-                            {description || network}
-                          </p>
-                        </div>,
-                        <p>{appCount ?? 0}</p>,
-                        <p>{id}</p>,
-                        <div
-                          css={`
-                            display: flex;
-                            flex-direction: row;
-                            ${!compactMode &&
-                            `
-                              align-items: center;
-                              justify-content: center;
-                            `}
-                          `}
-                        >
-                          <p>{getServiceLevelByChain(id)}</p>
-                          <Spacer size={1 * GU} />
-                          <Help
-                            hint="What is this?"
-                            placement={compactMode ? 'auto' : 'right'}
-                          >
-                            {PRODUCTION_CHAINS.includes(id)
-                              ? 'Production RelayChainIDs are very stable and thoroughly tested.'
-                              : ''}
-                            {ALPHA_CHAINS.includes(id)
-                              ? 'Alpha RelayChainIDs are in the earliest phase of node onboarding and testing. Users may encounter issues, higher than production latency, or some quality of service issues. '
-                              : ''}
-                            {!PRODUCTION_CHAINS.includes(id) &&
-                            !ALPHA_CHAINS.includes(id)
-                              ? 'Beta RelayChainIDs are in the process of being externally tested. Users may encounter edge case issues, higher than production latency, or some brief quality of service issues. '
-                              : ''}
-                          </Help>
-                        </div>,
-                      ]
-                    }}
-                  />
-                </Box>
+                <AvailableNetworks chains={chains} />
                 {!compactMode && <Spacer size={3 * GU} />}
               </>
             }
@@ -522,6 +442,172 @@ function NetworkSummaryCard({
           height: 90px;
         `}
       />
+    </Card>
+  )
+}
+
+interface AvailableNetworksProps {
+  chains: Chain[] | undefined
+}
+
+function AvailableNetworks({ chains }: AvailableNetworksProps) {
+  const { within } = useViewport()
+  const compactMode = within(-1, 'medium')
+  const theme = useTheme()
+  const [internalChains, setInternalChains] = useState(chains)
+  const [chainName, setChainName] = useState('')
+
+  const handleChainsSearch = useCallback(
+    (searchedChain: string) => {
+      setChainName(searchedChain)
+
+      if (searchedChain.length === 0) {
+        setInternalChains(chains)
+      }
+
+      const tempChains = []
+
+      if (chains) {
+        for (const chain of chains) {
+          if (
+            chain.description
+              .toLowerCase()
+              .includes(searchedChain.toLowerCase())
+          ) {
+            tempChains.push(chain)
+          }
+        }
+      }
+      setInternalChains(tempChains)
+    },
+    [chains]
+  )
+
+  return (
+    <Card
+      css={`
+        padding: ${GU * 3}px;
+      `}
+    >
+      <div>
+        <div
+          css={`
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+          `}
+        >
+          <h3
+            css={`
+              margin: 0 0 ${GU * 5}px ${GU * 3}px;
+              font-size: ${GU * 2 + 2}px;
+              font-weight: 700;
+            `}
+          >
+            Available Networks
+          </h3>
+          <TextInput
+            value={chainName}
+            placeholder="Pocket Network"
+            adornment={<IconSearch />}
+            adornmentPosition={'start'}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChainsSearch(e.target.value)
+            }
+            css={`
+              height: ${GU * 4}px;
+              width: ${compactMode ? '100%' : '380px'};
+              background: transparent;
+              padding-left: ${GU * 6}px;
+
+              & + div {
+                height: ${GU * 4}px;
+
+                & svg {
+                  width: ${GU * 2}px;
+                  height: ${GU * 2}px;
+                  color: ${theme.accentContent};
+                }
+              }
+            `}
+          />
+        </div>
+        <DataView
+          fields={[
+            { label: 'Network', align: 'start' },
+            { label: 'Apps', align: 'start' },
+            { label: 'ID', align: 'start' },
+            { label: 'Status', align: 'start' },
+          ]}
+          entries={internalChains}
+          mode={compactMode ? 'list' : 'table'}
+          entriesPerPage={PER_PAGE}
+          renderEntry={({ appCount, description, id, network }: Chain) => {
+            const chainImage = getImageForChain(description)
+
+            return [
+              <div
+                css={`
+                  height: 100%;
+                  width: ${35 * GU}px;
+                  display: flex;
+                  justify-content: flex-start;
+                  align-items: center;
+                `}
+              >
+                <img
+                  src={chainImage}
+                  css={`
+                    max-height: ${2 * GU}px;
+                    max-width: auto;
+                  `}
+                  alt=""
+                />
+                <Spacer size={compactMode ? 1 * GU : 2 * GU} />
+                <p
+                  css={`
+                    overflow-wrap: break-word;
+                    word-break: break-word;
+                    hyphens: auto;
+                  `}
+                >
+                  {description || network}
+                </p>
+              </div>,
+              <p>{appCount ?? 0}</p>,
+              <p>{id}</p>,
+              <div
+                css={`
+                  display: flex;
+                  flex-direction: row;
+                  ${!compactMode &&
+                  `
+              align-items: center;
+              justify-content: center;
+            `}
+                `}
+              >
+                <p>{getServiceLevelByChain(id)}</p>
+                <Spacer size={1 * GU} />
+                <Help
+                  hint="What is this?"
+                  placement={compactMode ? 'auto' : 'right'}
+                >
+                  {PRODUCTION_CHAINS.includes(id)
+                    ? 'Production RelayChainIDs are very stable and thoroughly tested.'
+                    : ''}
+                  {ALPHA_CHAINS.includes(id)
+                    ? 'Alpha RelayChainIDs are in the earliest phase of node onboarding and testing. Users may encounter issues, higher than production latency, or some quality of service issues. '
+                    : ''}
+                  {!PRODUCTION_CHAINS.includes(id) && !ALPHA_CHAINS.includes(id)
+                    ? 'Beta RelayChainIDs are in the process of being externally tested. Users may encounter edge case issues, higher than production latency, or some brief quality of service issues. '
+                    : ''}
+                </Help>
+              </div>,
+            ]
+          }}
+        />
+      </div>
     </Card>
   )
 }
