@@ -296,6 +296,11 @@ function MenuPanelGroup({
 
     const [nextInstance] = childInstances
 
+    if (nextInstance.id === '/create') {
+      setCreateVisible(true)
+      return
+    }
+
     history.push({
       pathname: `${nextInstance.id}`,
     })

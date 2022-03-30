@@ -9,6 +9,7 @@ export default function Card({ children, ...props }: CardProps) {
   return (
     <div
       css={`
+        //TODO: Replace with pocket-ui
         background: #192430;
         border-radius: ${RADIUS + 2}px;
         padding-top: ${GU * 3}px;
