@@ -29,7 +29,6 @@
     "chromatic": "^5.6.3",
     "d3-format": "^2.0.0",
     "dayjs": "^1.10.4",
-    "husky": "^4.3.0",
     "pocket-tools": "^0.2.1",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
@@ -79,6 +78,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.20.3",
     "eslint-plugin-react-hooks": "^4.0.8",
+    "husky": "^4.3.8",
     "prettier": "^2.2.1",
     "typescript": "^4.2.4",
     "vite-plugin-babel-macros": "^1.0.5"
@@ -88,9 +88,10 @@
     "build": "vite build",
     "build:prod": "GENERATE_SOURCEMAP=false NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/react-scripts build --prod",
     "preview": "vite preview",
-    "test": "node_modules/.bin/react-scripts test",
+    "test": "npm run lint && node_modules/.bin/react-scripts test",
     "eject": "node_modules/.bin/react-scripts eject",
-    "lint": "eslint src --ext .js --fix"
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "prepare": "cd .. && cd .. && husky install packages/frontend/.husky"
   },
   "browserslist": {
     "production": [
