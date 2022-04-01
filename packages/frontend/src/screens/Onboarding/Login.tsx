@@ -22,7 +22,7 @@ import { FlagContext } from '../../contexts/flagsContext'
 import { AmplitudeEvents } from '../../lib/analytics'
 
 export default function Login() {
-  const { hookState } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState(null)
   const [password, setPassword] = useState('')
@@ -32,7 +32,7 @@ export default function Login() {
   const history = useHistory()
 
   const { isLoading, mutate } = useMutation(async function login(e) {
-    if (!hookState.useAuth0) {
+    if (!flags.useAuth0) {
       try {
         const path = `${env('BACKEND_URL')}/api/users/login`
         const res = await axios.post(
@@ -70,8 +70,7 @@ export default function Login() {
   })
 
   React.useEffect(() => {
-    console.log(hookState)
-    console.log(user, isAuthenticated)
+    console.log(flags)
   }, [user, isAuthenticated])
 
   const onEmailChange = useCallback((e) => setEmail(e.target.value), [])
@@ -132,7 +131,7 @@ export default function Login() {
           height: auto;
         `}
       >
-        {!hookState.useAuth0 ? (
+        {!flags.useAuth0 ? (
           <form
             onSubmit={!isSubmitDisabled ? mutate : undefined}
             css={`

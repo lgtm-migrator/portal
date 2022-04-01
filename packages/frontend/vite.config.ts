@@ -6,6 +6,9 @@ import babelMacros from 'vite-plugin-babel-macros'
 export default defineConfig({
   server: {
     port: 3001,
+    watch: {
+      usePolling: true,
+    },
   },
   build: {
     outDir: 'dist',
@@ -20,10 +23,4 @@ export default defineConfig({
     svgr(),
     babelMacros(),
   ],
-  server: {
-    port: 3001,
-    watch: {
-      usePolling: true
-    }
-  }
 })

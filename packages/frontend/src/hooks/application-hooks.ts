@@ -9,14 +9,13 @@ import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
 import { sentryEnabled } from '../sentry'
 import { FlagContext } from '../contexts/flagsContext'
 
-
 export function useUserApplications(): {
   appsData: UserLB[] | undefined
   isAppsError: boolean
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
-  const { hookState } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -32,14 +31,14 @@ export function useUserApplications(): {
       }
 
       let lbPath = null
-      if (hookstate.useAuth0) {
+      if (flags.useAuth0) {
         lbPath = `${env('BACKEND_URL')}/api/v2/lb`
       } else {
         lbPath = `${env('BACKEND_URL')}/api/lb`
       }
 
       try {
-        const { data: lbData } = await axios.get(lbPath, hookState.authHeaders)
+        const { data: lbData } = await axios.get(lbPath, flags.authHeaders)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
@@ -58,7 +57,7 @@ export function useUserApplications(): {
     },
     {
       enabled: !userLoading,
-    }    
+    }
   )
 
   return {
@@ -74,7 +73,7 @@ export function useOriginClassification({ id }: { id: string }): {
   isError: boolean
   originData: UserLBOriginBucket[] | undefined
 } {
-  const { hookState } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const {
     isLoading,
@@ -87,14 +86,14 @@ export function useOriginClassification({ id }: { id: string }): {
         return []
       }
       let path = null
-      if (hookstate.useAuth0) {
+      if (flags.useAuth0) {
         path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
       } else {
         path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
       }
 
       try {
-        const { data } = await axios.get(path, hookState.authHeaders)
+        const { data } = await axios.get(path, flags.authHeaders)
 
         return data.origin_classification as UserLBOriginBucket[]
       } catch (err) {

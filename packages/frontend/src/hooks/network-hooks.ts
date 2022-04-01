@@ -27,18 +27,20 @@ export function useNetworkSummary(): {
   isSummaryError: boolean
   summaryData: SummaryData
 } {
-  const { hookState } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
     isLoading: isSummaryLoading,
     isError: isSummaryError,
     data: summaryData,
-  } = useQuery('/network/summary', async function getNetworkSummary() {
-    const path = `${env('BACKEND_URL')}/api/network/summary`
+  } = useQuery(
+    '/network/summary',
+    async function getNetworkSummary() {
+      const path = `${env('BACKEND_URL')}/api/network/summary`
 
-    try {
-      const { data } = await axios.get(path, hookState.authHeaders)
+      try {
+        const { data } = await axios.get(path, flags.authHeaders)
 
         return data
       } catch (err) {
@@ -60,29 +62,31 @@ export function useChains(): {
   isChainsLoading: boolean
   chains: Chain[] | undefined
 } {
-  const { hookState } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const {
     isLoading: isChainsLoading,
     isError: isChainsError,
     data: chains,
-  } = useQuery('/network/chains', async function getNetworkChains() {
-    const path = `${env('BACKEND_URL')}/api/network/${
-      env('PROD') ? 'stakeable-' : ''
-    }chains`
+  } = useQuery(
+    '/network/chains',
+    async function getNetworkChains() {
+      const path = `${env('BACKEND_URL')}/api/network/${
+        env('PROD') ? 'stakeable-' : ''
+      }chains`
 
-    try {
-      const res = await axios.get(path, hookState.authHeaders)
+      try {
+        const res = await axios.get(path, flags.authHeaders)
 
-      const { data } = res
+        const { data } = res
 
-      return processChains(data) as Chain[]
-    } catch (err) {}
-  },
-  {
-    enabled: !userLoading,
-  }
-)
+        return processChains(data) as Chain[]
+      } catch (err) {}
+    },
+    {
+      enabled: !userLoading,
+    }
+  )
 
   return {
     isChainsError,
@@ -96,23 +100,25 @@ export function useTotalWeeklyRelays(): {
   isRelaysLoading: boolean
   relayData: DailyRelayBucket[]
 } {
-  const { hookstate } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
     isLoading: isRelaysLoading,
     isError: isRelaysError,
     data: relayData,
-  } = useQuery('network/weekly-relays', async function getWeeklyRelays() {
-    try {
-      const path = `${env('BACKEND_URL')}/api/network/daily-relays`
-      const { data } = await axios.get(path, hookState.authHeaders)
+  } = useQuery(
+    'network/weekly-relays',
+    async function getWeeklyRelays() {
+      try {
+        const path = `${env('BACKEND_URL')}/api/network/daily-relays`
+        const { data } = await axios.get(path, flags.authHeaders)
 
-      return data
-    } catch (err) {}
-  },
-  { enabled: !userLoading }
-)
+        return data
+      } catch (err) {}
+    },
+    { enabled: !userLoading }
+  )
 
   return {
     isRelaysError,
@@ -126,7 +132,7 @@ export function useNetworkStats(): {
   isNetworkStatsError: boolean
   networkStats: NetworkRelayStats | undefined
 } {
-  const { hookstate } = useContext(FlagContext)
+  const { flagstate } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -144,7 +150,7 @@ export function useNetworkStats(): {
             successful_relays: successfulRelays,
             total_relays: totalRelays,
           },
-        } = await axios.get(path, hookState.authHeaders)
+        } = await axios.get(path, flags.authHeaders)
 
         return { successfulRelays, totalRelays }
       } catch (err) {
