@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState, useContext } from 'react'
 import { Link as RouterLink, useHistory } from 'react-router-dom'
 import { useMutation } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import 'styled-components/macro'
 import { useAuth0 } from '@auth0/auth0-react'
@@ -13,11 +14,12 @@ import {
   textStyle,
   useTheme,
   GU,
-  IconCog
+  IconCog,
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
 import { FlagContext } from '../../contexts/flagsContext'
+import { AmplitudeEvents } from '../../lib/analytics'
 
 export default function Login() {
   const { hookState } = useContext(FlagContext)
@@ -30,34 +32,41 @@ export default function Login() {
   const history = useHistory()
 
   const { isLoading, mutate } = useMutation(async function login(e) {
+    if (!hookState.useAuth0) {
+      try {
+        const path = `${env('BACKEND_URL')}/api/users/login`
+        const res = await axios.post(
+          path,
+          {
+            email,
+            password,
+          },
+          {
+            withCredentials: true,
+          }
+        )
 
-if (!hookState.useAuth0) {
-    try {
-      const path = `${env('BACKEND_URL')}/api/users/login`
-      const res = await axios.post(
-        path,
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
+        if (res.status === 200 || res.status === 204) {
+          const userID = res.data.data.user._id
+
+          if (env('PROD')) {
+            amplitude.getInstance().setUserId(userID)
+            amplitude.getInstance().logEvent(AmplitudeEvents.LoginComplete, {
+              lastActiveDate: new Date().toISOString(),
+            })
+          }
+          history.push({
+            pathname: '/home',
+          })
         }
-      )
+      } catch (err) {
+        const { errors = [] } = err?.response?.data
 
-      if (res.status === 200 || res.status === 204) {
-        history.push({
-          pathname: '/home',
-        })
+        setErrors(() => [...errors])
       }
-    } catch (err) {
-      const { errors = [] } = err?.response?.data
-
-      setErrors(() => [...errors])
-    } 
-  } else{
-    await loginWithRedirect()
-  }
+    } else {
+      await loginWithRedirect()
+    }
   })
 
   React.useEffect(() => {
@@ -123,7 +132,7 @@ if (!hookState.useAuth0) {
           height: auto;
         `}
       >
-        {!hookState.useAuth0 ? 
+        {!hookState.useAuth0 ? (
           <form
             onSubmit={!isSubmitDisabled ? mutate : undefined}
             css={`
@@ -218,9 +227,10 @@ if (!hookState.useAuth0) {
                 Get started.
               </RouterLink>
             </p>
-          </form> :
+          </form>
+        ) : (
           <>
-          <Button
+            <Button
               type="submit"
               mode="primary"
               disabled={false}
@@ -249,7 +259,7 @@ if (!hookState.useAuth0) {
               </RouterLink>
             </p>
           </>
-        }
+        )}
       </div>
     </Onboarding>
   )

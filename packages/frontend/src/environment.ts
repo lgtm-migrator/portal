@@ -6,6 +6,7 @@ type EnvVarKey =
   | 'AUTH0_CLIENT_ID'
   | 'AUTH0_SCOPE'
   | 'AUTH0_DOMAIN'
+  | 'AMPLITUDE_API_KEY'
   | 'BACKEND_URL'
   | 'BUILD'
   | 'GODMODE_ACCOUNTS'
@@ -27,6 +28,9 @@ const ENV_VARS = {
   },
   AUTH0_CACHE_LOCATION(): string {
     return (import.meta.env.VITE_APP_CACHE_LOCATION as string)?.trim() ?? ''
+  },
+  AMPLITUDE_API_KEY(): string {
+    return import.meta.env.VITE_APP_AMPLITUDE_API_KEY as string
   },
   BACKEND_URL(): string {
     return import.meta.env.VITE_APP_BACKEND_URL ?? ''

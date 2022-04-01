@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
 import { animated, useSpring } from 'react-spring'
+import amplitude from 'amplitude-js'
 import {
   ButtonBase,
   Spacer,
@@ -15,6 +16,8 @@ import 'styled-components/macro'
 import { useSuccessRateColor } from '../application-utils'
 import SuccessIndicator from '../SuccessIndicator'
 import Box from '../../../../components/Box/Box'
+import { AmplitudeEvents } from '../../../../lib/analytics'
+import env from '../../../../environment'
 
 interface SuccessPanelProps {
   previousSuccessRate: number
@@ -51,6 +54,13 @@ export default function SuccessPanel({
     }
     return Number((100 - successRate * 100).toFixed(2))
   }, [successRate, totalRequests])
+
+  const onMoreDetailsClick = useCallback(() => {
+    if (env('PROD')) {
+      amplitude.getInstance().logEvent(AmplitudeEvents.RequestDetailsView)
+    }
+    history.push(`${url}/success-details`)
+  }, [history, url])
 
   const mode = successRateDelta > 0 ? 'positive' : 'negative'
 
@@ -254,7 +264,7 @@ export default function SuccessPanel({
             font-weight: bold;
           }
         `}
-        onClick={() => history.push(`${url}/success-details`)}
+        onClick={onMoreDetailsClick}
       >
         More Details
       </ButtonBase>

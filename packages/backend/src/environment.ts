@@ -37,6 +37,9 @@ export const ENV_VARS = {
   ERROR_METRICS_URL(): string {
     return process.env.ERROR_METRICS_URL?.trim() ?? ''
   },
+  AMPLITUDE_API_KEY(): string {
+    return process.env.AMPLITUDE_API_KEY?.trim() ?? ''
+  },
   ALLOWED_DOMAINS(): string[] {
     return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3001']
   },
@@ -139,6 +142,7 @@ export const ENV_VARS = {
 }
 
 type envVarCategory =
+  | 'AMPLITUDE_API_KEY'
   | 'ALLOWED_DOMAINS'
   | 'AUTH0_AUDIENCE'
   | 'AUTH0_ISSUER'

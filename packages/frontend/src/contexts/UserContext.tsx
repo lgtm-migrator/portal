@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from 'react'
 import { useQuery } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
@@ -63,6 +64,14 @@ export function UserContextProvider({
         id: '',
         userLoading: true,
       } as UserInfo
+    }
+
+    if (data && env('PROD')) {
+      amplitude.getInstance().setUserId(data.id)
+
+      const identifiedUser = new amplitude.Identify().set('email', data.email)
+
+      amplitude.getInstance().identify(identifiedUser)
     }
 
     return {

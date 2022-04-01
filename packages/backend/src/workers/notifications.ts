@@ -90,7 +90,7 @@ export async function mapUsageToLBs(
     let userID = (lb && lb.user) ? lb?.user : app?.user
 
     if (!userID) {
-      ctx.logger.log(`Didn't find an user for ${lb ? 'lb' : 'app'} ${lb ? lb?._id.toString() : app._id.toString()}`)
+      ctx.logger.info(`Didn't find an user for ${lb ? 'lb' : 'app'} ${lb ? lb?._id.toString() : app._id.toString()}`)
       continue
     }
 

@@ -1,33 +1,43 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import flagsData from '../utils/flags'
 
-const FlagContext = React.createContext({})
+const DEFAULT_FLAGS_STATE = {}
 
-const FlagContextProvider = ({ 
-    children 
-        }: {
-    children: React.ReactNode
-    }) => {
-  const [hookState, setHookState] = useState({
-    authHeaders: 
-        sessionStorage.getItem('useAuth0') === 'true' ? 
-            {headers: {Authorization: `Bearer ${sessionStorage.getItem('AuthToken')}`}} :
-            {withCredentials: true},
-    useAuth0: sessionStorage.getItem('useAuth0') === 'true',
-    flags: true
-}) 
+const FlagContext = React.createContext(DEFAULT_FLAGS_STATE)
 
-const updateHookState = (key: string, value: string) => {
-  setHookState(prevState => ({
-    ...prevState,
-    [key]: value
-  }))
+export function useFlags() {
+  const context = useContext(FlagContext)
+
+  if (!context) {
+    throw new Error('Flags cannot be used without declaring the provider')
+  }
+
+  return context
 }
 
-return (
-  <FlagContext.Provider value={{ hookState, updateHookState }}>
-    {children}
-  </FlagContext.Provider>
-)
+const FlagContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const [flags, setFlags] = useState({
+    flags: flagsData,
+  })
+
+  const updateFlag = (key: string, value: unknown) => {
+    setFlags((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }))
+  }
+
+  const memoState = useMemo(
+    () => ({
+      flags,
+      updateFlag,
+    }),
+    [flags, updateFlag]
+  )
+
+  return (
+    <FlagContext.Provider value={memoState}>{children}</FlagContext.Provider>
+  )
 }
 
 export { FlagContext, FlagContextProvider }

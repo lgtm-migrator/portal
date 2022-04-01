@@ -13,6 +13,7 @@ import gnosisImage from './images/gnosis.png'
 import harmonyImage from './images/harmony.png'
 import iotexImage from './images/iotex.png'
 import oecImage from './images/oec.png'
+import bobaImage from './images/boba.png'
 
 /**
  * Gets the corresponding image for a specific chain.
@@ -84,8 +85,12 @@ export function getImageForChain(chain: string): string {
     return iotexImage
   }
 
-  if (chain.toLocaleLowerCase().includes('oec')) {
+  if (chain.toLowerCase().includes('oec')) {
     return oecImage
+  }
+
+  if (chain.toLowerCase().includes('boba')) {
+    return bobaImage
   }
 
   return ''

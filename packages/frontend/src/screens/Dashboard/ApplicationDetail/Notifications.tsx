@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useMutation, useQueryClient } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import Styled from 'styled-components/macro'
@@ -31,6 +32,7 @@ import {
 import { sentryEnabled } from '../../../sentry'
 import { UserLBDailyRelayBucket } from 'packages/types/src'
 import { useUsageColor } from './application-utils'
+import { AmplitudeEvents } from '../../../lib/analytics'
 
 const GRAPH_SIZE = 130
 
@@ -83,6 +85,13 @@ export default function Notifications({
 
         queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
 
+        if (env('PROD')) {
+          amplitude
+            .getInstance()
+            .logEvent(AmplitudeEvents.NotificationSettingsChange, {
+              endpointId: appId,
+            })
+        }
         setHasChanged(false)
         toast('Notification preferences updated')
         history.goBack()

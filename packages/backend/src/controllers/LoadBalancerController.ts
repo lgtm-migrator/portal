@@ -313,7 +313,7 @@ router.post(
 router.put(
   '/:lbId',
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const { gatewaySettings } = req.body
+    const { gatewaySettings, name } = req.body
     const { lbId } = req.params
     const userId = req.user.sub || (req.user as IUser)._id
 
@@ -367,6 +367,12 @@ router.put(
         )
 
         application.gatewaySettings = processedGatewaySettings
+
+        if (name) {
+          application.name = name
+          loadBalancer.name = name
+        }
+
         await application.save()
       })
     )

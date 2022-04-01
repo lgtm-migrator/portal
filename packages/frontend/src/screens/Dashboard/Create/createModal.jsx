@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, Fragment } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useMutation, useQueryClient } from 'react-query'
+import amplitude from 'amplitude-js'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
 import 'styled-components/macro'
@@ -29,6 +30,7 @@ import {
 import { sentryEnabled } from '../../../sentry'
 import { useViewport } from 'use-viewport'
 import { getImageForChain } from '../../../known-chains/known-chains'
+import { AmplitudeEvents } from '../../../lib/analytics'
 
 const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
@@ -123,7 +125,19 @@ export default function CreateModal({ visible, onClose }) {
       const { data } = res
       const { id } = data
 
+      localStorage.setItem(`${id}_APP_CHAIN`, appChain)
+
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)
+
+      if (env('PROD') && data) {
+        amplitude.getInstance().logEvent(AmplitudeEvents.EndpointCreation, {
+          creationDate: new Date().toISOString(),
+          endpointId: id,
+          endpointName: data.name,
+          chainId: appConfigData.appChain,
+          publicKeys: [data.apps[0].publicKey],
+        })
+      }
 
       onClose()
 
@@ -152,7 +166,7 @@ export default function CreateModal({ visible, onClose }) {
       userApps.length >= MAX_USER_APPS &&
       userID &&
       !env('GODMODE_ACCOUNTS').includes(userID) &&
-      !env('PROD')
+      env('PROD')
     ) {
       setCreationModalVisible(true)
     }
@@ -210,6 +224,13 @@ export default function CreateModal({ visible, onClose }) {
             onClose()
           }}
           height={`${53 * GU}px`}
+          css={`
+            div {
+              div[role='alertdialog'] {
+                overflow: inherit;
+              }
+            }
+          `}
         >
           <>
             <h1
@@ -317,19 +338,18 @@ function ChainDropdown({ updateAppChain }) {
   const [chains, setChains] = useState(NORMALIZED_CHAIN_ID_PREFIXES)
 
   const handleToggle = useCallback(() => setOpened((opened) => !opened), [])
-  const handleSelectChain = useCallback(
-    (chainID) => {
-      updateAppChain({
-        type: 'UPDATE_APP_CHAIN',
-        payload: chainID,
-      })
-      const { name } = prefixFromChainId(chainID)
 
-      setChainName(name)
-      setOpened(false)
-    },
-    [updateAppChain]
-  )
+  const handleInternalChainsListReplacement = useCallback((chainName) => {
+    const tempChains = []
+
+    for (const chain of NORMALIZED_CHAIN_ID_PREFIXES) {
+      if (chain[1].name.toLowerCase().includes(chainName.toLowerCase())) {
+        tempChains.push(chain)
+      }
+    }
+
+    setChains(tempChains)
+  }, [])
 
   const handleChainsSearch = useCallback(
     (searchedChain) => {
@@ -341,19 +361,28 @@ function ChainDropdown({ updateAppChain }) {
 
       if (searchedChain.length === 0) {
         setChains(NORMALIZED_CHAIN_ID_PREFIXES)
+        return
       }
 
-      const tempChains = []
-
-      for (const chain of NORMALIZED_CHAIN_ID_PREFIXES) {
-        if (chain[1].name.toLowerCase().includes(searchedChain.toLowerCase())) {
-          tempChains.push(chain)
-        }
-      }
-
-      setChains(tempChains)
+      handleInternalChainsListReplacement(searchedChain)
     },
-    [updateAppChain]
+    [updateAppChain, handleInternalChainsListReplacement]
+  )
+
+  const handleSelectChain = useCallback(
+    (chainID) => {
+      updateAppChain({
+        type: 'UPDATE_APP_CHAIN',
+        payload: chainID,
+      })
+      const { name } = prefixFromChainId(chainID)
+
+      setChainName(name)
+
+      handleInternalChainsListReplacement(name)
+      setOpened(false)
+    },
+    [updateAppChain, handleInternalChainsListReplacement]
   )
 
   return (
@@ -373,7 +402,7 @@ function ChainDropdown({ updateAppChain }) {
         css={`
           ul {
             width: ${below('medium') ? `calc(100vw - 20px)` : `${69 * GU}px`};
-            height: ${opened && 16 * GU}px;
+            height: ${opened && (chains.length > 4 ? 24 : 14) * GU}px;
           }
 
           *::-webkit-scrollbar {
