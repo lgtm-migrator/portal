@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useContext, useState } from 'react'
+import { useCallback, useMemo, useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'

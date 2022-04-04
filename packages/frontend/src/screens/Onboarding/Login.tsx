@@ -14,7 +14,6 @@ import {
   textStyle,
   useTheme,
   GU,
-  IconCog,
 } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
