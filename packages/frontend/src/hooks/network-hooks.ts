@@ -27,7 +27,7 @@ export function useNetworkSummary(): {
   isSummaryError: boolean
   summaryData: SummaryData
 } {
-  const { flags } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -62,7 +62,7 @@ export function useChains(): {
   isChainsLoading: boolean
   chains: Chain[] | undefined
 } {
-  const { flags } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
   const {
     isLoading: isChainsLoading,
@@ -100,7 +100,7 @@ export function useTotalWeeklyRelays(): {
   isRelaysLoading: boolean
   relayData: DailyRelayBucket[]
 } {
-  const { flags } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {
@@ -132,7 +132,7 @@ export function useNetworkStats(): {
   isNetworkStatsError: boolean
   networkStats: NetworkRelayStats | undefined
 } {
-  const { flagstate } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {

@@ -15,7 +15,7 @@ export function useUserApplications(): {
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
-  const { flags } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
 
   const {

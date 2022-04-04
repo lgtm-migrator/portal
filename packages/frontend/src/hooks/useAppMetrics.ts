@@ -36,7 +36,7 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const { flags } = useContext(FlagContext)
+  const { flags: { flags } = {} } = useContext(FlagContext)
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
   const type = 'lb'
