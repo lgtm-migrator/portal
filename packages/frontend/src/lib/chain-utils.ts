@@ -2,7 +2,6 @@ export type ChainMetadata = {
   prefix: string
   name: string
   abbrv: string
-  evm: boolean
 }
 
 export type Chain = {
@@ -15,31 +14,15 @@ export type Chain = {
 }
 
 export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
-  [
-    '0001',
-    { prefix: 'mainnet', name: 'Pocket Mainnet', abbrv: 'Mainnet', evm: false },
-  ],
+  ['0001', { prefix: 'mainnet', name: 'Pocket Mainnet', abbrv: 'Mainnet' }],
   [
     '0003',
-    {
-      prefix: 'avax-mainnet',
-      name: 'Avalanche Mainnet',
-      abbrv: 'AVAX',
-      evm: true,
-    },
+    { prefix: 'avax-mainnet', name: 'Avalanche Mainnet', abbrv: 'AVAX' },
   ],
-  [
-    '0005',
-    { prefix: 'fuse-mainnet', name: 'Fuse Mainnet', abbrv: 'Fuse', evm: true },
-  ],
+  ['0005', { prefix: 'fuse-mainnet', name: 'Fuse Mainnet', abbrv: 'Fuse' }],
   [
     '0006',
-    {
-      prefix: 'solana-mainnet',
-      name: 'Solana Mainnet',
-      abbrv: 'Solana',
-      evm: false,
-    },
+    { prefix: 'solana-mainnet', name: 'Solana Mainnet', abbrv: 'Solana' },
   ],
   [
     '0009',
@@ -47,7 +30,6 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'poly-mainnet',
       name: 'Polygon (Matic) Mainnet',
       abbrv: 'Polygon',
-      evm: true,
     },
   ],
   [
@@ -56,7 +38,6 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'poly-archival',
       name: 'Polygon (Matic) Archival',
       abbrv: 'Polygon',
-      evm: true,
     },
   ],
   [
@@ -65,7 +46,6 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'poa-xdai-archival',
       name: 'Gnosis Chain Mainnet (Archival)',
       abbrv: 'Gnosis',
-      evm: true,
     },
   ],
   [
@@ -74,7 +54,6 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'algo-archival',
       name: 'Algorand Mainnet (Archival)',
       abbrv: 'Algorand',
-      evm: false,
     },
   ],
   [
@@ -83,7 +62,6 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'avax-archival',
       name: 'Avalanche Mainnet (Archival)',
       abbrv: 'AVAX',
-      evm: true,
     },
   ],
   [
@@ -92,116 +70,39 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       prefix: 'avax-dfk',
       name: 'Avalanche DFK Subnet',
       abbrv: 'DFK',
-      evm: true,
     },
   ],
-  [
-    '0021',
-    {
-      prefix: 'eth-mainnet',
-      name: 'Ethereum Mainnet',
-      abbrv: 'ETH',
-      evm: true,
-    },
-  ],
+  ['0021', { prefix: 'eth-mainnet', name: 'Ethereum Mainnet', abbrv: 'ETH' }],
   [
     '0022',
     {
       prefix: 'eth-archival',
       name: 'Ethereum Mainnet (Archival)',
       abbrv: 'ETH',
-      evm: true,
     },
   ],
-  [
-    '0023',
-    {
-      prefix: 'eth-ropsten',
-      name: 'Ethereum Ropsten',
-      abbrv: 'ETH',
-      evm: true,
-    },
-  ],
-  ['0024', { prefix: 'poa-kovan', name: 'Kovan', abbrv: 'Kovan', evm: false }],
-  [
-    '0025',
-    {
-      prefix: 'eth-rinkeby',
-      name: 'Ethereum Rinkeby',
-      abbrv: 'ETH',
-      evm: true,
-    },
-  ],
-  [
-    '0026',
-    { prefix: 'eth-goerli', name: 'Ethereum Goerli', abbrv: 'ETH', evm: true },
-  ],
+  ['0023', { prefix: 'eth-ropsten', name: 'Ethereum Ropsten', abbrv: 'ETH' }],
+  ['0024', { prefix: 'poa-kovan', name: 'Kovan', abbrv: 'Kovan' }],
+  ['0025', { prefix: 'eth-rinkeby', name: 'Ethereum Rinkeby', abbrv: 'ETH' }],
+  ['0026', { prefix: 'eth-goerli', name: 'Ethereum Goerli', abbrv: 'ETH' }],
   [
     '0027',
-    {
-      prefix: 'poa-xdai',
-      name: 'Gnosis Chain Mainnet',
-      abbrv: 'Gnosis',
-      evm: true,
-    },
+    { prefix: 'poa-xdai', name: 'Gnosis Chain Mainnet', abbrv: 'Gnosis' },
   ],
   [
     '0028',
-    {
-      prefix: 'eth-trace',
-      name: 'Ethereum Mainnet (Trace)',
-      abbrv: 'ETH',
-      evm: true,
-    },
+    { prefix: 'eth-trace', name: 'Ethereum Mainnet (Trace)', abbrv: 'ETH' },
   ],
   [
     '0029',
-    {
-      prefix: 'algo-mainnet',
-      name: 'Algorand Mainnet',
-      abbrv: 'Algorand',
-      evm: false,
-    },
+    { prefix: 'algo-mainnet', name: 'Algorand Mainnet', abbrv: 'Algorand' },
   ],
-  [
-    '0040',
-    {
-      prefix: 'harmony-0',
-      name: 'Harmony Shard 0',
-      abbrv: 'Harmony',
-      evm: true,
-    },
-  ],
-  [
-    '0044',
-    {
-      prefix: 'iotex-mainnet',
-      name: 'IoTeX Mainnet',
-      abbrv: 'IoTeX',
-      evm: true,
-    },
-  ],
-  [
-    '0046',
-    {
-      prefix: 'evmos-testnet',
-      name: 'Evmos Testnet',
-      abbrv: 'Evmos',
-      evm: true,
-    },
-  ],
-  [
-    '0047',
-    { prefix: 'oec-mainnet', name: 'OEC Mainnet', abbrv: 'OEC', evm: true },
-  ],
-  [
-    '0048',
-    { prefix: 'boba-mainnet', name: 'BOBA Mainnet', abbrv: 'BOBA', evm: true },
-  ],
-  [
-    '0004',
-    { prefix: 'bsc-mainnet', name: 'BSC Mainnet', abbrv: 'BSC', evm: true },
-  ],
+  ['0040', { prefix: 'harmony-0', name: 'Harmony Shard 0', abbrv: 'Harmony' }],
+  ['0044', { prefix: 'iotex-mainnet', name: 'IoTeX Mainnet', abbrv: 'IoTeX' }],
+  ['0046', { prefix: 'evmos-testnet', name: 'Evmos Testnet', abbrv: 'Evmos' }],
+  ['0047', { prefix: 'oec-mainnet', name: 'OEC Mainnet', abbrv: 'OEC' }],
+  ['0048', { prefix: 'boba-mainnet', name: 'BOBA Mainnet', abbrv: 'BOBA' }],
+  ['0004', { prefix: 'bsc-mainnet', name: 'BSC Mainnet', abbrv: 'BSC' }],
 ])
 
 export const PRODUCTION_CHAINS = [
