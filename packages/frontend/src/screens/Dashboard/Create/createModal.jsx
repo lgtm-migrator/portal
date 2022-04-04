@@ -39,6 +39,8 @@ const DEFAULT_CONFIGURE_STATE = {
   secretKeyRequired: false,
   whitelistOrigins: [],
   whitelistUserAgents: [],
+  whitelistContracts: [],
+  whitelistMethods: [],
   appChain: '',
 }
 
@@ -92,6 +94,8 @@ export default function CreateModal({ visible, onClose }) {
     secretKeyRequired,
     whitelistOrigins,
     whitelistUserAgents,
+    whitelistContracts,
+    whitelistMethods,
     appChain,
   } = appConfigData
   const { isAppsLoading, userApps, userID } = useUserApps()
@@ -114,6 +118,8 @@ export default function CreateModal({ visible, onClose }) {
           gatewaySettings: {
             whitelistOrigins,
             whitelistUserAgents,
+            whitelistContracts,
+            whitelistMethods,
             secretKeyRequired,
           },
         },
