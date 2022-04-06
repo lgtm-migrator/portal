@@ -29,7 +29,6 @@ import {
   useTheme,
 } from '@pokt-foundation/ui'
 import * as Sentry from '@sentry/react'
-import AppStatus from '../../../components/AppStatus/AppStatus'
 import Card from '../../../components/Card/Card'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import env from '../../../environment'
@@ -416,24 +415,13 @@ export default function Security({
             }
             secondary={
               <>
-                <Button
-                  wide
-                  mode="primary"
-                  disabled={isSaveDisabled}
-                  onClick={mutate}
-                >
+                <Button wide disabled={isSaveDisabled} onClick={mutate}>
                   Save Changes
                 </Button>
                 <Spacer size={2 * GU} />
                 <Button wide onClick={() => history.goBack()}>
                   Go Back
                 </Button>
-                <Spacer size={2 * GU} />
-                <AppStatus
-                  gigastake={gigastake}
-                  stakedTokens={stakedTokens}
-                  maxDailyRelays={maxDailyRelays}
-                />
               </>
             }
           />

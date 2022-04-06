@@ -28,7 +28,6 @@ import LatencyPanel from './LatencyPanel'
 import SuccessPanel from './SuccessPanel'
 import UsagePanel from './UsagePanel'
 import UsagePerOrigin from './UsagePerOrigin'
-import AppStatus from '../../../../components/AppStatus/AppStatus'
 import FloatUp from '../../../../components/FloatUp/FloatUp'
 import {
   formatDailyRelaysForGraphing,
@@ -269,11 +268,6 @@ export default function Overview({
                     <Spacer size={3 * GU} />
                   </>
                 )}
-                <AppStatus
-                  gigastake={gigastake}
-                  maxDailyRelays={maxDailyRelays}
-                  stakedTokens={stakedTokens as number}
-                />
                 <Spacer size={3 * GU} />
                 <GatewayPanel
                   id={appData.id}

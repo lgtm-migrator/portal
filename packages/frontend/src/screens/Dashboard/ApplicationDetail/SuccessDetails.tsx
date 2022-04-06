@@ -19,7 +19,6 @@ import {
   TextCopy,
   IconClock,
 } from '@pokt-foundation/ui'
-import AppStatus from '../../../components/AppStatus/AppStatus'
 import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { log, shorten } from '../../../lib/utils'
@@ -408,10 +407,6 @@ export default function SuccessDetails({
                   <Spacer size={2 * GU} />
                 </>
               )}
-              <AppStatus
-                maxDailyRelays={maxDailyRelays}
-                stakedTokens={stakedTokens}
-              />
             </>
           }
         />
