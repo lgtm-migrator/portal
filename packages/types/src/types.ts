@@ -14,6 +14,7 @@ export interface IGatewaySettings {
   secretKeyRequired: boolean;
   whitelistOrigins: string[];
   whitelistUserAgents: string[];
+  whitelistBlockchains: string[];
   whitelistContracts: { blockchainID: string; contracts: string[] }[];
   whitelistMethods: { blockchainID: string; methods: string[] }[];
 }

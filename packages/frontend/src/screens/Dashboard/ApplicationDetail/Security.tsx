@@ -15,7 +15,6 @@ import {
   Button,
   ButtonBase,
   IconPlus,
-  IconCross,
   Spacer,
   Split,
   Switch,
@@ -27,6 +26,7 @@ import {
   Dropdown,
   DropdownItem,
   useTheme,
+  Help,
 } from '@pokt-foundation/ui'
 import * as Sentry from '@sentry/react'
 import Card from '../../../components/Card/Card'
@@ -38,8 +38,14 @@ import {
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import { AmplitudeEvents } from '../../../lib/analytics'
-import { CHAIN_ID_PREFIXES, prefixFromChainId } from '../../../lib/chain-utils'
+import {
+  ChainMetadata,
+  CHAIN_ID_PREFIXES,
+  prefixFromChainId,
+} from '../../../lib/chain-utils'
 import { getImageForChain } from '../../../known-chains/known-chains'
+import TrashIcon from '../../../assets/trash.svg'
+import EditIcon from '../../../components/Icons/EditIcon/EditIcon'
 
 const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
@@ -47,6 +53,34 @@ const INPUT_ADORNMENT_SETTINGS = {
   width: 4.5 * GU,
   padding: GU,
 }
+
+const DROPDOWN_STYLE = (theme: any) => `
+*::-webkit-scrollbar {
+  width: 5px !important;
+  height: 32px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  height: 32px !important;
+}
+
+* {
+  overflow: -moz-scrollbars-vertical;
+  -ms-overflow-style: none;
+}
+
+input {
+  border: 1px solid ${theme.accent};
+  height: 32px;
+  width: '152px';
+  font-size: 14px;
+}
+
+svg {
+  height: 16px;
+  width: 16px;
+}
+`
 
 interface SecurityProps {
   appData: UserLB
@@ -81,12 +115,12 @@ export default function Security({
     data: '',
   })
   const [methods, setMethods] = useState<Map<string, string[]>>(new Map())
+  const [blockchain, setBlockchain] = useState('')
+  const [blockchains, setBlockchains] = useState<string[]>([])
   const [hasChanged, setHasChanged] = useState(false)
   const history = useHistory()
   const toast = useToast()
   const queryClient = useQueryClient()
-
-  const { gigastake } = appData
 
   useEffect(() => {
     setUserAgents((agents) => {
@@ -154,6 +188,18 @@ export default function Security({
 
       return new Map([...currentMethods, ...filteredMethods])
     })
+    setBlockchains((blockchains) => {
+      const currentBlockchains = appData.gatewaySettings.whitelistBlockchains
+        .length
+        ? [...appData.gatewaySettings.whitelistBlockchains]
+        : []
+
+      const filteredStateBlockchains = blockchains.filter(
+        (b) => !currentBlockchains.includes(b)
+      )
+
+      return [...currentBlockchains, ...filteredStateBlockchains]
+    })
     setSecretKeyRequired(appData.gatewaySettings.secretKeyRequired)
   }, [appData])
 
@@ -176,6 +222,7 @@ export default function Security({
               methods: item[1],
             })),
             secretKeyRequired,
+            whitelistBlockchains: blockchains,
           },
         },
         {
@@ -270,6 +317,16 @@ export default function Security({
       data: '',
     })
   }, [method])
+  const setWhitelistedBlockchain = useCallback((blockchain: string) => {
+    if (blockchain) {
+      setHasChanged(true)
+      setBlockchains((blockchains) =>
+        Array.from(new Set([...blockchains, blockchain]))
+      )
+    }
+    setBlockchain('')
+  }, [])
+
   const onDeleteUserAgentClick = useCallback((userAgent) => {
     setHasChanged(true)
     setUserAgents((userAgents) => [
@@ -322,6 +379,12 @@ export default function Security({
       return prevMethods
     })
   }, [])
+  const onDeleteBlockchainClick = useCallback((blockchain) => {
+    setHasChanged(true)
+    setBlockchains((blockchains) => [
+      ...blockchains.filter((b) => b !== blockchain),
+    ])
+  }, [])
 
   const isSaveDisabled = useMemo(() => !hasChanged, [hasChanged])
 
@@ -364,7 +427,7 @@ export default function Security({
                   >
                     <h3
                       css={`
-                        ${textStyle('title2')}
+                        ${textStyle('title3')}
                       `}
                     >
                       Private Secret Key Required
@@ -375,6 +438,16 @@ export default function Security({
                     onChange={onSecretKeyRequiredChange}
                   />
                 </Card>
+                <Spacer size={3 * GU} />
+                <WhitelistCardWithDropdownNoInput
+                  title="Approved Chains"
+                  value={blockchain}
+                  setValue={setBlockchain}
+                  onClick={setWhitelistedBlockchain}
+                  onDelete={onDeleteBlockchainClick}
+                  valueList={blockchains}
+                  helpDescription="By adding a chain, you will restrict your application's access to the chains added to the list."
+                />
                 <Spacer size={3 * GU} />
                 <WhitelistCard
                   title="Whitelisted User-Agents"
@@ -395,21 +468,23 @@ export default function Security({
                 />
                 <Spacer size={3 * GU} />
                 <WhitelistCardWithDropdown
-                  title="Whitelisted Contracts"
+                  title="Approved Contracts"
                   value={contract}
                   setValue={setContract}
                   onClick={setWhitelistContract}
                   onDelete={onDeleteContractClick}
                   valueList={contracts}
+                  helpDescription="By adding a contract you will restrict your application's access to a specific list of smart contract address. Note that this is only available to EVM compatible chains."
                 />
                 <Spacer size={3 * GU} />
                 <WhitelistCardWithDropdown
-                  title="Whitelisted Methods"
+                  title="Approved Methods"
                   value={method}
                   setValue={setMethod}
                   onClick={setWhitelistMethod}
                   onDelete={onDeleteMethodClick}
                   valueList={methods}
+                  helpDescription="By adding a method you will restrict your application's access to a specific list of methods. Note that this is only available to EVM compatible chains."
                 />
               </section>
             }
@@ -449,6 +524,12 @@ function WhitelistCard({
   setValue,
 }: WhitelistCardProps) {
   const theme = useTheme()
+  const [editMode, setEditMode] = useState(false)
+
+  const toggleEditMode = useCallback(
+    () => setEditMode((prevEditMode) => !prevEditMode),
+    []
+  )
 
   return (
     <Card
@@ -456,14 +537,48 @@ function WhitelistCard({
         padding: ${GU * 3}px;
       `}
     >
-      <h3
+      <div
         css={`
-          ${textStyle('title2')};
-          margin-bottom: ${2 * GU}px;
+          display: flex;
+          justify-content: space-between;
         `}
       >
-        {title}
-      </h3>
+        <h3
+          css={`
+            ${textStyle('title3')};
+            margin-bottom: ${2 * GU}px;
+          `}
+        >
+          {title}
+        </h3>
+        <ButtonBase
+          element="div"
+          description="Preferences"
+          label="Preferences"
+          onClick={toggleEditMode}
+          css={`
+            background-color: ${editMode && theme.accent};
+            border: 1px solid ${theme.accent};
+            border-radius: ${GU - 4}px;
+            width: ${4 * GU}px;
+            height: ${4 * GU}px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+            margin-right: ${GU}px;
+          `}
+        >
+          <EditIcon
+            css={`
+              width: ${GU * 2}px;
+              height: ${GU * 2}px;
+              color: ${editMode ? theme.contentInverted : theme.accent};
+            `}
+          />
+        </ButtonBase>
+      </div>
       <TextInput
         wide
         value={value}
@@ -499,17 +614,176 @@ function WhitelistCard({
         `}
       >
         {valueList.map((value, index) => (
-          <li key={value}>
-            <WideTextCopy
-              key={`${value}/${index}`}
-              adornment={<IconCross />}
-              onCopy={() => onDelete(value)}
-              value={value}
-            />
+          <li
+            key={value}
+            css={`
+              display: flex;
+              align-items: center;
+            `}
+          >
+            <WideTextCopy key={`${value}/${index}`} value={value} />
+            {editMode && (
+              <ButtonBase
+                element="div"
+                description="Preferences"
+                label="Preferences"
+                onClick={() => onDelete(value)}
+                css={`
+                  background-color: ${theme.error};
+                  border-radius: ${GU / 2}px;
+                  width: ${4 * GU}px;
+                  height: ${4 * GU}px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  color: white;
+                  position: relative;
+                  margin-left: ${GU}px;
+                `}
+              >
+                <img
+                  src={TrashIcon}
+                  alt="edit"
+                  css={`
+                    width: ${GU * 2}px;
+                    height: ${GU * 2}px;
+                  `}
+                />
+              </ButtonBase>
+            )}
           </li>
         ))}
       </ul>
     </Card>
+  )
+}
+
+interface DropdownWithEditProps {
+  title: string
+  toggleEditMode: () => void
+  editMode: boolean
+  chainName: string
+  handleToggle: () => void
+  chains: [string, ChainMetadata][]
+  opened: boolean
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>
+  handleSelectChain: (v: string) => void
+  handleChainsSearch: (v: string) => void
+  helpDescription: string
+}
+
+function DropdownWithEdit({
+  chainName,
+  chains,
+  editMode,
+  handleToggle,
+  title,
+  toggleEditMode,
+  opened,
+  setOpened,
+  handleChainsSearch,
+  handleSelectChain,
+  helpDescription,
+}: DropdownWithEditProps) {
+  const theme = useTheme()
+
+  return (
+    <div
+      css={`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: ${2 * GU}px;
+      `}
+    >
+      <div
+        css={`
+          display: flex;
+          align-items: center;
+        `}
+      >
+        <h3
+          css={`
+            ${textStyle('title3')}
+          `}
+        >
+          {title}
+        </h3>
+        <Help
+          placement="right"
+          css={`
+            display: inline-flex;
+            margin-left: ${GU / 2}px;
+          `}
+        >
+          {helpDescription}
+        </Help>
+      </div>
+
+      <div
+        css={`
+          display: flex;
+        `}
+      >
+        <ButtonBase
+          element="div"
+          description="Preferences"
+          label="Preferences"
+          onClick={toggleEditMode}
+          css={`
+            background-color: ${editMode && theme.accent};
+            border: 1px solid ${theme.accent};
+            border-radius: ${GU - 4}px;
+            width: ${4 * GU}px;
+            height: ${4 * GU}px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+            margin-right: ${GU}px;
+          `}
+        >
+          <EditIcon
+            css={`
+              width: ${GU * 2}px;
+              height: ${GU * 2}px;
+              color: ${editMode ? theme.contentInverted : theme.accent};
+            `}
+          />
+        </ButtonBase>
+        <Dropdown
+          value={chainName}
+          visible={opened}
+          placeholder="Select Chain"
+          handleToggle={handleToggle}
+          onClose={() => setOpened(false)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleChainsSearch(e.target.value)
+          }
+          css={DROPDOWN_STYLE(theme)}
+        >
+          {chains.length > 0 ? (
+            chains.map(([k, v]) => (
+              <>
+                {v.evm && (
+                  <DropdownItem
+                    onClick={() => {
+                      handleSelectChain(k)
+                    }}
+                    icon={getImageForChain(v.name)}
+                    label={v.name}
+                  />
+                )}
+              </>
+            ))
+          ) : (
+            <DropdownItem label="No chains found with that name" />
+          )}
+        </Dropdown>
+      </div>
+    </div>
   )
 }
 
@@ -520,6 +794,7 @@ interface WhitelistCardWithDropdownProps {
   onDelete: (value: string, key: string) => void
   onClick: () => void
   setValue: React.Dispatch<React.SetStateAction<WhiteListBlockchain>>
+  helpDescription: string
 }
 
 function WhitelistCardWithDropdown({
@@ -529,12 +804,14 @@ function WhitelistCardWithDropdown({
   onClick,
   onDelete,
   setValue,
+  helpDescription,
 }: WhitelistCardWithDropdownProps) {
   const theme = useTheme()
   const [chains, setChains] = useState(NORMALIZED_CHAIN_ID_PREFIXES)
   const [opened, setOpened] = useState(false)
   const [chainName, setChainName] = useState('')
   const [chainID, setChainID] = useState('')
+  const [editMode, setEditMode] = useState(false)
 
   const isInputDisabled = useMemo(() => chainName.length < 1, [chainName])
   const isAddBtnDisabled = useMemo(
@@ -542,8 +819,14 @@ function WhitelistCardWithDropdown({
     [value]
   )
 
+  const toggleEditMode = useCallback(
+    () => setEditMode((prevEditMode) => !prevEditMode),
+    []
+  )
+
   const handleToggle = useCallback(() => {
     setChainName('')
+    setChains(NORMALIZED_CHAIN_ID_PREFIXES)
     setOpened((opened) => !opened)
   }, [])
 
@@ -584,66 +867,19 @@ function WhitelistCardWithDropdown({
         padding: ${GU * 3}px;
       `}
     >
-      <div
-        css={`
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          margin-bottom: ${2 * GU}px;
-        `}
-      >
-        <h3
-          css={`
-            ${textStyle('title2')}
-          `}
-        >
-          {title}
-        </h3>
-        <Dropdown
-          value={chainName}
-          visible={opened}
-          placeholder="Select Chain"
-          handleToggle={handleToggle}
-          onClose={() => setOpened(false)}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleChainsSearch(e.target.value)
-          }
-          css={`
-            *::-webkit-scrollbar {
-              width: 5px !important;
-              height: 32px !important;
-            }
-
-            *::-webkit-scrollbar-thumb {
-              height: 32px !important;
-            }
-
-            * {
-              overflow: -moz-scrollbars-vertical;
-              -ms-overflow-style: none;
-            }
-          `}
-        >
-          {chains.length > 0 ? (
-            chains.map(([k, v]) => (
-              <>
-                {v.evm && (
-                  <DropdownItem
-                    onClick={() => {
-                      handleSelectChain(k)
-                    }}
-                    icon={getImageForChain(v.name)}
-                    label={v.name}
-                  />
-                )}
-              </>
-            ))
-          ) : (
-            <DropdownItem label="No chains found with that name" />
-          )}
-        </Dropdown>
-      </div>
+      <DropdownWithEdit
+        chainName={chainName}
+        title={title}
+        opened={opened}
+        setOpened={setOpened}
+        chains={chains}
+        editMode={editMode}
+        toggleEditMode={toggleEditMode}
+        handleChainsSearch={handleChainsSearch}
+        handleSelectChain={handleSelectChain}
+        handleToggle={handleToggle}
+        helpDescription={helpDescription}
+      />
 
       <TextInput
         wide
@@ -692,11 +928,13 @@ function WhitelistCardWithDropdown({
                   key={`${internalValue}/${index}`}
                   css={`
                     display: flex;
+                    align-items: center;
                   `}
                 >
                   <div
                     css={`
                       width: ${GU * 9}px;
+                      min-width: ${GU * 9}px;
                       height: ${GU * 5}px;
                       border-radius: ${GU - 4}px;
                       padding: 0;
@@ -731,7 +969,7 @@ function WhitelistCardWithDropdown({
                         text-overflow: ellipsis;
                         overflow: hidden;
                         white-space: nowrap;
-                        font-size: ${GU}px;
+                        font-size: ${GU + 4}px;
                       `}
                     >
                       {prefixFromChainId(value[0])?.abbrv}
@@ -739,12 +977,230 @@ function WhitelistCardWithDropdown({
                   </div>
                   <WideTextCopy
                     key={`${internalValue}/${index}`}
-                    adornment={<IconCross />}
-                    onCopy={() => onDelete(internalValue, value[0])}
                     value={internalValue}
                   />
+                  {editMode && (
+                    <ButtonBase
+                      element="div"
+                      description="Preferences"
+                      label="Preferences"
+                      onClick={() => onDelete(internalValue, value[0])}
+                      css={`
+                        background-color: ${theme.error};
+                        border-radius: ${GU / 2}px;
+                        width: ${4 * GU}px;
+                        height: ${4 * GU}px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        color: white;
+                        position: relative;
+                        margin-left: ${GU}px;
+                      `}
+                    >
+                      <img
+                        src={TrashIcon}
+                        alt="edit"
+                        css={`
+                          width: ${GU * 2}px;
+                          height: ${GU * 2}px;
+                        `}
+                      />
+                    </ButtonBase>
+                  )}
                 </li>
               ))}
+            </>
+          )
+        })}
+      </ul>
+    </Card>
+  )
+}
+
+interface WhitelistCardWithDropdownNoInputProps {
+  title: string
+  value: string
+  valueList: string[]
+  onDelete: (value: string) => void
+  onClick: (data: string) => void
+  setValue: React.Dispatch<React.SetStateAction<string>>
+  helpDescription: string
+}
+
+function WhitelistCardWithDropdownNoInput({
+  title,
+  value,
+  valueList,
+  onClick,
+  onDelete,
+  setValue,
+  helpDescription,
+}: WhitelistCardWithDropdownNoInputProps) {
+  const theme = useTheme()
+  const [chains, setChains] = useState(NORMALIZED_CHAIN_ID_PREFIXES)
+  const [opened, setOpened] = useState(false)
+  const [chainName, setChainName] = useState('')
+  const [editMode, setEditMode] = useState(false)
+
+  const toggleEditMode = useCallback(
+    () => setEditMode((prevEditMode) => !prevEditMode),
+    []
+  )
+
+  const handleToggle = useCallback(() => {
+    setChainName('')
+    setChains(NORMALIZED_CHAIN_ID_PREFIXES)
+    setOpened((opened) => !opened)
+  }, [])
+
+  const handleSelectChain = useCallback(
+    (chainID: string) => {
+      const chainData = prefixFromChainId(chainID)
+
+      if (chainData) {
+        const { name } = chainData
+
+        setChainName(name)
+        setValue(chainID)
+        onClick(chainID)
+      }
+
+      setOpened(false)
+    },
+    [setValue, onClick]
+  )
+
+  const handleChainsSearch = useCallback((searchedChain: string) => {
+    setChainName(searchedChain)
+
+    if (searchedChain.length === 0) {
+      setChains(NORMALIZED_CHAIN_ID_PREFIXES)
+    }
+
+    const tempChains = []
+
+    for (const chain of NORMALIZED_CHAIN_ID_PREFIXES) {
+      if (chain[1].name.toLowerCase().includes(searchedChain.toLowerCase())) {
+        tempChains.push(chain)
+      }
+    }
+
+    setChains(tempChains)
+  }, [])
+
+  return (
+    <Card
+      css={`
+        padding: ${GU * 3}px;
+      `}
+    >
+      <DropdownWithEdit
+        chainName={chainName}
+        title={title}
+        opened={opened}
+        setOpened={setOpened}
+        chains={chains}
+        editMode={editMode}
+        toggleEditMode={toggleEditMode}
+        handleChainsSearch={handleChainsSearch}
+        handleSelectChain={handleSelectChain}
+        handleToggle={handleToggle}
+        helpDescription={helpDescription}
+      />
+      <ul
+        css={`
+          list-style: none;
+          margin-top: ${2 * GU}px;
+          li:not(:last-child) {
+            margin-bottom: ${2 * GU}px;
+            padding-left: 0;
+          }
+        `}
+      >
+        {valueList.map((value, index) => {
+          return (
+            <>
+              <li
+                key={`${value}/${index}`}
+                css={`
+                  display: flex;
+                  align-items: center;
+                `}
+              >
+                <div
+                  css={`
+                    width: ${GU * 9}px;
+                    min-width: ${GU * 9}px;
+                    height: ${GU * 5}px;
+                    border-radius: ${GU - 4}px;
+                    padding: 0;
+                    white-space: nowrap;
+                    border: 1px solid ${theme.contentBorder};
+                    text-transform: uppercase;
+                    padding: ${GU}px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: ${GU}px;
+                  `}
+                >
+                  <img
+                    src={getImageForChain(prefixFromChainId(value)?.name ?? '')}
+                    alt={value}
+                    css={`
+                      width: ${GU * 2}px;
+                      height: ${GU * 2}px;
+                      margin-right: ${GU - 4}px;
+                    `}
+                  />
+
+                  <p
+                    css={`
+                      display: inline-block;
+                      text-overflow: ellipsis;
+                      overflow: hidden;
+                      white-space: nowrap;
+                      font-size: ${GU + 4}px;
+                    `}
+                  >
+                    {prefixFromChainId(value)?.abbrv}
+                  </p>
+                </div>
+                <WideTextCopy
+                  key={`${value}/${index}`}
+                  value={`${value} - ${prefixFromChainId(value)?.name}`}
+                />
+                {editMode && (
+                  <ButtonBase
+                    element="div"
+                    description="Preferences"
+                    label="Preferences"
+                    onClick={() => onDelete(value)}
+                    css={`
+                      background-color: ${theme.error};
+                      border-radius: ${GU / 2}px;
+                      width: ${4 * GU}px;
+                      height: ${4 * GU}px;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      color: white;
+                      position: relative;
+                      margin-left: ${GU}px;
+                    `}
+                  >
+                    <img
+                      src={TrashIcon}
+                      alt="edit"
+                      css={`
+                        width: ${GU * 2}px;
+                        height: ${GU * 2}px;
+                      `}
+                    />
+                  </ButtonBase>
+                )}
+              </li>
             </>
           )
         })}

@@ -14,6 +14,7 @@ export interface IGatewaySettings {
   secretKeyRequired: boolean
   whitelistOrigins: string[]
   whitelistUserAgents: string[]
+  whitelistBlockchains: string[]
   whitelistContracts: { blockchainID: string; contracts: string[] }[];
   whitelistMethods: { blockchainID: string; methods: string[] }[];
 }
@@ -88,7 +89,8 @@ const applicationSchema = new Schema<IApplication>(
       whitelistOrigins: [],
       whitelistUserAgents: [],
       whitelistContracts: [],
-      whitelistMethods: []
+      whitelistMethods: [],
+      whitelistBlockchains: [],
     },
     notificationSettings: {
       signedUp: Boolean,
