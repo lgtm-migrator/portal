@@ -123,85 +123,87 @@ export default function Security({
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    setUserAgents((agents) => {
-      const currentUserAgents = appData.gatewaySettings.whitelistUserAgents
-        .length
-        ? [...appData.gatewaySettings.whitelistUserAgents]
-        : []
+    if (!hasChanged) {
+      setUserAgents((agents) => {
+        const currentUserAgents = appData.gatewaySettings.whitelistUserAgents
+          .length
+          ? [...appData.gatewaySettings.whitelistUserAgents]
+          : []
 
-      const filteredStateUserAgents = agents.filter(
-        (a) => !currentUserAgents.includes(a)
-      )
+        const filteredStateUserAgents = agents.filter(
+          (a) => !currentUserAgents.includes(a)
+        )
 
-      return [...currentUserAgents, ...filteredStateUserAgents]
-    })
-    setOrigins((origins) => {
-      const currentOrigins = appData.gatewaySettings.whitelistOrigins.length
-        ? [...appData.gatewaySettings.whitelistOrigins]
-        : []
+        return [...currentUserAgents, ...filteredStateUserAgents]
+      })
+      setOrigins((origins) => {
+        const currentOrigins = appData.gatewaySettings.whitelistOrigins.length
+          ? [...appData.gatewaySettings.whitelistOrigins]
+          : []
 
-      const filteredStateOrigins = origins.filter(
-        (o) => !currentOrigins.includes(o)
-      )
+        const filteredStateOrigins = origins.filter(
+          (o) => !currentOrigins.includes(o)
+        )
 
-      return [...currentOrigins, ...filteredStateOrigins]
-    })
-    setContracts((contracts) => {
-      const currentContracts = new Map()
+        return [...currentOrigins, ...filteredStateOrigins]
+      })
+      setContracts((contracts) => {
+        const currentContracts = new Map()
 
-      if (appData.gatewaySettings?.whitelistContracts.length) {
-        for (const contract of appData.gatewaySettings?.whitelistContracts) {
-          currentContracts.set(contract.blockchainID, contract.contracts)
+        if (appData.gatewaySettings?.whitelistContracts.length) {
+          for (const contract of appData.gatewaySettings?.whitelistContracts) {
+            currentContracts.set(contract.blockchainID, contract.contracts)
+          }
         }
-      }
 
-      const filteredContracts = new Map()
+        const filteredContracts = new Map()
 
-      for (const contract of contracts) {
-        filteredContracts.set(
-          contract[0],
-          contract[1]?.filter(
-            (c) => !currentContracts.get(contract[0].includes(c))
+        for (const contract of contracts) {
+          filteredContracts.set(
+            contract[0],
+            contract[1]?.filter(
+              (c) => !currentContracts.get(contract[0].includes(c))
+            )
           )
-        )
-      }
-
-      return new Map([...currentContracts, ...filteredContracts])
-    })
-    setMethods((methods) => {
-      const currentMethods = new Map()
-
-      if (appData.gatewaySettings?.whitelistMethods?.length) {
-        for (const method of appData.gatewaySettings?.whitelistMethods) {
-          currentMethods.set(method.blockchainID, method.methods)
         }
-      }
 
-      const filteredMethods = new Map()
+        return new Map([...currentContracts, ...filteredContracts])
+      })
+      setMethods((methods) => {
+        const currentMethods = new Map()
 
-      for (const method of methods) {
-        filteredMethods.set(
-          method[0],
-          method[1]?.filter((m) => !currentMethods.get(method[0].includes(m)))
+        if (appData.gatewaySettings?.whitelistMethods?.length) {
+          for (const method of appData.gatewaySettings?.whitelistMethods) {
+            currentMethods.set(method.blockchainID, method.methods)
+          }
+        }
+
+        const filteredMethods = new Map()
+
+        for (const method of methods) {
+          filteredMethods.set(
+            method[0],
+            method[1]?.filter((m) => !currentMethods.get(method[0].includes(m)))
+          )
+        }
+
+        return new Map([...currentMethods, ...filteredMethods])
+      })
+      setBlockchains((blockchains) => {
+        const currentBlockchains = appData.gatewaySettings.whitelistBlockchains
+          .length
+          ? [...appData.gatewaySettings.whitelistBlockchains]
+          : []
+
+        const filteredStateBlockchains = blockchains.filter(
+          (b) => !currentBlockchains.includes(b)
         )
-      }
 
-      return new Map([...currentMethods, ...filteredMethods])
-    })
-    setBlockchains((blockchains) => {
-      const currentBlockchains = appData.gatewaySettings.whitelistBlockchains
-        .length
-        ? [...appData.gatewaySettings.whitelistBlockchains]
-        : []
-
-      const filteredStateBlockchains = blockchains.filter(
-        (b) => !currentBlockchains.includes(b)
-      )
-
-      return [...currentBlockchains, ...filteredStateBlockchains]
-    })
-    setSecretKeyRequired(appData.gatewaySettings.secretKeyRequired)
-  }, [appData])
+        return [...currentBlockchains, ...filteredStateBlockchains]
+      })
+      setSecretKeyRequired(appData.gatewaySettings.secretKeyRequired)
+    }
+  }, [appData, hasChanged])
 
   const { mutate } = useMutation(async function updateApplicationSettings() {
     const path = `${env('BACKEND_URL')}/api/${'lb'}/${appData.id}`
@@ -567,7 +569,6 @@ function WhitelistCard({
             align-items: center;
             color: white;
             position: relative;
-            margin-right: ${GU}px;
           `}
         >
           <EditIcon
@@ -1093,6 +1094,7 @@ function WhitelistCardWithDropdownNoInput({
     <Card
       css={`
         padding: ${GU * 3}px;
+        height: ${valueList.length ? 'auto' : '75px'};
       `}
     >
       <DropdownWithEdit
@@ -1145,15 +1147,19 @@ function WhitelistCardWithDropdownNoInput({
                     margin-right: ${GU}px;
                   `}
                 >
-                  <img
-                    src={getImageForChain(prefixFromChainId(value)?.name ?? '')}
-                    alt={value}
-                    css={`
-                      width: ${GU * 2}px;
-                      height: ${GU * 2}px;
-                      margin-right: ${GU - 4}px;
-                    `}
-                  />
+                  {getImageForChain(prefixFromChainId(value)?.name ?? '') && (
+                    <img
+                      src={getImageForChain(
+                        prefixFromChainId(value)?.name ?? ''
+                      )}
+                      alt={value}
+                      css={`
+                        width: ${GU * 2}px;
+                        height: ${GU * 2}px;
+                        margin-right: ${GU - 4}px;
+                      `}
+                    />
+                  )}
 
                   <p
                     css={`
