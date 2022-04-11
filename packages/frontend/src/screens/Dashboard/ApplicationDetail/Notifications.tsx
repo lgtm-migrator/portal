@@ -314,7 +314,7 @@ export default function Notifications({
               >
                 If you need more relays for your application or you are looking
                 to stake your own POKT, please{' '}
-                <Link href="https://pocketnetwork.typeform.com/to/UPb0xJhS">
+                <Link href="mailto:sales@pokt.netowork?subject=Portal Contact">
                   contact us
                 </Link>{' '}
                 and our team will find a solution for you.

@@ -145,7 +145,7 @@ export default function NavigationBar({
         css={`
           display: inline-block;
           flex-grow: 1;
-          ${textStyle('title1')}
+          ${textStyle('title3')}
         `}
       >
         <span>{title}</span>
@@ -227,15 +227,16 @@ function SettingsButton({ onLogout }: SettingsButtonProps) {
               width: ${4.25 * GU}px;
               height: ${4.25 * GU}px;
               padding: ${0.5 * GU}px;
-              background: ${theme.backgroundInverted};
+              background: transparent;
               height: 100%;
-              border-radius: 50% 50%;
+              border: none;
+              box-shadow: none;
             }
           `}
         >
           <IconPerson
             css={`
-              color: ${theme.background};
+              color: ${theme.content};
               width: ${3.25 * GU}px;
               height: ${3.25 * GU}px;
             `}

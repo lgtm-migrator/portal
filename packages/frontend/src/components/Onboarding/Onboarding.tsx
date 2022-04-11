@@ -24,10 +24,17 @@ export default function Onboarding({
         min-height: 100vh;
         position: relative;
         background: linear-gradient(
-          126.96deg,
-          ${theme.backgroundGradient1} -5.41%,
-          ${theme.backgroundGradient2} 101.86%
-        );
+            138.23deg,
+            ${theme.overlay} -1.67%,
+            #131b23 49.49%,
+            #32343f 109.02%
+          ),
+          linear-gradient(
+            108.79deg,
+            ${theme.overlay} -5.55%,
+            #101921 45.97%,
+            #363843 123.27%
+          );
       `}
     >
       <Spacer size={compactMode ? 1 * GU : 6.5 * GU} />

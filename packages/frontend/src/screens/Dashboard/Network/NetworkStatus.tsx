@@ -18,7 +18,6 @@ import {
   IconSearch,
 } from '@pokt-foundation/ui'
 import AnimatedLogo from '../../../components/AnimatedLogo/AnimatedLogo'
-import Box from '../../../components/Box/Box'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { getImageForChain } from '../../../known-chains/known-chains'
 import {
@@ -184,19 +183,53 @@ export default function NetworkStatus() {
                     imgSrc={NetworkSummaryNetworksImg}
                   />
                 </div>
-                <Box>
+                <Card
+                  css={`
+                    padding: ${GU * 3}px;
+                  `}
+                >
+                  <LineChart
+                    backgroundFill="#1B2331"
+                    borderColor={`rgba(0,0,0,0)`}
+                    color={() => theme.accentAlternative}
+                    dotRadius={GU / 1.5}
+                    height={240}
+                    label={(index: number) => labels[index]}
+                    lines={lines}
+                    renderCheckpoints
+                    scales={scales}
+                    dotColor={theme.accent}
+                    renderCheckLines
+                    css={`
+                      polygon {
+                        fill: transparent;
+                      }
+
+                      circle {
+                        filter: drop-shadow(
+                          0px 0px 4px rgba(197, 236, 75, 0.3)
+                        );
+                      }
+
+                      path {
+                        stroke-width: 5;
+                      }
+                    `}
+                  />
+                  <Spacer size={3 * GU} />
                   <div
                     css={`
                       display: flex;
                       justify-content: space-between;
+                      align-items: center;
                     `}
                   >
                     <h3
                       css={`
-                        ${textStyle('title2')}
+                        ${textStyle('title3')}
                       `}
                     >
-                      Total Relays
+                      Total Relays:
                     </h3>
 
                     <div
@@ -223,19 +256,7 @@ export default function NetworkStatus() {
                       </h5>
                     </div>
                   </div>
-                  <Spacer size={3 * GU} />
-                  <LineChart
-                    backgroundFill="#1B2331"
-                    borderColor={`rgba(0,0,0,0)`}
-                    color={() => theme.accentAlternative}
-                    dotRadius={GU / 1.5}
-                    height={240}
-                    label={(index: number) => labels[index]}
-                    lines={lines}
-                    renderCheckpoints
-                    scales={scales}
-                  />
-                </Box>
+                </Card>
                 <Spacer size={4 * GU} />
                 <AvailableNetworks chains={chains} />
                 {!compactMode && <Spacer size={3 * GU} />}
@@ -247,33 +268,59 @@ export default function NetworkStatus() {
                   css={`
                     ${textStyle('title3')};
                     margin-bottom: ${GU * 3}px;
+                    font-weight: 700;
                   `}
                 >
                   Network Success Rate
                 </h3>
 
-                <Box>
+                <Card
+                  css={`
+                    padding: ${GU * 3}px ${GU * 4}px;
+                  `}
+                >
                   <div
                     css={`
                       display: flex;
-                      align-items: flex-end;
+                      justify-content: space-between;
                       ${compactMode &&
                       `
-                  flex-direction: row;
-                  justify-content: space-between;
-                `}
+                        flex-direction: row;
+                       justify-content: space-between;
+                      `}
                     `}
                   >
                     <CircleGraph
-                      size={compactMode ? 18 * GU : 18 * GU}
-                      strokeWidth={GU * 3}
+                      size={compactMode ? 10 * GU : 10 * GU}
+                      strokeWidth={GU * 1.5}
                       value={
                         networkStats.successfulRelays / networkStats.totalRelays
                       }
-                      color={theme.accent}
-                    />
-                    <Spacer size={2 * GU} />
-                    <div>
+                      color="url(#network-success-gradient)"
+                    >
+                      <defs>
+                        <linearGradient id="network-success-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={theme.accentSecondAlternative}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={theme.accent}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
+
+                    <div
+                      css={`
+                        display: flex;
+                        flex-direction: column;
+                        align-items: end;
+                      `}
+                    >
                       <p
                         css={`
                           ${textStyle('title2')}
@@ -285,23 +332,47 @@ export default function NetworkStatus() {
                       </p>
                       <p
                         css={`
-                          ${textStyle('body2')}
+                          ${textStyle('body3')}
+                          color: ${theme.placeholder};
+                          position: relative;
                         `}
                       >
+                        <span
+                          css={`
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 10px;
+                            background: ${theme.accent};
+                            position: absolute;
+                            filter: blur(4px);
+                            top: 5px;
+                          `}
+                        />
+                        <svg
+                          viewBox="0 0 10 10"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="10"
+                          height="10"
+                          css={`
+                            margin-right: ${GU}px;
+                          `}
+                        >
+                          <circle cx="5" cy="5" r="5" fill={theme.accent} />
+                        </svg>
                         Successful relays
                       </p>
                       <Spacer size={0.5 * GU} />
                       <p
                         css={`
                           ${textStyle('body4')}
+                          color: ${theme.placeholder};
                         `}
                       >
                         Last 7 Days
                       </p>
                     </div>
                   </div>
-                  <Spacer size={1 * GU} />
-                </Box>
+                </Card>
                 {!compactMode && (
                   <>
                     <Spacer size={4 * GU} />
