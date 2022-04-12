@@ -33,6 +33,7 @@ import { sentryEnabled } from '../../../sentry'
 import { UserLBDailyRelayBucket } from 'packages/types/src'
 import { useUsageColor } from './application-utils'
 import { AmplitudeEvents } from '../../../lib/analytics'
+import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 
 const GRAPH_SIZE = 130
 
@@ -370,6 +371,8 @@ export default function Notifications({
                 onChange={() => onChosePercentageChange('full')}
                 maxRelays={maxRelays}
               />
+              <Spacer size={2 * GU} />
+              <FeedbackBox />
             </>
           }
         />

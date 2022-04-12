@@ -37,6 +37,7 @@ import env from '../../../../environment'
 // @ts-ignore
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
 import { AmplitudeEvents } from '../../../../lib/analytics'
+import FeedbackBox from '../../../../components/FeedbackBox/FeedbackBox'
 
 const LATENCY_UPPER_BOUND = 1.25 // 1.25 seconds
 const SESSIONS_PER_DAY = 24
@@ -295,6 +296,8 @@ export default function Overview({
                   />
                   Remove this application
                 </ButtonBase>
+                <Spacer size={2 * GU} />
+                <FeedbackBox />
               </>
             }
           />

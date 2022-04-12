@@ -39,6 +39,7 @@ import NetworkSummaryNodesImg from '../../../assets/networkSummaryNodes.png'
 import NetworkSummaryAppsImg from '../../../assets/networkSummaryApps.png'
 import NetworkSummaryNetworksImg from '../../../assets/networkSummaryNetworks.png'
 import Card from '../../../components/Card/Card'
+import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -379,6 +380,8 @@ export default function NetworkStatus() {
                     <EconomicsSection />
                   </>
                 )}
+                <Spacer size={4 * GU} />
+                <FeedbackBox />
               </>
             }
           />

@@ -46,6 +46,7 @@ import {
 import { getImageForChain } from '../../../known-chains/known-chains'
 import TrashIcon from '../../../assets/trash.svg'
 import EditIcon from '../../../components/Icons/EditIcon/EditIcon'
+import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 
 const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
@@ -499,6 +500,8 @@ export default function Security({
                 <Button wide onClick={() => history.goBack()}>
                   Go Back
                 </Button>
+                <Spacer size={2 * GU} />
+                <FeedbackBox />
               </>
             }
           />
