@@ -37,6 +37,7 @@ const OpenCloseButton = styled.button`
 
 const StyledImage = styled.img`
   margin-right: ${1 * GU}px;
+  padding-top: 5px;
 `
 
 const SpaceHolderDiv = styled.div`
@@ -133,13 +134,7 @@ export default function FeedbackBox({ className }: { className?: string }) {
         <TopFlexBox className={className}>
           <FlexRow>
             <SpaceHolderDiv>
-              <StyledImage
-                css={`
-                  padding-top: 5px;
-                `}
-                src={heart}
-                aria-hidden="true"
-              />
+              <StyledImage src={heart} aria-hidden="true" />
             </SpaceHolderDiv>
             <div>
               <Title>Thanks</Title>
