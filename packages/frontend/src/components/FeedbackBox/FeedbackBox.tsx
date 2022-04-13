@@ -92,27 +92,32 @@ export default function FeedbackBox({ className }: { className?: string }) {
   const [textArea, setTextArea] = useState<
     string | number | readonly string[] | undefined
   >('')
+  const [error, setError] = useState(false)
 
   async function submitHandler() {
-    try {
-      const path = `${env('BACKEND_URL')}/api/users/feedback`
+    if (textArea) {
+      try {
+        const path = `${env('BACKEND_URL')}/api/users/feedback`
 
-      await axios.post(path, {
-        feedback: textArea?.toString(),
-        location: window?.location?.href || 'Unknown Portal Page',
-        pageTitle: document?.title || 'Unknown page Title',
-      })
-    } catch (err) {
-      if (sentryEnabled) {
-        Sentry.captureException(err)
+        await axios.post(path, {
+          feedback: textArea?.toString(),
+          location: window?.location?.href || 'Unknown Portal Page',
+          pageTitle: document?.title || 'Unknown page Title',
+        })
+      } catch (err) {
+        if (sentryEnabled) {
+          Sentry.captureException(err)
+        }
+
+        throw err
       }
 
-      throw err
+      setSubmitted(!submitted)
+      setOpen(!open)
+      setTextArea('')
+    } else {
+      setError(true)
     }
-
-    setSubmitted(!submitted)
-    setOpen(!open)
-    setTextArea('')
   }
 
   const divStyles = useSpring({
@@ -176,6 +181,7 @@ export default function FeedbackBox({ className }: { className?: string }) {
               }
               onClick={() => {
                 setOpen(!open)
+                setError(false)
               }}
             >
               {open ? <IconUp /> : <IconDown />}
@@ -185,12 +191,27 @@ export default function FeedbackBox({ className }: { className?: string }) {
           {open && (
             <animated.div style={divStyles}>
               <StyledTextArea
+                style={{
+                  border: error ? '1px solid #F93232' : '1px solid #fafafa',
+                }}
+                aria-invalid={error}
+                aria-errormessage="error"
                 placeholder="Would be interesting to..."
                 value={textArea}
                 onChange={(e) => {
                   setTextArea(e.target.value)
                 }}
               />
+              <BodyText
+                id="error"
+                css={`
+                  color: #f93232;
+                  padding-top: ${1 * GU}px;
+                  display: ${error ? 'block' : 'none'};
+                `}
+              >
+                Text area must be filled out to submit a suggestion.
+              </BodyText>
               <BodyText
                 css={`
                   margin-bottom: ${2 * GU}px;
