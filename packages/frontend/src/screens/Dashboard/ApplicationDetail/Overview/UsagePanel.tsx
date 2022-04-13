@@ -28,7 +28,9 @@ export default function UsagePanel({
   maxSessionRelays,
   sessionRelays,
 }: UsagePanelProps) {
-  const usageColor = useUsageColor(sessionRelays / maxSessionRelays)
+  const [primaryUsageColor, secondaryUsageColor] = useUsageColor(
+    sessionRelays / maxSessionRelays
+  )
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
@@ -80,9 +82,24 @@ export default function UsagePanel({
                 : Math.min(1, sessionRelays / maxSessionRelays)
             }
             size={120}
-            color={usageColor}
+            color="url(#current-usage-gradient)"
             strokeWidth={GU * 2 + 4}
-          />
+          >
+            <defs>
+              <linearGradient id="current-usage-gradient">
+                <stop
+                  offset="10%"
+                  stop-opacity="100%"
+                  stop-color={secondaryUsageColor}
+                />
+                <stop
+                  offset="90%"
+                  stop-opacity="100%"
+                  stop-color={primaryUsageColor}
+                />
+              </linearGradient>
+            </defs>
+          </CircleGraph>
           <Spacer size={4 * GU} />
           <h4
             css={`

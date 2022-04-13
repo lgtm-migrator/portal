@@ -506,7 +506,6 @@ function MenuPanelButton({
             : 'transparent'};
           width: 100%;
           height: ${6 * GU}px;
-          padding-top: ${1 * GU}px;
           border-radius: 0px;
           color: ${theme.content};
           transition: background 150ms ease-in-out;
