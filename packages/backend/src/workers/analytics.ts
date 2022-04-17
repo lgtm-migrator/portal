@@ -1,3 +1,4 @@
+import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
 import Application from '../models/Application'
@@ -42,14 +43,7 @@ const DEFAULT_USER_PROFILE = {
   publicKeysPerEndpoint: [],
 } as IUserProfile
 
-const DEFAULT_METRIC_UPDATE = {
-  amount: 0,
-  chainID: '',
-  endpointID: '',
-  endpointName: '',
-  endpointPublicKeys: [],
-} as IRelayMetricUpdate
-
+const { isValid } = Types.ObjectId
 const ORPHANED_KEY = 'ORPHANED'
 
 export async function fetchUsedApps(
@@ -196,7 +190,8 @@ export async function mapUsageToProfiles(
       })
     } else {
       const userID = lb?.user?.toString() ?? ''
-      const user = await User.findById(userID)
+      const isUserIDValid = isValid(userID)
+      const user = isUserIDValid ? await User.findById(userID) : null
       const userKey = user ? userID : ORPHANED_KEY
 
       if (!user) {
