@@ -7,7 +7,6 @@ import axios from 'axios'
 import * as Sentry from '@sentry/react'
 import env from '../../environment'
 import { sentryEnabled } from '../../sentry'
-import { useUser } from '../../contexts/UserContext'
 
 const ShareFeedback = '/assets/share-feedback.svg'
 const heart = '/assets/heart.svg'
@@ -96,8 +95,6 @@ export default function FeedbackBox({ className }: { className?: string }) {
   >('')
   const [error, setError] = useState(false)
 
-  const userEmail = useUser().email?.toString() || 'Unknown user email'
-
   async function submitHandler() {
     if (textArea) {
       try {
@@ -107,7 +104,6 @@ export default function FeedbackBox({ className }: { className?: string }) {
           feedback: textArea?.toString(),
           location: window?.location?.href || 'Unknown Portal Page',
           pageTitle: document?.title || 'Unknown page Title',
-          user: userEmail,
         })
       } catch (err) {
         if (sentryEnabled) {

@@ -463,14 +463,13 @@ router.post(
 router.post(
   '/feedback',
   asyncMiddleware(async (req: Request, res: Response) => {
-    const { feedback, location, pageTitle, user } = req.body
+    const { feedback, location, pageTitle } = req.body
     const emailService = new MailgunService()
     await emailService.send({
       templateData: {
         feedback,
         location,
         pageTitle,
-        user,
       },
       templateName: 'FeedBack',
       toEmail: 'Portal@pokt.network',
