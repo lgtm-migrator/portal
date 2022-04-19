@@ -15,9 +15,9 @@ import {
 import 'styled-components/macro'
 import { useSuccessRateColor } from '../application-utils'
 import SuccessIndicator from '../SuccessIndicator'
-import Box from '../../../../components/Box/Box'
 import { AmplitudeEvents } from '../../../../lib/analytics'
 import env from '../../../../environment'
+import Card from '../../../../components/Card/Card'
 
 interface SuccessPanelProps {
   previousSuccessRate: number
@@ -65,11 +65,11 @@ export default function SuccessPanel({
   const mode = successRateDelta > 0 ? 'positive' : 'negative'
 
   return (
-    <Box
-      padding={[0, 0, 0, 0]}
+    <Card
       css={`
         display: flex;
         flex-direction: column;
+        padding: 0;
       `}
     >
       <div
@@ -268,6 +268,6 @@ export default function SuccessPanel({
       >
         More Details
       </ButtonBase>
-    </Box>
+    </Card>
   )
 }

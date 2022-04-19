@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
-import { Spacer, useTheme, GU } from '@pokt-foundation/ui'
+import { Spacer, GU } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
 import MenuPanel from '../../components/MenuPanel/MenuPanel'
 import { AppsContextProvider, useUserApps } from '../../contexts/AppsContext'
@@ -43,11 +43,7 @@ function DashboardView({ children }: DashboardViewProps) {
         height: 100%;
         display: flex;
         flex-direction: row;
-        background: linear-gradient(
-          126.96deg,
-          ${theme.backgroundGradient1} -5.41%,
-          ${theme.backgroundGradient2} 101.86%
-        );
+        background: linear-gradient(106.7deg, #0e1318 16.95%, #111a1f 87.74%);
         color: white;
         overflow-x: hidden;
       `}

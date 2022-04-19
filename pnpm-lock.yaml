@@ -207,7 +207,7 @@ importers:
       '@fontsource/manrope': ^4.4.5
       '@originjs/vite-plugin-commonjs': ^1.0.1
       '@pokt-foundation/portal-types': workspace:^0.0.1
-      '@pokt-foundation/ui': 0.3.4
+      '@pokt-foundation/ui': 0.3.6
       '@reach/visually-hidden': ^0.15.2
       '@react-spring/types': ^9.3.1
       '@sentry/browser': ^6.7.1
@@ -261,7 +261,7 @@ importers:
     dependencies:
       '@fontsource/manrope': 4.5.1
       '@pokt-foundation/portal-types': link:../types
-      '@pokt-foundation/ui': 0.3.4_7a082f7d10047d47195aea793f958a14
+      '@pokt-foundation/ui': 0.3.6_7a082f7d10047d47195aea793f958a14
       '@reach/visually-hidden': 0.15.2_react-dom@17.0.2+react@17.0.2
       '@sentry/browser': 6.15.0
       '@sentry/react': 6.15.0_react@17.0.2
@@ -2696,8 +2696,8 @@ packages:
       - graphql
     dev: false
 
-  /@pokt-foundation/ui/0.3.4_7a082f7d10047d47195aea793f958a14:
-    resolution: {integrity: sha512-1HcI1vq0iibf6QyaEjl/1mJibxr1v9XiiPZzrhlFkFA281vgwtqYYUicku+Fu+cDIrQR4KpmQWETLV+t+69KvQ==}
+  /@pokt-foundation/ui/0.3.6_7a082f7d10047d47195aea793f958a14:
+    resolution: {integrity: sha512-Gbil0f7QFqnQGf2TKkQQW9ALE7DAPFCm4FQPdfjT4bn+5x8G4uU5cqNEpxAuyG75NJdMwt4PvPG8RfWVQwQ2ZQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       react: ^16.3.1

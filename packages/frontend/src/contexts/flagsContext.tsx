@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useContext } from 'react'
 import flagsData from '../utils/flags'
 
 const DEFAULT_FLAGS_STATE = {}

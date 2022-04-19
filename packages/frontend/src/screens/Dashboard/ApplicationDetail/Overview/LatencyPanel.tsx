@@ -1,6 +1,6 @@
-import { BarChart, textStyle, useTheme } from '@pokt-foundation/ui'
+import { BarChart, textStyle, useTheme, GU } from '@pokt-foundation/ui'
 import 'styled-components/macro'
-import Box from '../../../../components/Box/Box'
+import Card from '../../../../components/Card/Card'
 
 interface LatencyPanelProps {
   avgLatency: number
@@ -18,7 +18,11 @@ export default function LatencyPanel({
   const theme = useTheme()
 
   return (
-    <Box>
+    <Card
+      css={`
+        padding: ${3 * GU}px;
+      `}
+    >
       <div
         css={`
           width: 100%;
@@ -51,6 +55,6 @@ export default function LatencyPanel({
           scales={chartScales}
         />
       </div>
-    </Box>
+    </Card>
   )
 }

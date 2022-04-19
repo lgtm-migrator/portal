@@ -28,7 +28,6 @@ import LatencyPanel from './LatencyPanel'
 import SuccessPanel from './SuccessPanel'
 import UsagePanel from './UsagePanel'
 import UsagePerOrigin from './UsagePerOrigin'
-import AppStatus from '../../../../components/AppStatus/AppStatus'
 import FloatUp from '../../../../components/FloatUp/FloatUp'
 import {
   formatDailyRelaysForGraphing,
@@ -38,6 +37,7 @@ import env from '../../../../environment'
 // @ts-ignore
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
 import { AmplitudeEvents } from '../../../../lib/analytics'
+import FeedbackBox from '../../../../components/FeedbackBox/FeedbackBox'
 
 const LATENCY_UPPER_BOUND = 1.25 // 1.25 seconds
 const SESSIONS_PER_DAY = 24
@@ -269,11 +269,6 @@ export default function Overview({
                     <Spacer size={3 * GU} />
                   </>
                 )}
-                <AppStatus
-                  gigastake={gigastake}
-                  maxDailyRelays={maxDailyRelays}
-                  stakedTokens={stakedTokens as number}
-                />
                 <Spacer size={3 * GU} />
                 <GatewayPanel
                   id={appData.id}
@@ -301,6 +296,8 @@ export default function Overview({
                   />
                   Remove this application
                 </ButtonBase>
+                <Spacer size={2 * GU} />
+                <FeedbackBox />
               </>
             }
           />

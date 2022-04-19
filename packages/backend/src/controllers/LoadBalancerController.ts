@@ -48,6 +48,8 @@ const DEFAULT_GATEWAY_SETTINGS = {
   secretKeyRequired: false,
   whitelistOrigins: [],
   whitelistUserAgents: [],
+  whitelistContracts: [],
+  whitelistMethods: []
 }
 const DEFAULT_TIMEOUT = 2000
 const DEFAULT_MAX_RELAYS = 42000

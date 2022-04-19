@@ -413,8 +413,8 @@ function ChainDropdown({
           onMouseEnter={() => setShowEditHelper(true)}
           onMouseLeave={() => setShowEditHelper(false)}
           css={`
-            background-color: ${editMode && theme.accentAlternative};
-            border: 1px solid ${theme.accentAlternative};
+            background-color: ${editMode && theme.accent};
+            border: 1px solid ${theme.accent};
             border-radius: ${GU - 4}px;
             width: ${4 * GU}px;
             height: ${4 * GU}px;
@@ -450,7 +450,7 @@ function ChainDropdown({
           label="Preferences"
           onClick={handleToggle}
           css={`
-            border: 1px solid ${theme.accentAlternative};
+            border: 1px solid ${theme.accent};
             border-radius: ${GU - 4}px;
             width: ${14 * GU}px;
             height: ${4 * GU}px;

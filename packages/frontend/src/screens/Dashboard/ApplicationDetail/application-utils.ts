@@ -44,22 +44,22 @@ type HourlyLatencyBucket = {
   bucket: string
 }
 
-export function useUsageColor(usage: number): string {
+export function useUsageColor(usage: number): [string, string] {
   const theme = useTheme()
 
   if (usage <= 0.25) {
-    return theme.positive
-  }
-
-  if (usage <= 0.5) {
-    return theme.yellow
+    return [theme.accent, theme.accentSecondAlternative]
   }
 
   if (usage <= 0.75) {
-    return theme.warning
+    return ['#FFB82E', '#B57905']
   }
 
-  return theme.negative
+  if (usage <= 0.75) {
+    return [theme.warning, '#B57905']
+  }
+
+  return [theme.errorStart, theme.errorEnd]
 }
 
 export function useSuccessRateColor(successRate: number): string[] {
