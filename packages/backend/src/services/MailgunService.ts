@@ -38,6 +38,7 @@ const WHITELISTED_TEMPLATES = new Map([
       'Pocket Portal: Unstake Notification',
     ],
   ],
+  ['FeedBack', ['pocket-portal-feedback-box', 'Pocket Portal: Feedback Box']],
 ])
 
 export interface IResetPasswordTemplateData {
@@ -60,11 +61,18 @@ export interface IUnstakeTemplate {
   app_name: string
 }
 
+export interface IFeedBackTemplate {
+  feedback: string
+  location: string
+  pageTitle: string
+}
+
 type TemplateData =
   | IResetPasswordTemplateData
   | IValidateTemplateData
   | INotificationTemplate
   | IUnstakeTemplate
+  | IFeedBackTemplate
 
 export default class MailgunService {
   private mailService: Mailgun

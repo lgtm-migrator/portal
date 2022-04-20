@@ -33,7 +33,10 @@ function createCookieFromToken(
     maxAge: TEN_DAYS,
     httpOnly: true,
     sameSite: 'none',
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https' || (!env('PROD')),
+    secure:
+      req.secure ||
+      req.headers['x-forwarded-proto'] === 'https' ||
+      !env('PROD'),
   }
 
   res.cookie('jwt', token, cookieOptions)
@@ -160,7 +163,7 @@ router.post(
       if (err) {
         return next(err)
       }
-     if (!user) {
+      if (!user) {
         return next(
           HttpError.INTERNAL_SERVER_ERROR({
             errors: [
@@ -454,6 +457,24 @@ router.post(
     )
 
     res.status(204).send()
+  })
+)
+
+router.post(
+  '/feedback',
+  asyncMiddleware(async (req: Request, res: Response) => {
+    const { feedback, location, pageTitle } = req.body
+    const emailService = new MailgunService()
+    await emailService.send({
+      templateData: {
+        feedback,
+        location,
+        pageTitle,
+      },
+      templateName: 'FeedBack',
+      toEmail: 'Portal@pokt.network',
+    })
+    return res.status(204).send()
   })
 )
 

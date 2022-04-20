@@ -100,15 +100,14 @@ async function getAppChain(address: string): Promise<string> {
 const router = express.Router()
 
 router.use(authenticate)
-router.use(checkJWT)
+// DEV NOTE -> Temporarily disabled while using old auth system
+// router.use(checkJWT)
 
 router.get(
   '',
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const id = req.user.sub || (req.user as IUser)._id
-    const lbs = await LoadBalancer.find({
-      user: id,
-    })
+    const lbs = await LoadBalancer.find({ user: id })
 
     if (!lbs) {
       return next(
@@ -140,14 +139,12 @@ router.get(
         // pre process apps
         const cleanedApplicationIDs = []
 
-        for (const appID of lb.applicationIDs) {
+        for await (const appID of lb.applicationIDs) {
           if (!appID) {
             continue
           }
 
-          const app = await Application.findById(appID)
-
-          if (!app) {
+          if (!(await Application.exists({ _id: appID }))) {
             continue
           }
 
@@ -156,7 +153,7 @@ router.get(
 
         lb.applicationIDs = cleanedApplicationIDs
 
-        for (const appId of cleanedApplicationIDs) {
+        for await (const appId of cleanedApplicationIDs) {
           const app = await Application.findById(appId)
 
           apps.push({
@@ -166,39 +163,42 @@ router.get(
           })
         }
 
-        const app = await Application.findById(lb.applicationIDs[0])
+        const {
+          freeTier,
+          freeTierApplicationAccount,
+          gatewaySettings,
+          notificationSettings,
+          status,
+        } = await Application.findById(lb.applicationIDs[0])
 
         const chain = lb.gigastakeRedirect
           ? ''
-          : await getAppChain(app.freeTierApplicationAccount.address)
+          : await getAppChain(freeTierApplicationAccount.address)
 
         if (chain === 'NOT_FOUND') {
           return
         }
-        app.chain = chain
 
         const processedLb: GetApplicationQuery = {
           apps,
-          chain: chain,
+          chain,
           createdAt: new Date(Date.now()),
           updatedAt: lb.updatedAt,
           gigastake: lb.gigastakeRedirect,
-          freeTier: app.freeTier,
-          gatewaySettings: app.gatewaySettings,
-          notificationSettings: app.notificationSettings,
+          freeTier,
+          gatewaySettings,
+          notificationSettings,
+          status,
           name: lb.name,
           id: lb._id.toString(),
           user: id,
-          status: app.status,
         }
 
         return processedLb
       })
     )
 
-    res
-      .status(200)
-      .send(processedLbs.filter((lb) => lb).filter((lb) => lb.user))
+    res.status(200).send(processedLbs.filter((lb) => lb?.user))
   })
 )
 
@@ -779,11 +779,11 @@ router.get(
     const publicKeys = await getLBPublicKeys(appIds, lbId)
 
     //const rawDailyRelays = await influx.collectRows(
-      //buildDailyAppRelaysQuery({
-        //publicKeys,
-        //start: composeDaysFromNowUtcDate(7),
-        //stop: composeHoursFromNowUtcDate(0),
-      //})
+    //buildDailyAppRelaysQuery({
+    //publicKeys,
+    //start: composeDaysFromNowUtcDate(7),
+    //stop: composeHoursFromNowUtcDate(0),
+    //})
     //)
 
     const rawDailyRelays = Array(7).fill({ _value: 0, _time: '' })

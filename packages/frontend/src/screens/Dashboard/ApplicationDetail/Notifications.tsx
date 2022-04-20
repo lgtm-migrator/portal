@@ -13,14 +13,13 @@ import {
   Spacer,
   Split,
   Switch,
-  color,
   textStyle,
   useTheme,
   useToast,
   GU,
 } from '@pokt-foundation/ui'
 import * as Sentry from '@sentry/react'
-import Box from '../../../components/Box/Box'
+import Card from '../../../components/Card/Card'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { formatNumberToSICompact } from '../../../lib/formatting-utils'
 import { log } from '../../../lib/utils'
@@ -33,6 +32,7 @@ import { sentryEnabled } from '../../../sentry'
 import { UserLBDailyRelayBucket } from 'packages/types/src'
 import { useUsageColor } from './application-utils'
 import { AmplitudeEvents } from '../../../lib/analytics'
+import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 
 const GRAPH_SIZE = 130
 
@@ -54,6 +54,7 @@ export default function Notifications({
   dailyRelays,
   maxDailyRelays,
 }: NotificationsProps) {
+  const theme = useTheme()
   const [chosenPercentages, setChosenPercentages] = useState(
     appData?.notificationSettings ?? DEFAULT_PERCENTAGES
   )
@@ -143,9 +144,15 @@ export default function Notifications({
         ) / dailyRelays.length
   }, [dailyRelays])
 
-  const averageUsageColor = useUsageColor(totalDailyRelays / maxDailyRelays)
-  const maxUsageColor = useUsageColor(highestDailyAmount / maxDailyRelays)
-  const minUsageColor = useUsageColor(lowestDailyAmount / maxDailyRelays)
+  const [primaryAverageUsageColor, secondaryAverageUsageColor] = useUsageColor(
+    totalDailyRelays / maxDailyRelays
+  )
+  const [primaryMaxUsageColor, secondaryMaxUsageColor] = useUsageColor(
+    highestDailyAmount / maxDailyRelays
+  )
+  const [primaryMinUsageColor, secondaryMinUsageColor] = useUsageColor(
+    lowestDailyAmount / maxDailyRelays
+  )
 
   const onChosePercentageChange = useCallback(
     (chosenPercentage) => {
@@ -184,7 +191,7 @@ export default function Notifications({
               )}
               <p
                 css={`
-                  ${textStyle('body2')}
+                  ${textStyle('body3')}
                 `}
               >
                 Set up usage alerts to be warned when you are approaching your
@@ -194,7 +201,11 @@ export default function Notifications({
                 your stake.
               </p>
               <Spacer size={2 * GU} />
-              <Box>
+              <Card
+                css={`
+                  padding: ${3 * GU}px;
+                `}
+              >
                 <div
                   css={`
                     display: flex;
@@ -221,7 +232,7 @@ export default function Notifications({
                       ${textStyle('body3')}
                     `}
                   >
-                    Max relays per day: {maxRelays}
+                    Max Relays Per Day: {maxRelays}
                   </h3>
                 </div>
                 <Spacer size={compactMode ? 2 * GU : 5.5 * GU} />
@@ -230,9 +241,24 @@ export default function Notifications({
                     <CircleGraph
                       value={Math.min(totalDailyRelays / maxDailyRelays, 1)}
                       size={GRAPH_SIZE}
-                      color={averageUsageColor}
+                      color="url(#average-usage-gradient)"
                       strokeWidth={GU * 2 + 4}
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="average-usage-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={secondaryAverageUsageColor}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={primaryAverageUsageColor}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
                     <Spacer size={1 * GU} />
                     <Stack
                       css={`
@@ -240,7 +266,14 @@ export default function Notifications({
                         flex-direction: column;
                       `}
                     >
-                      <Title>
+                      <Title
+                        css={`
+                          span {
+                            color: ${theme.content};
+                          }
+                          color: ${theme.placeholder};
+                        `}
+                      >
                         <CenteredContainer>AVG Usage</CenteredContainer>
                         {Intl.NumberFormat().format(
                           Number(totalDailyRelays.toFixed(0))
@@ -254,9 +287,24 @@ export default function Notifications({
                     <CircleGraph
                       value={Math.min(highestDailyAmount / maxDailyRelays, 1)}
                       size={GRAPH_SIZE}
-                      color={maxUsageColor}
+                      color="url(#max-usage-gradient)"
                       strokeWidth={GU * 2 + 4}
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="max-usage-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={secondaryMaxUsageColor}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={primaryMaxUsageColor}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
                     <Spacer size={1 * GU} />
                     <Stack
                       css={`
@@ -264,7 +312,14 @@ export default function Notifications({
                         flex-direction: column;
                       `}
                     >
-                      <Title>
+                      <Title
+                        css={`
+                          span {
+                            color: ${theme.content};
+                          }
+                          color: ${theme.placeholder};
+                        `}
+                      >
                         <CenteredContainer>Max Usage</CenteredContainer>
                         {Intl.NumberFormat().format(highestDailyAmount)} Relays
                       </Title>
@@ -275,9 +330,24 @@ export default function Notifications({
                     <CircleGraph
                       value={lowestDailyAmount / maxDailyRelays}
                       size={GRAPH_SIZE}
-                      color={minUsageColor}
+                      color="url(#min-usage-gradient)"
                       strokeWidth={GU * 2 + 4}
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="min-usage-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={secondaryMinUsageColor}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={primaryMinUsageColor}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
                     <Spacer size={1 * GU} />
                     <Stack
                       css={`
@@ -288,6 +358,10 @@ export default function Notifications({
                       <Title
                         css={`
                           ${textStyle('body3')}
+                          span {
+                            color: ${theme.content};
+                          }
+                          color: ${theme.placeholder};
                         `}
                       >
                         <CenteredContainer>Min Usage</CenteredContainer>
@@ -305,7 +379,7 @@ export default function Notifications({
                 >
                   These values are calculated on a period of 7 days.
                 </p>
-              </Box>
+              </Card>
               <Spacer size={2.5 * GU} />
               <p
                 css={`
@@ -314,7 +388,7 @@ export default function Notifications({
               >
                 If you need more relays for your application or you are looking
                 to stake your own POKT, please{' '}
-                <Link href="https://pocketnetwork.typeform.com/to/UPb0xJhS">
+                <Link href="mailto:sales@pokt.netowork?subject=Portal Contact">
                   contact us
                 </Link>{' '}
                 and our team will find a solution for you.
@@ -332,7 +406,18 @@ export default function Notifications({
                   <Spacer size={2 * GU} />
                 </>
               )}
-              <Box title="Activate Alerts">
+              <Card
+                css={`
+                  padding: ${3 * GU}px;
+                `}
+              >
+                <h3
+                  css={`
+                    margin-bottom: ${2 * GU}px;
+                  `}
+                >
+                  Activate Alerts
+                </h3>
                 <p
                   css={`
                     ${textStyle('body2')}
@@ -341,7 +426,7 @@ export default function Notifications({
                   We will send an email when your usage crosses the thresholds
                   specified below.
                 </p>
-              </Box>
+              </Card>
               <Spacer size={2 * GU} />
               <NotificationPreference
                 level="quarter"
@@ -370,6 +455,8 @@ export default function Notifications({
                 onChange={() => onChosePercentageChange('full')}
                 maxRelays={maxRelays}
               />
+              <Spacer size={2 * GU} />
+              <FeedbackBox />
             </>
           }
         />
@@ -439,19 +526,20 @@ function NotificationPreference({
   }, [level])
 
   return (
-    <Box padding={[2 * GU, 2 * GU, 2 * GU, 4 * GU]}>
+    <Card
+      css={`
+        padding: ${2 * GU}px ${2 * GU}px ${2 * GU}px ${4 * GU}px;
+        position: relative;
+      `}
+    >
       <div
         css={`
           position: absolute;
           left: 0;
           top: 0;
-          width: ${1.5 * GU}px;
+          width: ${GU}px;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            ${backgroundColor} 2.32%,
-            ${color(backgroundColor).alpha(0)} 88.51%
-          );
+          background: ${backgroundColor};
           border-radius: ${1 * GU}px 0px 0px ${1 * GU}px;
         `}
       />
@@ -464,7 +552,7 @@ function NotificationPreference({
       >
         <h3
           css={`
-            ${textStyle('title3')}
+            ${textStyle('title2')}
           `}
         >
           {usagePercentage}&nbsp;
@@ -473,12 +561,12 @@ function NotificationPreference({
               ${textStyle('body3')}
             `}
           >
-            of {maxRelays} relays
+            of {maxRelays} relays per day
           </span>
         </h3>
         <Switch checked={checked} onChange={onChange} />
       </div>
-    </Box>
+    </Card>
   )
 }
 
@@ -498,8 +586,7 @@ function Inline({ children }: InlineProps) {
         justify-content: space-between;
         align-items: flex-start;
         flex-wrap: wrap;
-        max-width: ${66 * GU}px;
-        margin: 0 auto;
+        margin: 0 ${5 * GU}px;
         ${compactMode &&
         `
           flex-direction: column;
@@ -520,7 +607,7 @@ const Title = Styled.h3`
 
 const CenteredContainer = Styled.span`
   display: block;
-  ${textStyle('title3')}
+  ${textStyle('body2')}
   font-weight: 700;
 `
 

@@ -14,7 +14,7 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import 'styled-components/macro'
-import Box from '../../../../components/Box/Box'
+import Card from '../../../../components/Card/Card'
 
 const EXPANDABLE_LIST_HEIGHT = 258
 const EXPANDABLE_MIN_LENGTH = 3
@@ -33,9 +33,9 @@ export default function GatewayPanel({
   const toast = useToast()
 
   return (
-    <Box
+    <Card
       css={`
-        padding-bottom: ${4 * GU}px;
+        padding: ${3 * GU}px;
         div:not(:last-child) {
           margin-bottom: ${2 * GU}px;
         }
@@ -106,7 +106,7 @@ export default function GatewayPanel({
           onCopy={() => toast('Public key copied to clipboard')}
         />
       </div>
-    </Box>
+    </Card>
   )
 }
 
@@ -145,7 +145,7 @@ export function AddressPanel({ apps }: AddressPanelProps) {
   })
 
   return (
-    <Box
+    <Card
       css={`
         height: auto;
         padding: 0px;
@@ -216,7 +216,7 @@ export function AddressPanel({ apps }: AddressPanelProps) {
                 height: ${5 * GU}px;
                 border-top: 2px solid ${theme.accent};
                 border-radius: 0 0 ${RADIUS}px ${RADIUS}px;
-                background: ${theme.surfaceGradient2};
+                background: ${theme.backgroundAlternative};
                 color: ${theme.accent};
                 font-weight: bold;
               }
@@ -238,7 +238,7 @@ export function AddressPanel({ apps }: AddressPanelProps) {
           </ButtonBase>
         </>
       )}
-    </Box>
+    </Card>
   )
 }
 

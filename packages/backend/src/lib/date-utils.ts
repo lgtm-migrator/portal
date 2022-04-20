@@ -18,9 +18,9 @@ export function composeDaysFromNowUtcDate(daysAgo: number): string {
 export function composeHoursFromNowUtcDate(hoursAgo: number): string {
   dayjs.extend(dayJsutcPlugin)
 
-  const dayAgo = dayjs.utc().subtract(hoursAgo, 'hour')
+  const hourAgo = dayjs.utc().subtract(hoursAgo, 'hour')
 
-  return dayAgo.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
+  return hourAgo.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
 }
 
 export function composeTodayUtcDate(): string {

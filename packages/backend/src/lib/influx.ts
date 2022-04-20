@@ -97,6 +97,21 @@ from(bucket: "mainnetRelayApp60m")
 `
 }
 
+export function buildAnalyticsQuery({ start, stop }: QueryParams): string {
+  return `
+from(bucket: "mainnetRelayApp60m")
+  |> range(start: ${start}, stop: ${stop})
+  |> filter(fn: (r) =>
+    r._measurement == "relay" and
+    r._field == "count"
+  )
+  |> keep(columns: ["_value", "applicationPublicKey", "blockchain"])
+  |> group(columns: ["applicationPublicKey", "blockchain"])
+  |> sum()
+  |> yield()
+`
+}
+
 export function buildSuccessfulNetworkRelaysQuery({
   start,
   stop,
