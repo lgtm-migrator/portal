@@ -199,6 +199,10 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     { prefix: 'boba-mainnet', name: 'BOBA Mainnet', abbrv: 'BOBA', evm: true },
   ],
   [
+    '0049',
+    { prefix: 'fantom-mainnet', name: 'Fantom Mainnet', abbrv: 'FTM', evm: true },
+  ],
+  [
     '0004',
     { prefix: 'bsc-mainnet', name: 'BSC Mainnet', abbrv: 'BSC', evm: true },
   ],
@@ -221,8 +225,9 @@ export const PRODUCTION_CHAINS = [
   '0027',
   '0028',
   '0040',
-  '0048',
   '0047',
+  '0048',
+  '0049'
 ]
 export const ALPHA_CHAINS: string[] = []
 

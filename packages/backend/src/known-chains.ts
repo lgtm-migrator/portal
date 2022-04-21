@@ -123,5 +123,10 @@ export const KNOWN_CHAINS = {
     ticker: 'BOBA',
     id: '0048',
     limit: 0,
+  },
+  FANTOM_MAINNET: {
+    ticker: 'FTM',
+    id: '0049',
+    limit: 0,
   }
 }
