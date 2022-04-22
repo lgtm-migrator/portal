@@ -200,12 +200,10 @@ export default function NetworkStatus() {
                     renderCheckpoints
                     scales={scales}
                     dotColor={theme.accent}
-                    renderCheckLines
+                    renderVerticalCheckLines
+                    renderHorizontalCheckLines
+                    renderBackground
                     css={`
-                      polygon {
-                        fill: transparent;
-                      }
-
                       circle {
                         filter: drop-shadow(
                           0px 0px 4px rgba(197, 236, 75, 0.3)

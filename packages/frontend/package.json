@@ -13,7 +13,7 @@
   "dependencies": {
     "@fontsource/manrope": "^4.4.5",
     "@pokt-foundation/portal-types": "workspace:^0.0.1",
-    "@pokt-foundation/ui": "0.3.6",
+    "@pokt-foundation/ui": "0.3.7",
     "@reach/visually-hidden": "^0.15.2",
     "@sentry/browser": "^6.7.1",
     "@sentry/react": "^6.7.1",

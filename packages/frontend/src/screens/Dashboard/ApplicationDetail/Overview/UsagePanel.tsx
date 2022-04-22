@@ -7,10 +7,11 @@ import {
   textStyle,
   useTheme,
   GU,
+  Help,
 } from '@pokt-foundation/ui'
 import 'styled-components/macro'
 import { useUsageColor } from '../application-utils'
-import Box from '../../../../components/Box/Box'
+import Card from '../../../../components/Card/Card'
 import { commify } from '../../../../lib/formatting-utils'
 
 interface UsagePanelProps {
@@ -36,7 +37,11 @@ export default function UsagePanel({
   const compactMode = within(-1, 'medium')
 
   return (
-    <Box>
+    <Card
+      css={`
+        padding: ${GU * 3}px;
+      `}
+    >
       <div
         css={`
           display: flex;
@@ -59,11 +64,6 @@ export default function UsagePanel({
             flex-direction: column;
             align-items: center;
             grid-column: 1;
-            ${!compactMode && `border-right: 1px solid ${theme.background};`}
-            ${compactMode &&
-            `border-bottom: 1px solid ${theme.background}; padding-bottom: ${
-              1 * GU
-            }px;`}
           `}
         >
           <h3
@@ -111,19 +111,30 @@ export default function UsagePanel({
             <Spacer size={GU / 2} />
             <span
               css={`
-                display: block;
+                display: flex;
+                align-items: center;
                 ${textStyle('body2')}
                 font-weight: 400;
               `}
             >
               Relays this session
+              <Help
+                placement="right"
+                css={`
+                  margin-left: ${GU / 2}px;
+                `}
+              >
+                Total number of request sent during the current network session,
+                each session has 4 blocks, 15 min each, 1 hour total.
+              </Help>
             </span>
             <Spacer size={1 * GU} />
             <span
               css={`
                 display: block;
-                ${textStyle('body2')}
+                ${textStyle('body3')}
                 font-weight: 400;
+                color: ${theme.placeholder};
               `}
             >
               Max {commify(maxSessionRelays * 24)}
@@ -155,9 +166,21 @@ export default function UsagePanel({
             dotRadius={GU}
             threshold
             scales={chartScales}
+            dotColor={theme.accent}
+            renderVerticalCheckLines
+            renderBackground
+            css={`
+              circle {
+                filter: drop-shadow(0px 0px 4px rgba(197, 236, 75, 0.3));
+              }
+
+              path {
+                stroke-width: 5;
+              }
+            `}
           />
         </div>
       </div>
-    </Box>
+    </Card>
   )
 }
