@@ -19,13 +19,14 @@ import {
   TextCopy,
   IconClock,
 } from '@pokt-foundation/ui'
-import Box from '../../../components/Box/Box'
+import Card from '../../../components/Card/Card'
 import FloatUp from '../../../components/FloatUp/FloatUp'
 import { log, shorten } from '../../../lib/utils'
 import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import MessagePopup from '../../../components/MessagePopup/MessagePopup'
+import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 
 const REFETCH_INTERVAL = 60 * 1000
 
@@ -174,7 +175,11 @@ export default function SuccessDetails({
                   <Spacer size={3 * GU} />
                 </>
               )}
-              <Box padding={[3 * GU, 4 * GU, 3 * GU, 4 * GU]}>
+              <Card
+                css={`
+                  padding: ${3 * GU}px ${4 * GU}px ${3 * GU}px ${4 * GU}px;
+                `}
+              >
                 <div
                   css={`
                     display: flex;
@@ -192,38 +197,55 @@ export default function SuccessDetails({
                     css={`
                       display: flex;
                       flex-direction: column;
+                      justify-content: center;
                     `}
                   >
                     <h2
                       css={`
-                        ${textStyle('title1')}
+                        ${textStyle('title2')}
                       `}
                     >
                       {Intl.NumberFormat().format(totalRelays)}
                       <span
                         css={`
                           display: block;
-                          ${textStyle('title3')}
+                          font-size: ${2 * GU}px;
+                          font-weight: 400;
                         `}
                       >
                         Total requests
                       </span>
-                      <span
-                        css={`
-                          ${textStyle('body3')}
-                        `}
-                      >
-                        Last 24 hours
-                      </span>
+                    </h2>
+                    <h2
+                      css={`
+                        ${textStyle('body3')}
+                      `}
+                    >
+                      Last 24 hours
                     </h2>
                   </div>
                   <Inline>
                     <CircleGraph
                       value={Math.min(successRate, 1)}
                       size={12 * GU}
-                      color={theme.positive}
+                      color="url(#successful-requests-gradient)"
                       strokeWidth={GU * 2}
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="successful-requests-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={theme.accentSecondAlternative}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={theme.accent}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
                     <Spacer size={1 * GU} />
                     <div>
                       <h2
@@ -237,7 +259,8 @@ export default function SuccessDetails({
                         <span
                           css={`
                             display: block;
-                            ${textStyle('body3')}
+                            font-size: ${2 * GU}px;
+                            font-weight: 400;
                           `}
                         >
                           Processed requests
@@ -245,7 +268,8 @@ export default function SuccessDetails({
                       </h2>
                       <h2
                         css={`
-                          ${textStyle('title3')}
+                          font-size: ${2 * GU}px;
+                          font-weight: 700;
                         `}
                       >
                         Successful Requests
@@ -257,14 +281,28 @@ export default function SuccessDetails({
                     <CircleGraph
                       value={Math.max(0, failureRate)}
                       size={12 * GU}
-                      color={theme.negative}
+                      color="url(#error-requests-gradient)"
                       strokeWidth={GU * 2}
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="error-requests-gradient">
+                          <stop
+                            offset="10%"
+                            stop-opacity="100%"
+                            stop-color={theme.errorEnd}
+                          />
+                          <stop
+                            offset="90%"
+                            stop-opacity="100%"
+                            stop-color={theme.errorStart}
+                          />
+                        </linearGradient>
+                      </defs>
+                    </CircleGraph>
                     <Spacer size={1 * GU} />
                     <div>
                       <h2
                         css={`
-                          font-weight: bold;
                           ${textStyle('title2')}
                         `}
                       >
@@ -274,7 +312,8 @@ export default function SuccessDetails({
                         <span
                           css={`
                             display: block;
-                            ${textStyle('body3')}
+                            font-size: ${2 * GU}px;
+                            font-weight: 400;
                           `}
                         >
                           Failed Requests
@@ -282,26 +321,50 @@ export default function SuccessDetails({
                       </h2>
                       <h2
                         css={`
-                          font-weight: bold;
-                          ${textStyle('title3')}
+                          font-size: ${2 * GU}px;
+                          font-weight: 700;
                         `}
                       >
-                        Failure rate
+                        Error rate
                       </h2>
                     </div>
                   </Inline>
                 </div>
-              </Box>
+              </Card>
               <Spacer size={3 * GU} />
-              <Box padding={[0, 0, 0, 0]}>
-                <Spacer size={5 * GU} />
+              <Card
+                css={`
+                  padding: 24px;
+
+                  table thead th {
+                    height: 0;
+                    padding: 0;
+                    border: none;
+                  }
+
+                  table tbody tr td {
+                    border-color: ${theme.disabled};
+                    padding-left: 0;
+                  }
+
+                  table + div {
+                    border: none;
+                  }
+                `}
+              >
+                <h2
+                  css={`
+                    margin: 0  0 ${GU * 3}px 0;
+                    font-size: ${GU * 2 + 2}px;
+                    font-weight: 700;
+                    color:: ${theme.inactive};
+                `}
+                >
+                  Fail Requests Detail
+                </h2>
+                <Spacer size={3 * GU} />
                 <DataView
-                  fields={[
-                    '',
-                    'Request type',
-                    'Bytes transferred',
-                    'Service Node',
-                  ]}
+                  fields={['Request type', 'Bytes transferred', 'Service Node']}
                   entries={data?.errorMetrics ?? ([] as EndpointRpcError[])}
                   renderEntry={({
                     bytes,
@@ -312,21 +375,29 @@ export default function SuccessDetails({
                     return [
                       <div
                         css={`
-                          display: inline-block;
-                          width: ${1.5 * GU}px;
-                          height: ${1.5 * GU}px;
-                          border-radius: 50% 50%;
-                          background: ${theme.negative};
-                          box-shadow: ${theme.negative} 0px 2px 8px 0px;
-                        `}
-                      />,
-                      <p
-                        css={`
-                          ${textStyle('body3')}
+                          display: flex;
+                          align-items: center;
                         `}
                       >
-                        {method ? method : 'Unknown'}
-                      </p>,
+                        <div
+                          css={`
+                            display: inline-block;
+                            width: ${1.5 * GU}px;
+                            height: ${1.5 * GU}px;
+                            border-radius: 50% 50%;
+                            background: ${theme.negative};
+                            box-shadow: ${theme.negative} 0px 2px 8px 0px;
+                            margin-right: ${GU}px;
+                          `}
+                        />
+                        <p
+                          css={`
+                            ${textStyle('body3')}
+                          `}
+                        >
+                          {method ? method : 'Unknown'}
+                        </p>
+                      </div>,
                       <p
                         css={`
                           ${textStyle('body3')}
@@ -395,7 +466,7 @@ export default function SuccessDetails({
                   }}
                   status={isLoading ? 'loading' : 'default'}
                 />
-              </Box>
+              </Card>
             </>
           }
           secondary={
@@ -404,7 +475,9 @@ export default function SuccessDetails({
                 <>
                   <NavigationOptions />
 
-                  <Spacer size={2 * GU} />
+                  <Spacer size={4 * GU} />
+
+                  <FeedbackBox />
                 </>
               )}
             </>
