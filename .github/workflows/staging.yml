@@ -39,7 +39,7 @@ jobs:
           envkey_ERROR_METRICS_URL: ${{ secrets.ERROR_METRICS_URL }}
           envkey_FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           envkey_ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
-          envkey_ENABLE_WORKERS: ${{ secrets.ENABLE_WORKERS }}
+          envkey_ENABLE_WORKERS: false
           envkey_HASURA_URL: ${{ secrets.HASURA_URL }}
           envkey_HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
           envkey_DATABASE_ENCRYPTION_KEY: ${{ secrets.DATABASE_PRODUCTION_ENCRYPTION_KEY }}
