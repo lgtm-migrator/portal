@@ -1,0 +1,134 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  deploy:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
+          envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
+          envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          envkey_AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+          envkey_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          envkey_CLOUDWATCH_GROUP_NAME: ${{ secrets.CLOUDWATCH_GROUP_NAME }}
+          envkey_CLOUDWATCH_ACCESS_KEY: ${{ secrets.CLOUDWATCH_ACCESS_KEY }}
+          envkey_CLOUDWATCH_SECRET_KEY: ${{ secrets.CLOUDWATCH_SECRET_KEY }}
+          envkey_CLOUDWATCH_REGION: ${{ secrets.CLOUDWATCH_REGION }}
+          envkey_ERROR_METRICS_URL: ${{ secrets.ERROR_METRICS_URL }}
+          envkey_FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          envkey_ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
+          envkey_ENABLE_WORKERS: ${{ secrets.ENABLE_WORKERS }}
+          envkey_HASURA_URL: ${{ secrets.HASURA_URL }}
+          envkey_HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
+          envkey_DATABASE_ENCRYPTION_KEY: ${{ secrets.DATABASE_PRODUCTION_ENCRYPTION_KEY }}
+          envkey_REDIS_ENDPOINT: ${{ secrets.REDIS_ENDPOINT }}
+          envkey_GODMODE_ACCOUNT: ${{ secrets.GODMODE_ACCOUNT }}
+          envkey_GODMODE_ACCOUNTS: ${{ secrets.GODMODE_ACCOUNTS }}
+          envkey_INFLUX_ENDPOINT: ${{ secrets.INFLUX_ENDPOINT }}
+          envkey_INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
+          envkey_INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
+          #envkey_POCKET_NETWORK_MAIN_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ACCOUNT }}
+          #envkey_POCKET_NETWORK_MAIN_FUND_ADDRESS: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ADDRESS }}
+          envkey_POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT }}
+          envkey_POCKET_NETWORK_FREE_TIER_FUND_ADDRESS: ${{ secrets.POCKET_NETWORK_FREE_TIER_FUND_ADDRESS }}
+          envkey_POCKET_NETWORK_CLIENT_PUB_KEY: ${{ secrets.POCKET_NETWORK_CLIENT_PUB_KEY }}
+          #envkey_POCKET_NETWORK_CLIENT_PASSPHRASE: ${{ secrets.POCKET_NETWORK_PRODUCTION_CLIENT_PASSPHRASE }}
+          #envkey_POCKET_NETWORK_APP_PUB_KEY: ${{ secrets.POCKET_NETWORK_PRODUCTION_APP_PUB_KEY }}
+          #envkey_POCKET_NETWORK_APP_SIGNATURE: ${{ secrets.POCKET_NETWORK_PRODUCTION_APP_SIGNATURE }}
+          envkey_JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          #envkey_JWT_EXPIRATION: 5m
+          #envkey_JWT_REFRESH_EXPIRATION: 10m
+          envkey_JWT_PRIVATE_SECRET: ${{ secrets.JWT_PRIVATE_SECRET }}
+          envkey_JWT_PUBLIC_SECRET: ${{ secrets.JWT_PUBLIC_SECRET }}
+          #envkey_AUTH_PROVIDER_GITHUB_CLIENT_ID: ${{ secrets.AUTH_PROVIDER_GITHUB_CLIENT_ID }}
+          #envkey_AUTH_PROVIDER_GITHUB_CLIENT_SECRET: ${{ secrets.AUTH_PROVIDER_GITHUB_CLIENT_SECRET }}
+          #envkey_AUTH_PROVIDER_GOOGLE_CLIENT_ID: ${{ secrets.AUTH_PROVIDER_GOOGLE_CLIENT_ID }}
+          #envkey_AUTH_PROVIDER_GOOGLE_CLIENT_SECRET: ${{ secrets.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET }}
+          #envkey_PAYMENT_DEFAULT_CLIENT_ID: ${{ secrets.PAYMENT_PRODUCTION_DEFAULT_CLIENT_ID }}
+          #envkey_PAYMENT_DEFAULT_CLIENT_SECRET: ${{ secrets.PAYMENT_PRODUCTION_DEFAULT_CLIENT_SECRET }}
+          envkey_EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+          envkey_RECAPTCHA_SERVER_SECRET: ${{ secrets.RECAPTCHA_SERVER_SECRET }}
+          #envkey_POKT_USD_MARKET_PRICE: ${{ secrets.POKT_USD_MARKET_PRICE }}
+          envkey_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          envkey_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          #envkey_AWS_S3_FTS_BUCKET: ${{ secrets.AWS_PRODUCTION_S3_FTS_BUCKET }}
+          envkey_AWS_REGION: ${{ secrets.AWS_REGION }}
+          envkey_DATABASE_NAME: gateway
+          envkey_POCKET_NETWORK_MAX_DISPATCHER: 7
+          envkey_POCKET_NETWORK_REQUEST_TIMEOUT: 60000
+          envkey_POCKET_NETWORK_MAX_SESSIONS: 1000000
+          envkey_POCKET_NETWORK_SERVICE_WORKER_DATABASE_URL: redis://dashboard.js6zbp.ng.0001.usw2.cache.amazonaws.com:6379
+          envkey_POCKET_NETWORK_SERVICE_WORKER_DELAYED_START_TIME: 60000
+          envkey_POCKET_NETWORK_SERVICE_WORKER_ATTEMPTS: 15
+          envkey_POCKET_FREE_TIER_STAKE_AMOUNT: 25000000000
+          envkey_POCKET_NETWORK_DISPATCHERS: https://node1.dashboard.mainnet.pokt.network
+          envkey_POCKET_NETWORK_CHAIN_HASH: '0001'
+          envkey_POCKET_NETWORK_CHAIN_ID: mainnet
+          envkey_POCKET_NETWORK_AAT_VERSION: 0.0.1
+          envkey_POCKET_NETWORK_TRANSACTION_FEE: 10000
+          envkey_POCKET_FREE_TIER_MAX_RELAY_PER_DAY_AMOUNT: 10000000
+          envkey_POCKET_NETWORK_PROVIDER_TYPE: HTTP
+          envkey_POCKET_NETWORK_HTTP_PROVIDER_NODE: ${{ secrets.POCKET_NETWORK_HTTP_PROVIDER_NODE }}
+          envkey_AUTH_PROVIDER_GITHUB_CALLBACK_URL: https://dashboard.pokt.network/api/auth/provider/github
+          envkey_AUTH_PROVIDER_GOOGLE_CALLBACK_URL: https://dashboard.pokt.network/api/auth/provider/google
+          envkey_EMAIL_FROM: dashboard@pokt.network
+          envkey_CHECKOUT_DEFAULT_CURRENCY: USD
+          envkey_CHECKOUT_MAX_USD_VALUE: 20000
+          envkey_CHECKOUT_MIN_RELAYS_PER_DAY: 504
+          envkey_CHECKOUT_MAX_RELAYS_PER_DAY: 801000
+          envkey_CHECKOUT_MIN_VALIDATOR_POWER: 15500
+          envkey_CHECKOUT_MAX_VALIDATOR_POWER: 20000
+          envkey_CHECKOUT_BASE_RELAY_PER_POKT: 1.67
+          envkey_CHECKOUT_STABILITY: 0
+          envkey_CHECKOUT_SESSIONS_PER_DAY: 24
+          envkey_CHECKOUT_P_RATE: 1
+          file_name: packages/backend/.env
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: dashboard
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./packages/backend/
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: packages/backend/ecs-task-definition-backend-staging.json
+          container-name: portal-ui-staging-backend
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: portal-ui-staging-service
+          cluster: portal-ui-staging
+          wait-for-service-stability: true
