@@ -84,7 +84,7 @@ jobs:
           envkey_POCKET_NETWORK_SERVICE_WORKER_ATTEMPTS: 15
           envkey_POCKET_FREE_TIER_STAKE_AMOUNT: 25000000000
           envkey_POCKET_NETWORK_DISPATCHERS: https://node1.dashboard.mainnet.pokt.network
-          envkey_POCKET_NETWORK_CHAIN_HASH: '0001'
+          envkey_POCKET_NETWORK_CHAIN_HASH: "0001"
           envkey_POCKET_NETWORK_CHAIN_ID: mainnet
           envkey_POCKET_NETWORK_AAT_VERSION: 0.0.1
           envkey_POCKET_NETWORK_TRANSACTION_FEE: 10000
@@ -104,6 +104,8 @@ jobs:
           envkey_CHECKOUT_STABILITY: 0
           envkey_CHECKOUT_SESSIONS_PER_DAY: 24
           envkey_CHECKOUT_P_RATE: 1
+          envkey_POKT_SCAN_API_URL: ${{ secrets.POKT_SCAN_API_URL }}
+          envkey_POKT_SCAN_TOKEN: ${{ secrets.POKT_SCAN_TOKEN }}
           file_name: packages/backend/.env
 
       - name: Build, tag, and push image to Amazon ECR

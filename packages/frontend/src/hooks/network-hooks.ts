@@ -19,6 +19,31 @@ export type NetworkRelayStats = {
   totalRelays: number
 }
 
+export type PoktScanLatestBlockAndPerformanceData = {
+  highestBlock: {
+    validatorThreshold: number
+    item: {
+      height: number
+      producer: string
+      time: string
+      took: number
+      total_accounts: number
+      total_apps: number
+      total_nodes: number
+      total_relays_completed: number
+      total_txs: number
+    }
+  }
+  getRelaysPerformance: {
+    max_pokt: number
+    max_relays: number
+    thirty_day_pokt_avg: number
+    thirty_day_relays_avg: number
+    today_pokt: number
+    today_relays: number
+  }
+}
+
 export function useNetworkSummary(): {
   isSummaryLoading: boolean
   isSummaryError: boolean
@@ -143,5 +168,40 @@ export function useNetworkStats(): {
     isNetworkStatsLoading,
     isNetworkStatsError,
     networkStats,
+  }
+}
+
+export function usePoktScanLatestBlockAndPerformance(): {
+  isPoktScanLatestBlockAndPerformanceLoading: boolean
+  isPoktScanLatestBlockAndPerformanceError: boolean
+  latestBlockAndPerformance: PoktScanLatestBlockAndPerformanceData
+} {
+  const {
+    data: latestBlockAndPerformance,
+    isLoading: isPoktScanLatestBlockAndPerformanceLoading,
+    isError: isPoktScanLatestBlockAndPerformanceError,
+  } = useQuery(
+    'network/latest-block-and-performance',
+    async function getPoktScanLatestBlockAndPerformance() {
+      const path = `${env(
+        'BACKEND_URL'
+      )}/api/network/latest-block-and-performance`
+
+      try {
+        const { data } = await axios.get(path, {
+          withCredentials: true,
+        })
+
+        return data?.data
+      } catch (err) {
+        console.log()
+      }
+    }
+  )
+
+  return {
+    latestBlockAndPerformance,
+    isPoktScanLatestBlockAndPerformanceError,
+    isPoktScanLatestBlockAndPerformanceLoading,
   }
 }

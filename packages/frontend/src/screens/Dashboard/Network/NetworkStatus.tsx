@@ -25,6 +25,7 @@ import {
   useChains,
   useNetworkStats,
   useNetworkSummary,
+  usePoktScanLatestBlockAndPerformance,
   useTotalWeeklyRelays,
 } from '../../../hooks/network-hooks'
 import Economics from '../../../assets/economicsDevs.png'
@@ -40,6 +41,8 @@ import NetworkSummaryAppsImg from '../../../assets/networkSummaryApps.png'
 import NetworkSummaryNetworksImg from '../../../assets/networkSummaryNetworks.png'
 import Card from '../../../components/Card/Card'
 import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
+import LatestBlock from '../../../components/LatestBlock/LatestBlock'
+import Performance from '../../../components/Performance/Performance'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -91,6 +94,11 @@ export default function NetworkStatus() {
   const { isRelaysError, isRelaysLoading, relayData } = useTotalWeeklyRelays()
   const { isSummaryLoading, summaryData } = useNetworkSummary()
   const { isChainsLoading, chains } = useChains()
+  const {
+    isPoktScanLatestBlockAndPerformanceError,
+    isPoktScanLatestBlockAndPerformanceLoading,
+    latestBlockAndPerformance,
+  } = usePoktScanLatestBlockAndPerformance()
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
@@ -372,6 +380,26 @@ export default function NetworkStatus() {
                     </div>
                   </div>
                 </Card>
+                <Spacer size={4 * GU} />
+                <LatestBlock
+                  isPoktScanLatestBlockAndPerformanceError={
+                    isPoktScanLatestBlockAndPerformanceError
+                  }
+                  isPoktScanLatestBlockAndPerformanceLoading={
+                    isPoktScanLatestBlockAndPerformanceLoading
+                  }
+                  latestBlockAndPerformance={latestBlockAndPerformance}
+                />
+                <Spacer size={3 * GU} />
+                <Performance
+                  isPoktScanLatestBlockAndPerformanceError={
+                    isPoktScanLatestBlockAndPerformanceError
+                  }
+                  isPoktScanLatestBlockAndPerformanceLoading={
+                    isPoktScanLatestBlockAndPerformanceLoading
+                  }
+                  latestBlockAndPerformance={latestBlockAndPerformance}
+                />
                 {!compactMode && (
                   <>
                     <Spacer size={4 * GU} />

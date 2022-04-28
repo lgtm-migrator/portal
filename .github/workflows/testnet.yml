@@ -53,7 +53,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: 'packages/frontend/build'
+          SOURCE_DIR: "packages/frontend/build"
       - name: Clear CloudFront Cache
         uses: awact/cloudfront-action@master
         env:
@@ -119,7 +119,7 @@ jobs:
           envkey_POCKET_NETWORK_SERVICE_WORKER_ATTEMPTS: 15
           envkey_POCKET_FREE_TIER_STAKE_AMOUNT: 25000000000
           envkey_POCKET_NETWORK_DISPATCHERS: https://node1.testnet.pokt.network:443,https://node2.testnet.pokt.network:443,https://node3.testnet.pokt.network:443,https://node4.testnet.pokt.network:443,https://node5.testnet.pokt.network:443,https://node6.testnet.pokt.network:443,https://node7.testnet.pokt.network:443
-          envkey_POCKET_NETWORK_CHAIN_HASH: '0002'
+          envkey_POCKET_NETWORK_CHAIN_HASH: "0002"
           envkey_POCKET_NETWORK_CHAIN_ID: testnet
           envkey_POCKET_NETWORK_AAT_VERSION: 0.0.1
           envkey_POCKET_NETWORK_TRANSACTION_FEE: 10000
@@ -139,6 +139,8 @@ jobs:
           envkey_CHECKOUT_STABILITY: 0
           envkey_CHECKOUT_SESSIONS_PER_DAY: 24
           envkey_CHECKOUT_P_RATE: 1
+          envkey_POKT_SCAN_API_URL: ${{ secrets.POKT_SCAN_API_URL }}
+          envkey_POKT_SCAN_TOKEN: ${{ secrets.POKT_SCAN_TOKEN }}
           file_name: packages/backend/.env
 
       - name: Build, tag, and push image to Amazon ECR

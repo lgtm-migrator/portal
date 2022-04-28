@@ -19,8 +19,14 @@ import {
   influx,
   NETWORK_AGGREGATES_QUERY,
 } from '../lib/influx'
-import { cache, getResponseFromCache, NETWORK_METRICS_TTL } from '../redis'
+import {
+  cache,
+  getResponseFromCache,
+  LB_METRICS_TTL,
+  NETWORK_METRICS_TTL,
+} from '../redis'
 import { KNOWN_CHAINS } from '../known-chains'
+import axios from 'axios'
 
 const router = express.Router()
 
@@ -172,6 +178,47 @@ router.get(
     )
 
     res.status(200).send(processedAggregateStatsResponse)
+  })
+)
+
+router.get(
+  '/latest-block-and-performance',
+  asyncMiddleware(async (_: Request, res: Response) => {
+    const cacheKey = 'pokt-scan-latest-block-and-performance'
+
+    const cachedResponse = await getResponseFromCache(cacheKey)
+
+    if (cachedResponse) {
+      return res.status(200).send(JSON.parse(cachedResponse as string))
+    }
+
+    const latestBlockAndRelaysPerformanceResponse = await axios.post(
+      process.env.POKT_SCAN_API_URL,
+      {
+        operationName: 'getRelaysAndPoktPerformance',
+        variables: {},
+        query:
+          'query getRelaysAndPoktPerformance { getRelaysPerformance {    max_relays    max_pokt    thirty_day_relays_avg    thirty_day_pokt_avg    today_relays    today_pokt    __typename  }  highestBlock { item { height time producer took total_nodes total_apps total_accounts total_txs total_relays_completed } validatorThreshold } }',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: process.env.POKT_SCAN_TOKEN,
+          Accept: '*/*',
+        },
+      }
+    )
+
+    await cache.set(
+      cacheKey,
+      JSON.stringify(latestBlockAndRelaysPerformanceResponse.data),
+      'EX',
+      LB_METRICS_TTL
+    )
+
+    res
+      .status(latestBlockAndRelaysPerformanceResponse.status)
+      .send(latestBlockAndRelaysPerformanceResponse.data)
   })
 )
 
