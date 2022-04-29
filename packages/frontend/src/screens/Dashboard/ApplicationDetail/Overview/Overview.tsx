@@ -277,6 +277,9 @@ export default function Overview({
                 />
                 <Spacer size={3 * GU} />
                 {!gigastake && <AddressPanel apps={appData.apps} />}
+                <Spacer size={2 * GU} />
+                <FeedbackBox />
+                <Spacer size={2 * GU} />
                 <ButtonBase
                   css={`
                     && {
@@ -296,8 +299,6 @@ export default function Overview({
                   />
                   Remove this application
                 </ButtonBase>
-                <Spacer size={2 * GU} />
-                <FeedbackBox />
               </>
             }
           />

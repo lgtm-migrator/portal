@@ -354,11 +354,11 @@ export default function SuccessDetails({
               >
                 <h2
                   css={`
-                    margin: 0  0 ${GU * 3}px 0;
+                    margin: 0 0 ${GU * 3}px 0;
                     font-size: ${GU * 2 + 2}px;
                     font-weight: 700;
-                    color:: ${theme.inactive};
-                `}
+                    color: ${theme.inactive};
+                  `}
                 >
                   Fail Requests Detail
                 </h2>
@@ -392,7 +392,9 @@ export default function SuccessDetails({
                         />
                         <p
                           css={`
-                            ${textStyle('body3')}
+                            ${textStyle('body3')};
+                            max-width: ${!compactMode ? 19 * GU : 10 * GU}px;
+                            overflow: hidden;
                           `}
                         >
                           {method ? method : 'Unknown'}
@@ -413,9 +415,10 @@ export default function SuccessDetails({
                       >
                         <TextCopy
                           value={shorten(nodeAddress, 16)}
-                          onCopy={() =>
+                          onCopy={() => {
                             toast('Node address copied to cliboard')
-                          }
+                            navigator.clipboard.writeText(nodeAddress)
+                          }}
                           css={`
                             width: 100%;
                             > div > input {
