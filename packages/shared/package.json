@@ -10,5 +10,8 @@
     "dotenv": "^8.2.0",
     "graphql-request": "^3.4.0"
   },
-  "gitHead": "814e139fd8a2f9fb1dec17e97e40ce0fb5add160"
+  "gitHead": "814e139fd8a2f9fb1dec17e97e40ce0fb5add160",
+  "devDependencies": {
+    "graphql": "15"
+  }
 }
