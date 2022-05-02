@@ -184,8 +184,8 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   [
     '0046',
     {
-      prefix: 'evmos-testnet',
-      name: 'Evmos Testnet',
+      prefix: 'evmos-mainnet',
+      name: 'Evmos Mainnet',
       abbrv: 'Evmos',
       evm: true,
     },

@@ -104,7 +104,7 @@ export const KNOWN_CHAINS = {
     id: '0006',
     limit: 0,
   },
-  EVMOS_TESTNET: {
+  EVMOS_MAINNET: {
     ticker: 'EVMOS',
     id: '0046',
     limit: 0,
