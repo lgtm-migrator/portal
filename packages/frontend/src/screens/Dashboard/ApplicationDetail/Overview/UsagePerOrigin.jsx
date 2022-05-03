@@ -33,14 +33,12 @@ export default function UsagePerOrigin({ id }) {
           </h2>
         ),
         subtitle: null,
-        illustration: <img src="empty-state-illustration-blue.png" alt="" />,
         clearLabel: null,
       },
       loading: {
         displayLoader: true,
         title: 'Loading data',
         subtitle: null,
-        illustration: <img src="empty-state-illustration-blue.png" alt="" />,
         clearLabel: null,
       },
       'empty-filters': {
