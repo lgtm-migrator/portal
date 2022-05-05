@@ -1,8 +1,8 @@
-name: Production Deployment
+name: Staging Deployment
 
 on:
   push:
-    branches: [mvp]
+    branches: [staging]
 
 jobs:
   deploy:
@@ -28,9 +28,6 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
-          envkey_AUTH0_JWKS_URI: ${{ secrets.AUTH0_JWKS-URI }}
-          envkey_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-          envkey_AUTH0_ISSUER: ${{ secrets.AUTH0_ISSUER }}
           envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
           envkey_AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
@@ -42,7 +39,7 @@ jobs:
           envkey_ERROR_METRICS_URL: ${{ secrets.ERROR_METRICS_URL }}
           envkey_FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           envkey_ALLOWED_DOMAINS: ${{ secrets.ALLOWED_DOMAINS }}
-          envkey_ENABLE_WORKERS: ${{ secrets.ENABLE_WORKERS }}
+          envkey_ENABLE_WORKERS: false
           envkey_HASURA_URL: ${{ secrets.HASURA_URL }}
           envkey_HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
           envkey_DATABASE_ENCRYPTION_KEY: ${{ secrets.DATABASE_PRODUCTION_ENCRYPTION_KEY }}
@@ -115,7 +112,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: dashboard
+          ECR_REPOSITORY: portal-ui-staging
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./packages/backend/
@@ -126,14 +123,14 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: packages/backend/ecs-task-definition-backend.json
-          container-name: dashboard-backend
+          task-definition: packages/backend/ecs-task-definition-backend-staging.json
+          container-name: portal-ui-staging-backend
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: dashboard-service
-          cluster: dashboard-cluster
+          service: portal-ui-staging-service
+          cluster: portal-ui-staging
           wait-for-service-stability: true

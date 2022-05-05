@@ -33,14 +33,12 @@ export default function UsagePerOrigin({ id }) {
           </h2>
         ),
         subtitle: null,
-        illustration: <img src="empty-state-illustration-blue.png" alt="" />,
         clearLabel: null,
       },
       loading: {
         displayLoader: true,
         title: 'Loading data',
         subtitle: null,
-        illustration: <img src="empty-state-illustration-blue.png" alt="" />,
         clearLabel: null,
       },
       'empty-filters': {
@@ -93,6 +91,7 @@ export default function UsagePerOrigin({ id }) {
 
           table tbody tr td {
             border: none;
+            padding-left: 0;
           }
 
           table + div {
@@ -102,7 +101,7 @@ export default function UsagePerOrigin({ id }) {
     >
       <h2
         css={`
-              margin: 0  0 ${GU * 3}px ${GU * 3}px;
+              margin: 0  0 ${GU * 3}px 0;
               font-size: ${GU * 2 + 2}px;
               font-weight: 700;
               color:: ${theme.inactive};
@@ -122,7 +121,6 @@ export default function UsagePerOrigin({ id }) {
                     justify-content: space-between;
                     color: ${theme.accentAlternative};
                     ${textStyle('body3')};
-                    padding: 0 ${GU * 3}px;
                     width: 100%;
                   `}
                 >

@@ -65,6 +65,7 @@ export interface IFeedBackTemplate {
   feedback: string
   location: string
   pageTitle: string
+  user: string
 }
 
 type TemplateData =

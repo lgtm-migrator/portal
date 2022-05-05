@@ -9,7 +9,7 @@ COPY package.json $APP_HOME
 
 COPY . $APP_HOME
 
-RUN npm i -g pnpm && pnpm i && pnpm run build
+RUN npm i -g pnpm@6.32.11 && pnpm i && pnpm run build
 
 ENV HOST=0.0.0.0 PORT=4200
 

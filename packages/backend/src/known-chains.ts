@@ -104,7 +104,7 @@ export const KNOWN_CHAINS = {
     id: '0006',
     limit: 0,
   },
-  EVMOS_TESTNET: {
+  EVMOS_MAINNET: {
     ticker: 'EVMOS',
     id: '0046',
     limit: 0,
@@ -122,6 +122,11 @@ export const KNOWN_CHAINS = {
   BOBA_MAINNET: {
     ticker: 'BOBA',
     id: '0048',
+    limit: 0,
+  },
+  FANTOM_MAINNET: {
+    ticker: 'FTM',
+    id: '0049',
     limit: 0,
   }
 }

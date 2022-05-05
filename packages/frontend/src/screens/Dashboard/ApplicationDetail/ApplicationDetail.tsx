@@ -122,11 +122,7 @@ function ApplicationDetail({ activeApplication }: ApplicationDetailProps) {
         />
       </Route>
       <Route path={`${path}/security`}>
-        <Security
-          appData={activeApplication}
-          maxDailyRelays={maxDailyRelays}
-          stakedTokens={stakedTokens}
-        />
+        <Security appData={activeApplication} />
       </Route>
       <Route path={`${path}/success-details`}>
         <SuccessDetails

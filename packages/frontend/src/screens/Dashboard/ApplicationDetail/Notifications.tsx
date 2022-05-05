@@ -4,24 +4,17 @@ import { useMutation, useQueryClient } from 'react-query'
 import amplitude from 'amplitude-js'
 import axios from 'axios'
 import { useViewport } from 'use-viewport'
-import Styled from 'styled-components/macro'
 import { UserLB } from '@pokt-foundation/portal-types'
 import {
-  Button,
-  CircleGraph,
   Link,
   Spacer,
   Split,
-  Switch,
   textStyle,
-  useTheme,
   useToast,
   GU,
 } from '@pokt-foundation/ui'
 import * as Sentry from '@sentry/react'
-import Card from '../../../components/Card/Card'
 import FloatUp from '../../../components/FloatUp/FloatUp'
-import { formatNumberToSICompact } from '../../../lib/formatting-utils'
 import { log } from '../../../lib/utils'
 import env from '../../../environment'
 import {
@@ -30,11 +23,11 @@ import {
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import { UserLBDailyRelayBucket } from 'packages/types/src'
-import { useUsageColor } from './application-utils'
 import { AmplitudeEvents } from '../../../lib/analytics'
 import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
-
-const GRAPH_SIZE = 130
+import NavigationOptions from '../../../components/Notifications/NavigationOptions/NavigationOptions'
+import WeeklyBandwidthUsage from '../../../components/Notifications/WeeklyBandwidthUsage/WeeklyBandWidthUsage'
+import Alerts from '../../../components/Notifications/Alerts/Alerts'
 
 const DEFAULT_PERCENTAGES = {
   quarter: false,
@@ -54,7 +47,6 @@ export default function Notifications({
   dailyRelays,
   maxDailyRelays,
 }: NotificationsProps) {
-  const theme = useTheme()
   const [chosenPercentages, setChosenPercentages] = useState(
     appData?.notificationSettings ?? DEFAULT_PERCENTAGES
   )
@@ -113,47 +105,6 @@ export default function Notifications({
 
   const compactMode = within(-1, 'medium')
 
-  const highestDailyAmount = useMemo(
-    () =>
-      dailyRelays.reduce(
-        (highest, { daily_relays: dailyRelays }) =>
-          Math.max(highest, dailyRelays),
-        0
-      ),
-    [dailyRelays]
-  )
-
-  const lowestDailyAmount = useMemo(
-    () =>
-      dailyRelays.length === 0
-        ? 0
-        : dailyRelays.reduce(
-            (lowest, { daily_relays: dailyRelays }) =>
-              Math.min(lowest, dailyRelays),
-            Number.POSITIVE_INFINITY
-          ),
-    [dailyRelays]
-  )
-
-  const totalDailyRelays = useMemo(() => {
-    return dailyRelays.length === 0
-      ? 0
-      : dailyRelays.reduce(
-          (sum, { daily_relays: dailyRelays = 0 }) => sum + dailyRelays,
-          0
-        ) / dailyRelays.length
-  }, [dailyRelays])
-
-  const [primaryAverageUsageColor, secondaryAverageUsageColor] = useUsageColor(
-    totalDailyRelays / maxDailyRelays
-  )
-  const [primaryMaxUsageColor, secondaryMaxUsageColor] = useUsageColor(
-    highestDailyAmount / maxDailyRelays
-  )
-  const [primaryMinUsageColor, secondaryMinUsageColor] = useUsageColor(
-    lowestDailyAmount / maxDailyRelays
-  )
-
   const onChosePercentageChange = useCallback(
     (chosenPercentage) => {
       setHasChanged(true)
@@ -170,8 +121,6 @@ export default function Notifications({
     () => isNotificationsLoading || !hasChanged,
     [hasChanged, isNotificationsLoading]
   )
-
-  const maxRelays = formatNumberToSICompact(maxDailyRelays)
 
   return (
     <FloatUp
@@ -201,185 +150,10 @@ export default function Notifications({
                 your stake.
               </p>
               <Spacer size={2 * GU} />
-              <Card
-                css={`
-                  padding: ${3 * GU}px;
-                `}
-              >
-                <div
-                  css={`
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-
-                    ${compactMode &&
-                    `
-                      flex-direction: column;
-                      align-items: flex-start;
-                    `}
-                  `}
-                >
-                  <h2
-                    css={`
-                      ${textStyle('title2')}
-                    `}
-                  >
-                    Weekly Bandwidth Usage
-                  </h2>
-                  {compactMode && <Spacer size={1 * GU} />}
-                  <h3
-                    css={`
-                      ${textStyle('body3')}
-                    `}
-                  >
-                    Max Relays Per Day: {maxRelays}
-                  </h3>
-                </div>
-                <Spacer size={compactMode ? 2 * GU : 5.5 * GU} />
-                <Inline>
-                  <GraphContainer>
-                    <CircleGraph
-                      value={Math.min(totalDailyRelays / maxDailyRelays, 1)}
-                      size={GRAPH_SIZE}
-                      color="url(#average-usage-gradient)"
-                      strokeWidth={GU * 2 + 4}
-                    >
-                      <defs>
-                        <linearGradient id="average-usage-gradient">
-                          <stop
-                            offset="10%"
-                            stop-opacity="100%"
-                            stop-color={secondaryAverageUsageColor}
-                          />
-                          <stop
-                            offset="90%"
-                            stop-opacity="100%"
-                            stop-color={primaryAverageUsageColor}
-                          />
-                        </linearGradient>
-                      </defs>
-                    </CircleGraph>
-                    <Spacer size={1 * GU} />
-                    <Stack
-                      css={`
-                        display: flex;
-                        flex-direction: column;
-                      `}
-                    >
-                      <Title
-                        css={`
-                          span {
-                            color: ${theme.content};
-                          }
-                          color: ${theme.placeholder};
-                        `}
-                      >
-                        <CenteredContainer>AVG Usage</CenteredContainer>
-                        {Intl.NumberFormat().format(
-                          Number(totalDailyRelays.toFixed(0))
-                        )}{' '}
-                        Relays
-                      </Title>
-                    </Stack>
-                  </GraphContainer>
-                  <Spacer size={2 * GU} />
-                  <GraphContainer>
-                    <CircleGraph
-                      value={Math.min(highestDailyAmount / maxDailyRelays, 1)}
-                      size={GRAPH_SIZE}
-                      color="url(#max-usage-gradient)"
-                      strokeWidth={GU * 2 + 4}
-                    >
-                      <defs>
-                        <linearGradient id="max-usage-gradient">
-                          <stop
-                            offset="10%"
-                            stop-opacity="100%"
-                            stop-color={secondaryMaxUsageColor}
-                          />
-                          <stop
-                            offset="90%"
-                            stop-opacity="100%"
-                            stop-color={primaryMaxUsageColor}
-                          />
-                        </linearGradient>
-                      </defs>
-                    </CircleGraph>
-                    <Spacer size={1 * GU} />
-                    <Stack
-                      css={`
-                        display: flex;
-                        flex-direction: column;
-                      `}
-                    >
-                      <Title
-                        css={`
-                          span {
-                            color: ${theme.content};
-                          }
-                          color: ${theme.placeholder};
-                        `}
-                      >
-                        <CenteredContainer>Max Usage</CenteredContainer>
-                        {Intl.NumberFormat().format(highestDailyAmount)} Relays
-                      </Title>
-                    </Stack>
-                  </GraphContainer>
-                  <Spacer size={2 * GU} />
-                  <GraphContainer>
-                    <CircleGraph
-                      value={lowestDailyAmount / maxDailyRelays}
-                      size={GRAPH_SIZE}
-                      color="url(#min-usage-gradient)"
-                      strokeWidth={GU * 2 + 4}
-                    >
-                      <defs>
-                        <linearGradient id="min-usage-gradient">
-                          <stop
-                            offset="10%"
-                            stop-opacity="100%"
-                            stop-color={secondaryMinUsageColor}
-                          />
-                          <stop
-                            offset="90%"
-                            stop-opacity="100%"
-                            stop-color={primaryMinUsageColor}
-                          />
-                        </linearGradient>
-                      </defs>
-                    </CircleGraph>
-                    <Spacer size={1 * GU} />
-                    <Stack
-                      css={`
-                        display: flex;
-                        flex-direction: column;
-                      `}
-                    >
-                      <Title
-                        css={`
-                          ${textStyle('body3')}
-                          span {
-                            color: ${theme.content};
-                          }
-                          color: ${theme.placeholder};
-                        `}
-                      >
-                        <CenteredContainer>Min Usage</CenteredContainer>
-                        {Intl.NumberFormat().format(lowestDailyAmount)} Relays
-                      </Title>
-                    </Stack>
-                  </GraphContainer>
-                </Inline>
-                <Spacer size={5 * GU} />
-                <p
-                  css={`
-                    ${textStyle('body4')}
-                    text-align: center;
-                  `}
-                >
-                  These values are calculated on a period of 7 days.
-                </p>
-              </Card>
+              <WeeklyBandwidthUsage
+                dailyRelays={dailyRelays}
+                maxDailyRelays={maxDailyRelays}
+              />
               <Spacer size={2.5 * GU} />
               <p
                 css={`
@@ -406,54 +180,10 @@ export default function Notifications({
                   <Spacer size={2 * GU} />
                 </>
               )}
-              <Card
-                css={`
-                  padding: ${3 * GU}px;
-                `}
-              >
-                <h3
-                  css={`
-                    margin-bottom: ${2 * GU}px;
-                  `}
-                >
-                  Activate Alerts
-                </h3>
-                <p
-                  css={`
-                    ${textStyle('body2')}
-                  `}
-                >
-                  We will send an email when your usage crosses the thresholds
-                  specified below.
-                </p>
-              </Card>
-              <Spacer size={2 * GU} />
-              <NotificationPreference
-                level="quarter"
-                checked={chosenPercentages.quarter}
-                onChange={() => onChosePercentageChange('quarter')}
-                maxRelays={maxRelays}
-              />
-              <Spacer size={2 * GU} />
-              <NotificationPreference
-                level="half"
-                checked={chosenPercentages.half}
-                onChange={() => onChosePercentageChange('half')}
-                maxRelays={maxRelays}
-              />
-              <Spacer size={2 * GU} />
-              <NotificationPreference
-                level="threeQuarters"
-                checked={chosenPercentages.threeQuarters}
-                onChange={() => onChosePercentageChange('threeQuarters')}
-                maxRelays={maxRelays}
-              />
-              <Spacer size={2 * GU} />
-              <NotificationPreference
-                level="full"
-                checked={chosenPercentages.full}
-                onChange={() => onChosePercentageChange('full')}
-                maxRelays={maxRelays}
+              <Alerts
+                chosenPercentages={chosenPercentages}
+                maxDailyRelays={maxDailyRelays}
+                onChosePercentageChange={onChosePercentageChange}
               />
               <Spacer size={2 * GU} />
               <FeedbackBox />
@@ -464,161 +194,3 @@ export default function Notifications({
     />
   )
 }
-
-interface NavigationOptionsProps {
-  onChangeSave: () => void
-  disabled: boolean
-}
-
-function NavigationOptions({ onChangeSave, disabled }: NavigationOptionsProps) {
-  const history = useHistory()
-
-  return (
-    <>
-      <Button wide onClick={onChangeSave} disabled={disabled}>
-        Save changes
-      </Button>
-      <Spacer size={2 * GU} />
-      <Button wide onClick={() => history.goBack()}>
-        Back to application
-      </Button>
-    </>
-  )
-}
-
-interface NotificationPreferenceProps {
-  level: string
-  checked: boolean
-  onChange: () => void
-  maxRelays: string
-}
-
-function NotificationPreference({
-  level,
-  checked,
-  onChange,
-  maxRelays,
-}: NotificationPreferenceProps) {
-  const theme = useTheme()
-
-  const backgroundColor = useMemo(() => {
-    if (level === 'quarter') {
-      return theme.positive
-    } else if (level === 'half') {
-      return theme.yellow
-    } else if (level === 'threeQuarters') {
-      return theme.warning
-    } else {
-      return theme.negative
-    }
-  }, [level, theme])
-
-  const usagePercentage = useMemo(() => {
-    if (level === 'quarter') {
-      return '25%'
-    } else if (level === 'half') {
-      return '50%'
-    } else if (level === 'threeQuarters') {
-      return '75%'
-    } else {
-      return '100%'
-    }
-  }, [level])
-
-  return (
-    <Card
-      css={`
-        padding: ${2 * GU}px ${2 * GU}px ${2 * GU}px ${4 * GU}px;
-        position: relative;
-      `}
-    >
-      <div
-        css={`
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: ${GU}px;
-          height: 100%;
-          background: ${backgroundColor};
-          border-radius: ${1 * GU}px 0px 0px ${1 * GU}px;
-        `}
-      />
-      <div
-        css={`
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        `}
-      >
-        <h3
-          css={`
-            ${textStyle('title2')}
-          `}
-        >
-          {usagePercentage}&nbsp;
-          <span
-            css={`
-              ${textStyle('body3')}
-            `}
-          >
-            of {maxRelays} relays per day
-          </span>
-        </h3>
-        <Switch checked={checked} onChange={onChange} />
-      </div>
-    </Card>
-  )
-}
-
-interface InlineProps {
-  children: React.ReactNode
-}
-
-function Inline({ children }: InlineProps) {
-  const { within } = useViewport()
-  const compactMode = within(-1, 'medium')
-
-  return (
-    <div
-      css={`
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        margin: 0 ${5 * GU}px;
-        ${compactMode &&
-        `
-          flex-direction: column;
-          align-items: ${compactMode ? `center` : `flex-start`};
-        `}
-      `}
-    >
-      {children}
-    </div>
-  )
-}
-
-const Title = Styled.h3`
-  width: 100%;
-  ${textStyle('body3')}
-  text-align: center;
-`
-
-const CenteredContainer = Styled.span`
-  display: block;
-  ${textStyle('body2')}
-  font-weight: 700;
-`
-
-const GraphContainer = Styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const Stack = Styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
