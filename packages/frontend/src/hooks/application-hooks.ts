@@ -41,12 +41,9 @@ export function useUserApplications(): {
         return
       }
 
-      let lbPath = null
-
+      let lbPath = `${env('BACKEND_URL')}/api/lb`
       if (flags.useAuth0) {
         lbPath = `${env('BACKEND_URL')}/api/v2/lb`
-      } else {
-        lbPath = `${env('BACKEND_URL')}/api/lb`
       }
 
       try {
@@ -97,12 +94,10 @@ export function useOriginClassification({ id }: { id: string }): {
       if (!id) {
         return []
       }
-      let path = null
 
+      let path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
       if (flags.useAuth0) {
         path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
-      } else {
-        path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
       }
 
       try {
