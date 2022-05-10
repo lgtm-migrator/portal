@@ -7,7 +7,7 @@ import { FlagContextProvider } from './contexts/flagsContext'
 import DashboardRoutes from './screens/DashboardRoutes'
 import env from './environment'
 
-const DEFAULT_REFETCH_TIME = 15 * 1000 // 15s
+const DEFAULT_REFETCH_TIME = 60 * 1000 // 15s
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,25 +21,37 @@ const queryClient = new QueryClient({
 function App(): React.ReactElement {
   return (
     <QueryClientProvider client={queryClient}>
-      <FlagContextProvider>
-        <Main>
-          <ViewportProvider>
-            <Router>
-              <Auth0Provider
-                domain={env('AUTH0_DOMAIN') as string}
-                clientId={env('AUTH0_CLIENT_ID') as string}
-                audience={env('AUTH0_AUDIENCE') as string}
-                scope={env('AUTH0_SCOPE') as string}
-                useRefreshTokens={true}
-                cacheLocation={env('AUTH0_CACHE_LOCATION') as CacheLocation}
-                redirectUri={window.location.origin}
-              >
+      {sessionStorage.getItem('useAuth0') === 'true' ? (
+        <Auth0Provider
+          domain={env('AUTH0_DOMAIN') as string}
+          clientId={env('AUTH0_CLIENT_ID') as string}
+          audience={env('AUTH0_AUDIENCE') as string}
+          scope={env('AUTH0_SCOPE') as string}
+          useRefreshTokens={true}
+          cacheLocation={env('AUTH0_CACHE_LOCATION') as CacheLocation}
+          redirectUri={`${window.location.protocol}//${window.location.host}/#/home`}
+        >
+          <FlagContextProvider>
+            <Main>
+              <ViewportProvider>
+                <Router>
+                  <DashboardRoutes />
+                </Router>
+              </ViewportProvider>
+            </Main>
+          </FlagContextProvider>
+        </Auth0Provider>
+      ) : (
+        <FlagContextProvider>
+          <Main>
+            <ViewportProvider>
+              <Router>
                 <DashboardRoutes />
-              </Auth0Provider>
-            </Router>
-          </ViewportProvider>
-        </Main>
-      </FlagContextProvider>
+              </Router>
+            </ViewportProvider>
+          </Main>
+        </FlagContextProvider>
+      )}
     </QueryClientProvider>
   )
 }

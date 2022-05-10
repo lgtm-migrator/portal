@@ -6,7 +6,6 @@ import { Spacer, GU } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
 import MenuPanel from '../../components/MenuPanel/MenuPanel'
 import { AppsContextProvider, useUserApps } from '../../contexts/AppsContext'
-import { useUser } from '../../contexts/UserContext'
 import { UserContextProvider } from '../../contexts/UserContext'
 
 interface DashboardViewProps {
@@ -15,11 +14,8 @@ interface DashboardViewProps {
 
 function DashboardView({ children }: DashboardViewProps) {
   const location = useLocation()
-  const { token, userLoading } = useUser()
 
   const { appsLoading, userApps } = useUserApps()
-  // console.log(appsLoading, userApps, token, userLoading, 'Auth Loaded')
-  // const theme = useTheme()
   const { below } = useViewport()
 
   const compactMode = below('medium')

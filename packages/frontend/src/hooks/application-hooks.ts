@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { UserLB, UserLBOriginBucket } from '@pokt-foundation/portal-types'
@@ -15,8 +15,19 @@ export function useUserApplications(): {
   isAppsLoading: boolean
   refetchUserApps: unknown
 } {
-  const { flags: { flags } = {} } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
+  const [loading, setLoading] = useState(true)
   const { userLoading } = useUser()
+
+  useEffect(() => {
+    if (flags.useAuth0) {
+      if (flags?.authHeaders?.headers?.Authorization !== 'Bearer test') {
+        setLoading(false)
+      }
+    } else {
+      setLoading(userLoading)
+    }
+  }, [flags?.authHeaders?.headers?.Authorization, userLoading])
 
   const {
     isLoading: isAppsLoading,
@@ -26,11 +37,12 @@ export function useUserApplications(): {
   } = useQuery(
     [KNOWN_QUERY_SUFFIXES.USER_APPS],
     async function getUserApplications() {
-      if (userLoading) {
+      if (loading) {
         return
       }
 
       let lbPath = null
+
       if (flags.useAuth0) {
         lbPath = `${env('BACKEND_URL')}/api/v2/lb`
       } else {
@@ -56,7 +68,7 @@ export function useUserApplications(): {
       }
     },
     {
-      enabled: !userLoading,
+      enabled: !loading,
     }
   )
 
@@ -86,6 +98,7 @@ export function useOriginClassification({ id }: { id: string }): {
         return []
       }
       let path = null
+
       if (flags.useAuth0) {
         path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
       } else {

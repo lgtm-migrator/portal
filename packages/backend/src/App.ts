@@ -35,7 +35,7 @@ app.use(
   })
 )
 
-passport.initialize()
+// passport.initialize()
 
 configureRoutes(app)
 app.use(notFoundMiddleware())

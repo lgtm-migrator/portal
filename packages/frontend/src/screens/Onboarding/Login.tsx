@@ -21,13 +21,14 @@ import { FlagContext } from '../../contexts/flagsContext'
 import { AmplitudeEvents } from '../../lib/analytics'
 
 export default function Login() {
-  const { flags: { flags } = {} } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
+
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState(null)
   const [password, setPassword] = useState('')
   const [passwordError, setPasswordError] = useState(null)
   const [errors, setErrors] = useState([])
-  const { user, isAuthenticated, loginWithRedirect } = useAuth0()
+  const { loginWithRedirect } = useAuth0()
   const history = useHistory()
 
   const { isLoading, mutate } = useMutation(async function login(e) {
@@ -67,10 +68,6 @@ export default function Login() {
       await loginWithRedirect()
     }
   })
-
-  React.useEffect(() => {
-    console.log(flags)
-  }, [user, isAuthenticated])
 
   const onEmailChange = useCallback((e) => setEmail(e.target.value), [])
   const onPasswordChange = useCallback((e) => setPassword(e.target.value), [])
@@ -263,7 +260,7 @@ export default function Login() {
   )
 }
 
-function ErrorMessage({ children }) {
+function ErrorMessage({ children }: any) {
   const theme = useTheme()
 
   return (

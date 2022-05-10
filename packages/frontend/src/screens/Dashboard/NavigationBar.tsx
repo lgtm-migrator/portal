@@ -1,7 +1,7 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useMutation } from 'react-query'
-// import axios from 'axios'
+import axios from 'axios'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import { useAuth0 } from '@auth0/auth0-react'
@@ -22,9 +22,10 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import IconMenu from '../../components/MenuPanel/IconMenu'
-// import env from '../../environment'
+import env from '../../environment'
 import { shorten } from '../../lib/utils'
 import { sentryEnabled } from '../../sentry'
+import { FlagContext } from '../../contexts/flagsContext'
 
 const DEFAULT_TITLE = 'Pocket Portal'
 const MAX_CHARACTERS = 25
@@ -77,12 +78,25 @@ export default function NavigationBar({
   const title = useRouteTitle(applications)
   const theme = useTheme()
   const { logout } = useAuth0()
-  const { mutate: onLogout } = useMutation(async function() {
+  const { flags } = useContext(FlagContext)
 
+  const path = `${env('BACKEND_URL')}/api/users/logout`
+
+  const { mutate: onLogout } = useMutation(async function () {
     try {
-      logout()
-
-      history.push('/')
+      if (flags.useAuth0) {
+        logout()
+        history.push('/')
+      } else {
+        await axios.post(
+          path,
+          {},
+          {
+            withCredentials: true,
+          }
+        )
+        history.push('/login')
+      }
     } catch (err) {
       if (sentryEnabled) {
         Sentry.captureException(err)

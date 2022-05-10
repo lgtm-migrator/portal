@@ -73,10 +73,11 @@ importers:
       eslint-plugin-prettier: ^3.3.1
       express: ^4.16.1
       express-jwt: ^6.1.0
-      express-oauth2-jwt-bearer: ^1.1.0
+      form-data: ^4.0.0
       googleapis: ^61.0.0
       http-status-codes: ^2.1.4
       husky: ^4.3.0
+      install: ^0.13.0
       ioredis: ^4.27.6
       jsonwebtoken: ^8.5.1
       jwks-rsa: ^2.0.5
@@ -88,6 +89,7 @@ importers:
       morgan: ^1.9.1
       node-cron: ^2.0.3
       nodemon: ^2.0.7
+      npm: ^8.7.0
       numeral: ^2.0.6
       nyc: ^15.0.0
       passport: ^0.4.1
@@ -134,10 +136,10 @@ importers:
       dotenv: 8.6.0
       express: 4.17.1
       express-jwt: 6.1.0
-      express-oauth2-jwt-bearer: 1.1.0
       googleapis: 61.0.0
       http-status-codes: 2.1.4
       husky: 4.3.8
+      install: 0.13.0
       ioredis: 4.28.0
       jsonwebtoken: 8.5.1
       jwks-rsa: 2.0.5
@@ -148,6 +150,7 @@ importers:
       morgan: 1.10.0
       node-cron: 2.0.3
       nodemon: 2.0.15
+      npm: 8.7.0
       numeral: 2.0.6
       nyc: 15.1.0
       passport: 0.4.1
@@ -198,6 +201,7 @@ importers:
       eslint-plugin-import: 2.25.3_eslint@6.8.0
       eslint-plugin-jsdoc: 31.6.1_eslint@6.8.0
       eslint-plugin-prettier: 3.4.1_d44b5b890dac3a23f50d7db0c264d56d
+      form-data: 4.0.0
       mocha: 8.4.0
       prettier: 2.4.1
       sinon: 9.2.4
@@ -267,7 +271,7 @@ importers:
       "@auth0/auth0-react": 1.10.0_react-dom@17.0.2+react@17.0.2
       "@fontsource/manrope": 4.5.1
       "@pokt-foundation/portal-types": link:../types
-      "@pokt-foundation/ui": 0.3.7_7a082f7d10047d47195aea793f958a14
+      "@pokt-foundation/ui": 0.3.7_7ca9c1acbedc960a9d1db820a1e90a08
       "@reach/visually-hidden": 0.15.2_react-dom@17.0.2+react@17.0.2
       "@sentry/browser": 6.15.0
       "@sentry/react": 6.15.0_react@17.0.2
@@ -3426,7 +3430,7 @@ packages:
       - graphql
     dev: false
 
-  /@pokt-foundation/ui/0.3.7_7a082f7d10047d47195aea793f958a14:
+  /@pokt-foundation/ui/0.3.7_7ca9c1acbedc960a9d1db820a1e90a08:
     resolution:
       {
         integrity: sha512-A0lEEluAzWduDfQa+p0oKtj4LhoAVBRZ9vHscvIY7iuss4ygoaphECB3+J8kqXTmxvVAAilUwKU3rMXuUPocbg==,
@@ -4881,6 +4885,7 @@ packages:
       {
         integrity: sha512-lY+e2TAFuebD3vshHMIRqru3X4+k7Xkba4Wa7QsDBd+ex4c4N2dHAO61E2SrGD9+TRBD8w/o7mzK6ljbqRnbyg==,
       }
+    deprecated: "replaced by the 'expo' package, learn more: https://blog.expo.dev/whats-new-in-expo-modules-infrastructure-7a7cdda81ebc"
     requiresBuild: true
     dependencies:
       compare-versions: 3.6.0
@@ -4892,6 +4897,7 @@ packages:
       {
         integrity: sha512-i9/9Si4AQ8awls+YGAKkByFbeAsOPgUNeLoYeh2SQ3ddjxJ5ZJDtq/I74clDnpDcn8zS9pYlcDJ9fgVJa39Glw==,
       }
+    deprecated: "replaced by the 'expo' package, learn more: https://blog.expo.dev/whats-new-in-expo-modules-infrastructure-7a7cdda81ebc"
     requiresBuild: true
     dependencies:
       expo-modules-autolinking: 0.0.3
@@ -9055,16 +9061,6 @@ packages:
       lodash.set: 4.3.2
     dev: false
 
-  /express-oauth2-jwt-bearer/1.1.0:
-    resolution:
-      {
-        integrity: sha512-T9sSmGftzMACOH1oY2gniHkiJ53dWjPgIUD/CrJDL5Ss5PeX+PAol53upd7eaKLiLn/vp+AMTefxkkDIPEJXBQ==,
-      }
-    engines: { node: 12.19.0 || ^14.15.0 || ^16.13.0 }
-    dependencies:
-      jose: 4.6.2
-    dev: false
-
   /express-unless/1.0.0:
     resolution:
       {
@@ -9583,6 +9579,18 @@ packages:
       combined-stream: 1.0.8
       mime-types: 2.1.34
     dev: false
+
+  /form-data/4.0.0:
+    resolution:
+      {
+        integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==,
+      }
+    engines: { node: ">= 6" }
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.34
+    dev: true
 
   /formidable/1.2.6:
     resolution:
@@ -10644,6 +10652,14 @@ packages:
       xtend: 4.0.2
     dev: false
 
+  /install/0.13.0:
+    resolution:
+      {
+        integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==,
+      }
+    engines: { node: ">= 0.10" }
+    dev: false
+
   /internal-slot/1.0.3:
     resolution:
       {
@@ -11262,13 +11278,6 @@ packages:
     engines: { node: ">=10.13.0 < 13 || >=13.7.0" }
     dependencies:
       "@panva/asn1.js": 1.0.0
-    dev: false
-
-  /jose/4.6.2:
-    resolution:
-      {
-        integrity: sha512-7Jd3kGkgDfhpj+SFqfam70HyVC0gtdfbGc/tHb5dqsWYlQqodgkotqWYEXn1PhQXgdJqsyOAIKT0N4O2riUFiA==,
-      }
     dev: false
 
   /js-git/0.7.8:
@@ -12934,6 +12943,86 @@ packages:
     dependencies:
       path-key: 3.1.1
     dev: false
+
+  /npm/8.7.0:
+    resolution:
+      {
+        integrity: sha512-fOSunmSa1K3dBv4YFoX54wew3PC6aYYDMGWBAonWRO4Yc7smYtk3nLrCda6+dtkTJwA8D4Tv/0wmnpYNgf5VFw==,
+      }
+    engines: { node: ^12.13.0 || ^14.15.0 || >=16 }
+    hasBin: true
+    dev: false
+    bundledDependencies:
+      - "@isaacs/string-locale-compare"
+      - "@npmcli/arborist"
+      - "@npmcli/ci-detect"
+      - "@npmcli/config"
+      - "@npmcli/fs"
+      - "@npmcli/map-workspaces"
+      - "@npmcli/package-json"
+      - "@npmcli/run-script"
+      - abbrev
+      - archy
+      - cacache
+      - chalk
+      - chownr
+      - cli-columns
+      - cli-table3
+      - columnify
+      - fastest-levenshtein
+      - glob
+      - graceful-fs
+      - hosted-git-info
+      - ini
+      - init-package-json
+      - is-cidr
+      - json-parse-even-better-errors
+      - libnpmaccess
+      - libnpmdiff
+      - libnpmexec
+      - libnpmfund
+      - libnpmhook
+      - libnpmorg
+      - libnpmpack
+      - libnpmpublish
+      - libnpmsearch
+      - libnpmteam
+      - libnpmversion
+      - make-fetch-happen
+      - minipass
+      - minipass-pipeline
+      - mkdirp
+      - mkdirp-infer-owner
+      - ms
+      - node-gyp
+      - nopt
+      - npm-audit-report
+      - npm-install-checks
+      - npm-package-arg
+      - npm-pick-manifest
+      - npm-profile
+      - npm-registry-fetch
+      - npm-user-validate
+      - npmlog
+      - opener
+      - pacote
+      - parse-conflict-json
+      - proc-log
+      - qrcode-terminal
+      - read
+      - read-package-json
+      - read-package-json-fast
+      - readdir-scoped-modules
+      - rimraf
+      - semver
+      - ssri
+      - tar
+      - text-table
+      - tiny-relative-date
+      - treeverse
+      - validate-npm-package-name
+      - which
+      - write-file-atomic
 
   /npmlog/4.1.2:
     resolution:

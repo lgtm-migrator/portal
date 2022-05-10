@@ -12,7 +12,6 @@ import Chain from '../models/Blockchains'
 import NetworkData from '../models/NetworkData'
 import ApplicationPool from '../models/PreStakedApp'
 import asyncMiddleware from '../middlewares/async'
-import { authenticate } from '../middlewares/passport-auth'
 import { composeDaysFromNowUtcDate } from '../lib/date-utils'
 import {
   buildSuccessfulNetworkRelaysQuery,
@@ -30,11 +29,7 @@ import axios from 'axios'
 
 const router = express.Router()
 
-router.use(authenticate)
-
-/**
- * Get info for all chains.
- */
+/** Get info for all chains. */
 router.get(
   '/chains',
   asyncMiddleware(async (_: Request, res: Response) => {

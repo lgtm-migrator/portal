@@ -36,10 +36,10 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const { flags: { flags } = {} } = useContext(FlagContext)
+  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
-  const type = 'lb'
+  const type = flags.useAuth0 ? 'v2/lb' : 'lb'
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
