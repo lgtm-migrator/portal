@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import env from './environment'
 
 const DEV_DB_URL =
-  'mongodb+srv://portal-api:wNEepz5xcfmRclvQ@portal-api.kxobp.mongodb.net/gateway?authSource=admin&replicaSet=atlas-g67z6n-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true'
+  'mongodb://mongo-client:mongo-password@localhost:27017/gateway-testnet?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
 
 function composeMongoUrl(production = false) {
   return production ? `${env('DATABASE_URL')}` : `${DEV_DB_URL}`
