@@ -71,8 +71,7 @@ export function useSuccessRateColor(successRate: number): string[] {
 }
 
 export function formatDailyRelaysForGraphing(
-  dailyRelays: UserLBDailyRelayBucket[] = [],
-  upperBound = ONE_MILLION
+  dailyRelays: UserLBDailyRelayBucket[] = []
 ): {
   labels: string[]
   lines: { id: number; values: number[] }[]
@@ -89,6 +88,15 @@ export function formatDailyRelaysForGraphing(
       ? DEFAULT_EMPTY_RELAYS
       : dailyRelays
 
+  const upperBound =
+    dailyRelays.length > 0
+      ? dailyRelays.reduce(
+          (highest, { daily_relays: totalRelays }) =>
+            Math.max(highest, totalRelays),
+          0
+        )
+      : ONE_MILLION
+
   const lines = [
     {
       id: 1,
@@ -97,6 +105,10 @@ export function formatDailyRelaysForGraphing(
       ),
     },
   ]
+
+  if (lines[0].values.length > 7) {
+    lines[0].values.pop()
+  }
 
   const scales = [
     { label: '0' },

@@ -80,10 +80,7 @@ function useMetricValues({
     labels: usageLabels = [],
     lines: usageLines = [],
     scales: usageScales,
-  } = useMemo(
-    () => formatDailyRelaysForGraphing(dailyRelays, maxDailyRelays),
-    [maxDailyRelays, dailyRelays]
-  )
+  } = useMemo(() => formatDailyRelaysForGraphing(dailyRelays), [dailyRelays])
 
   const {
     labels: latencyLabels = [],
@@ -269,6 +266,8 @@ export default function Overview({
                   chartScales={usageScales}
                   maxSessionRelays={maxDailyRelays / SESSIONS_PER_DAY}
                   sessionRelays={currentSessionRelays}
+                  maxDailyRelays={maxDailyRelays}
+                  dailyRelays={dailyRelays}
                 />
                 <Spacer size={3 * GU} />
                 <UsagePerOrigin id={appID} />
