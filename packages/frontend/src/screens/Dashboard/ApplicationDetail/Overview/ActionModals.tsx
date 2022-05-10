@@ -45,6 +45,15 @@ export function RemoveAppModal({
           > div {
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
+
+            ${compactMode &&
+            `
+              > div {
+              > div {
+                height: ${2 * GU}px;
+              }
+            }
+            `}
           }
         `}
       >
