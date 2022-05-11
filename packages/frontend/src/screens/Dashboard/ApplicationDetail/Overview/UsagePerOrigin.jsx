@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { useViewport } from 'use-viewport'
 import { DataView, Link, textStyle, GU, useTheme } from '@pokt-foundation/ui'
 import Card from '../../../../components/Card/Card'

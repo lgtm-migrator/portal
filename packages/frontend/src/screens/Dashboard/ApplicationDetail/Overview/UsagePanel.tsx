@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useViewport } from 'use-viewport'
 import {
   CircleGraph,
@@ -13,6 +13,7 @@ import 'styled-components/macro'
 import { useUsageColor } from '../application-utils'
 import Card from '../../../../components/Card/Card'
 import { commify } from '../../../../lib/formatting-utils'
+import { UserLBDailyRelayBucket } from '@pokt-foundation/portal-types'
 
 interface UsagePanelProps {
   chartLabels: string[]
@@ -20,6 +21,8 @@ interface UsagePanelProps {
   chartScales: { label: string | number }[]
   maxSessionRelays: number
   sessionRelays: number
+  maxDailyRelays: number
+  dailyRelays: UserLBDailyRelayBucket[]
 }
 
 export default function UsagePanel({
@@ -28,6 +31,8 @@ export default function UsagePanel({
   chartScales,
   maxSessionRelays,
   sessionRelays,
+  maxDailyRelays,
+  dailyRelays,
 }: UsagePanelProps) {
   const [primaryUsageColor, secondaryUsageColor] = useUsageColor(
     sessionRelays / maxSessionRelays
@@ -35,6 +40,20 @@ export default function UsagePanel({
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
+
+  const highestDailyRelay = useMemo(
+    () =>
+      dailyRelays.reduce(
+        (highest, { daily_relays: totalRelays }) =>
+          Math.max(highest, totalRelays),
+        0
+      ),
+    [dailyRelays]
+  )
+  const displayThreshold = useMemo(
+    () => maxDailyRelays <= highestDailyRelay,
+    [highestDailyRelay, maxDailyRelays]
+  )
 
   return (
     <Card
@@ -164,7 +183,7 @@ export default function UsagePanel({
             color={() => theme.accentAlternative}
             renderCheckpoints
             dotRadius={GU}
-            threshold
+            threshold={displayThreshold}
             scales={chartScales}
             dotColor={theme.accent}
             renderVerticalCheckLines

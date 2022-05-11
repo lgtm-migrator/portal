@@ -80,10 +80,7 @@ function useMetricValues({
     labels: usageLabels = [],
     lines: usageLines = [],
     scales: usageScales,
-  } = useMemo(
-    () => formatDailyRelaysForGraphing(dailyRelays, maxDailyRelays),
-    [maxDailyRelays, dailyRelays]
-  )
+  } = useMemo(() => formatDailyRelaysForGraphing(dailyRelays), [dailyRelays])
 
   const {
     labels: latencyLabels = [],
@@ -209,7 +206,20 @@ export default function Overview({
                 <EndpointDetails appData={appData} />
                 <Spacer size={3 * GU} />
                 {exceedsSessionRelays || exceedsMaxRelays ? (
-                  <>
+                  <div
+                    css={`
+                      ${compactMode &&
+                      `
+                    > div {
+                      > div {
+                        > div {
+                          height: ${2 * GU}px;
+                        }
+                      }
+                    }
+                  `}
+                    `}
+                  >
                     <Banner
                       mode="warning"
                       title="It's time to up your stake; your app is over the session limit"
@@ -225,7 +235,7 @@ export default function Overview({
                       for further assistance.
                     </Banner>
                     <Spacer size={3 * GU} />
-                  </>
+                  </div>
                 ) : null}
                 <div
                   css={`
@@ -256,9 +266,11 @@ export default function Overview({
                   chartScales={usageScales}
                   maxSessionRelays={maxDailyRelays / SESSIONS_PER_DAY}
                   sessionRelays={currentSessionRelays}
+                  maxDailyRelays={maxDailyRelays}
+                  dailyRelays={dailyRelays}
                 />
                 <Spacer size={3 * GU} />
-                <UsagePerOrigin id={appID} maxRelays={maxDailyRelays} />
+                <UsagePerOrigin id={appID} />
               </>
             }
             secondary={

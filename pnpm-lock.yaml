@@ -3430,10 +3430,10 @@ packages:
       - graphql
     dev: false
 
-  /@pokt-foundation/ui/0.3.7_7ca9c1acbedc960a9d1db820a1e90a08:
+  /@pokt-foundation/ui/0.3.9_7a082f7d10047d47195aea793f958a14:
     resolution:
       {
-        integrity: sha512-A0lEEluAzWduDfQa+p0oKtj4LhoAVBRZ9vHscvIY7iuss4ygoaphECB3+J8kqXTmxvVAAilUwKU3rMXuUPocbg==,
+        integrity: sha512-0Jon3pmGwf1krxHkG9ZIk97SfzomZxI5SmDCg9PiqXch4xogsh0WLvJkcH/orTUqaKc9hc67YVHXAkrD8DDSCQ==,
       }
     engines: { node: ">=12.0.0" }
     peerDependencies:

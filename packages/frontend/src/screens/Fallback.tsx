@@ -8,8 +8,12 @@ import {
   textStyle,
   GU,
 } from '@pokt-foundation/ui'
+import { useViewport } from 'use-viewport'
 
-export default function Fallback(): React.ReactElement {
+export default function Fallback() {
+  const { within } = useViewport()
+  const compactMode = within(-1, 'medium')
+
   return (
     <div
       css={`
@@ -29,6 +33,14 @@ export default function Fallback(): React.ReactElement {
           > div {
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
+
+            ${compactMode &&
+            ` 
+            > div {
+              > div {
+                height: ${2 * GU}px;
+              }
+            }`}
           }
         `}
       >
