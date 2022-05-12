@@ -206,6 +206,10 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     '0004',
     { prefix: 'bsc-mainnet', name: 'BSC Mainnet', abbrv: 'BSC', evm: true },
   ],
+  [
+    '0052',
+    { prefix: 'near-mainnet', name: 'NEAR Mainnet', abbrv: 'NEAR', evm: true },
+  ],
 ])
 
 export const PRODUCTION_CHAINS = [
@@ -227,7 +231,8 @@ export const PRODUCTION_CHAINS = [
   '0040',
   '0047',
   '0048',
-  '0049'
+  '0049',
+  '0052',
 ]
 export const ALPHA_CHAINS: string[] = []
 
