@@ -96,6 +96,15 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     },
   ],
   [
+    '03CB',
+    {
+      prefix: 'avax-cra',
+      name: 'Avalanche Crabada Subnet',
+      abbrv: 'CRA',
+      evm: true,
+    },
+  ],
+  [
     '0021',
     {
       prefix: 'eth-mainnet',
@@ -216,6 +225,7 @@ export const PRODUCTION_CHAINS = [
   '0001',
   '0003',
   '03DF',
+  '03CB',
   '0004',
   '0005',
   '0009',

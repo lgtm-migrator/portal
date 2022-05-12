@@ -24,6 +24,11 @@ export const KNOWN_CHAINS = {
     id: '03DF',
     limit: 0,
   },
+  AVAX_CRA: {
+    ticker: 'AVAX_CRA',
+    id: '03CB',
+    limit: 0,
+  },
   ETHEREUM_GOERLI_FULL: {
     ticker: 'ETH',
     id: '0026',
