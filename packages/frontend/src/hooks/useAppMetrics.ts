@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */
+import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import {
@@ -12,8 +12,10 @@ import {
   UserLBTotalRelaysResponse,
   UserLBTotalSuccessfulRelaysResponse,
 } from '@pokt-foundation/portal-types'
+import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { FlagContext } from '../contexts/flagsContext'
 
 export function useAppMetrics({
   activeApplication,
@@ -34,8 +36,10 @@ export function useAppMetrics({
       ]
     | []
 } {
+  const { flags } = useContext(FlagContext)
+  const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
-  const type = 'lb'
+  const type = flags.useAuth0 ? 'v2/lb' : 'lb'
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
@@ -66,45 +70,44 @@ export function useAppMetrics({
       )}/api/${type}/status/${appId}`
 
       try {
-        const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, {
-          withCredentials: true,
-        })
+        const { data: totalRelaysResponse } = await axios.get(
+          totalRelaysPath,
+          flags.authHeaders
+        )
         const { data: successfulRelaysResponse } = await axios.get(
           successfulRelaysPath,
-          {
-            withCredentials: true,
-          }
+          flags.authHeaders
         )
-        const { data: dailyRelaysResponse } = await axios.get(dailyRelaysPath, {
-          withCredentials: true,
-        })
+
+        const { data: dailyRelaysResponse } = await axios.get(
+          dailyRelaysPath,
+          flags.authHeaders
+        )
+
         const { data: sessionRelaysResponse } = await axios.get(
           sessionRelaysPath,
-          {
-            withCredentials: true,
-          }
+          flags.authHeaders
         )
+
         const { data: previousSuccessfulRelaysResponse } = await axios.get(
           previousSuccessfulRelaysPath,
-          {
-            withCredentials: true,
-          }
+          flags.authHeaders
         )
+
         const { data: previousTotalRelaysResponse } = await axios.get(
           previousTotalRelaysPath,
-          {
-            withCredentials: true,
-          }
+          flags.authHeaders
         )
+
         const { data: hourlyLatencyResponse } = await axios.get(
           hourlyLatencyPath,
-          {
-            withCredentials: true,
-          }
+          flags.authHeaders
         )
-        const { data: onChainDataResponse } = await axios.get(onChainDataPath, {
-          withCredentials: true,
-        })
+
+        const { data: onChainDataResponse } = await axios.get(
+          onChainDataPath,
+          flags.authHeaders
+        )
 
         return [
           totalRelaysResponse as UserLBTotalRelaysResponse,
@@ -119,7 +122,8 @@ export function useAppMetrics({
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    { enabled: !userLoading }
   )
 
   return { metricsLoading: isLoading, metrics: data || [] }

@@ -28,6 +28,9 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
+          envkey_AUTH0_JWKS_URI: ${{ secrets.AUTH0_JWKS-URI }}
+          envkey_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          envkey_AUTH0_ISSUER: ${{ secrets.AUTH0_ISSUER }}
           envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
           envkey_AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
@@ -49,6 +52,8 @@ jobs:
           envkey_INFLUX_ENDPOINT: ${{ secrets.INFLUX_ENDPOINT }}
           envkey_INFLUX_TOKEN: ${{ secrets.INFLUX_TOKEN }}
           envkey_INFLUX_ORG: ${{ secrets.INFLUX_ORG }}
+          envkey_AUTH0_DOMAIN_URL: ${{ secrets.AUTH0_DOMAIN_URL }}
+          envkey_AUTH0MGMT_ACCESS_TOKEN: ${{ secrets.AUTH0_MGMT_ACCESS_TOKEN }}
           #envkey_POCKET_NETWORK_MAIN_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ACCOUNT }}
           #envkey_POCKET_NETWORK_MAIN_FUND_ADDRESS: ${{ secrets.POCKET_NETWORK_PRODUCTION_MAIN_FUND_ADDRESS }}
           envkey_POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT: ${{ secrets.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT }}

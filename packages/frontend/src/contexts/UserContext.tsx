@@ -4,6 +4,8 @@ import amplitude from 'amplitude-js'
 import axios from 'axios'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { FlagContext } from '../contexts/flagsContext'
+import { useAuth0 } from '@auth0/auth0-react'
 
 type UserInfo = {
   userLoading: boolean
@@ -30,14 +32,19 @@ export function useUser(): UserInfo {
 }
 
 function useUserData() {
+  const { flags } = useContext(FlagContext)
   const { data, isLoading, isError } = useQuery(
     [KNOWN_QUERY_SUFFIXES.USER_CONTEXT],
     async function getUserContext() {
-      const path = `${env('BACKEND_URL')}/api/users/user`
+      let path
 
-      const { data } = await axios.get(path, {
-        withCredentials: true,
-      })
+      if (flags.useAuth0) {
+        path = `${env('BACKEND_URL')}/api/v2/users/user`
+      } else {
+        path = `${env('BACKEND_URL')}/api/users/user`
+      }
+
+      const { data } = await axios.get(path, flags.authHeaders)
 
       return data as { email: string | undefined; id: string | undefined }
     }
@@ -55,7 +62,14 @@ export function UserContextProvider({
 }: {
   children: React.ReactNode
 }) {
-  const { data, isLoading } = useUserData()
+  const { flags } = useContext(FlagContext)
+  let data: any, isLoading: any
+
+  if (flags.useAuth0) {
+    ;({ user: data, isLoading } = useAuth0())
+  } else {
+    ;({ data, isLoading } = useUserData())
+  }
 
   const userData = useMemo(() => {
     if (isLoading) {
@@ -67,7 +81,7 @@ export function UserContextProvider({
     }
 
     if (data && env('PROD')) {
-      amplitude.getInstance().setUserId(data.id)
+      amplitude.getInstance().setUserId(data.id.replace(/auth0\|/, ''))
 
       const identifiedUser = new amplitude.Identify().set('email', data.email)
 

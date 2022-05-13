@@ -61,6 +61,7 @@ export default function DashboardRoutes() {
           <Route exact path={`/newpassword`}>
             <NewPassword />
           </Route>
+
           <Dashboard>
             <Route exact path={`/home`}>
               <NetworkStatus />

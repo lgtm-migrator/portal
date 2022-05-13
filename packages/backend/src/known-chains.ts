@@ -19,9 +19,14 @@ export const KNOWN_CHAINS = {
     id: '00A3',
     limit: 0,
   },
-  AVAX_DFK:{
+  AVAX_DFK: {
     ticker: 'AVAX_DFK',
     id: '03DF',
+    limit: 0,
+  },
+  AVAX_CRA: {
+    ticker: 'AVAX_CRA',
+    id: '03CB',
     limit: 0,
   },
   ETHEREUM_GOERLI_FULL: {
@@ -127,6 +132,11 @@ export const KNOWN_CHAINS = {
   FANTOM_MAINNET: {
     ticker: 'FTM',
     id: '0049',
+    limit: 0,
+  },
+  NEAR: {
+    ticker: 'NEAR',
+    id: '0052',
     limit: 0,
   }
 }

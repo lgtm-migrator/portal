@@ -1,9 +1,33 @@
 import React, { useMemo, useState, useContext } from 'react'
 import flagsData from '../utils/flags'
 
-const DEFAULT_FLAGS_STATE = {}
+const DEFAULT_FLAGS_STATE = {
+  flags: {
+    useAuth0: false,
+    authHeaders: {
+      headers: {
+        Authorization: '',
+      },
+    },
+  },
+  updateFlag: Function,
+}
 
-const FlagContext = React.createContext(DEFAULT_FLAGS_STATE)
+type FlagInfo = {
+  flags: {
+    useAuth0: boolean
+    authHeaders: {
+      headers:
+        | {
+            Authorization: string
+          }
+        | { withCredentials: boolean }
+    }
+  }
+  updateFlag: Function
+}
+
+const FlagContext = React.createContext<FlagInfo>(DEFAULT_FLAGS_STATE)
 
 export function useFlags() {
   const context = useContext(FlagContext)
@@ -16,15 +40,20 @@ export function useFlags() {
 }
 
 const FlagContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [flags, setFlags] = useState({
-    flags: flagsData,
-  })
+  const [flags, setFlags] = useState(flagsData)
 
-  const updateFlag = (key: string, value: unknown) => {
-    setFlags((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }))
+  const updateFlag = (key: string | object, value: string | undefined) => {
+    if (typeof key === 'object') {
+      setFlags((prevState) => ({
+        ...prevState,
+        ...key,
+      }))
+    } else {
+      setFlags((prevState) => ({
+        ...prevState,
+        [key]: value,
+      }))
+    }
   }
 
   const memoState = useMemo(

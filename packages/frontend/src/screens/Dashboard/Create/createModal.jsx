@@ -183,18 +183,6 @@ export default function CreateModal({ visible, onClose }) {
     onClose()
   }, [onClose])
 
-  console.log(
-    appName,
-    appChain,
-    isAppsLoading,
-    isCreateError,
-    isCreateLoading,
-    isCreateSuccess,
-    userLoading,
-    userApps.length >= MAX_USER_APPS &&
-      !env('GODMODE_ACCOUNTS').includes(userID)
-  )
-
   const isCreateDisabled = useMemo(
     () =>
       !appName ||

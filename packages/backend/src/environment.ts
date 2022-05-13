@@ -19,11 +19,26 @@ export type PocketNetworkKeys = {
 }
 
 export const ENV_VARS = {
+  AUTH0_JWKS_URI(): string {
+    return process.env.AUTH0_JWKS_URI?.trim() ?? ''
+  },
+  AUTH0_AUDIENCE(): string {
+    return process.env.AUTH0_AUDIENCE?.trim() ?? ''
+  },
+  AUTH0_ISSUER(): string {
+    return process.env.AUTH0_ISSUER?.trim() ?? ''
+  },
+  AUTH0_DOMAIN_URL(): string {
+    return process.env.AUTH0_DOMAIN_URL?.trim() ?? ''
+  },
+  AUTH0_MGMT_ACCESS_TOKEN(): string {
+    return process.env.AUTH0_MGMT_ACCESS_TOKEN?.trim() ?? ''
+  },
   PROD(): boolean {
     return process.env.NODE_ENV === 'production'
   },
   FRONTEND_URL(): string {
-    return process.env.FRONTEND_URL || 'http://localhost:3000'
+    return process.env.FRONTEND_URL || 'http://localhost:3001'
   },
   ERROR_METRICS_URL(): string {
     return process.env.ERROR_METRICS_URL?.trim() ?? ''
@@ -32,7 +47,7 @@ export const ENV_VARS = {
     return process.env.AMPLITUDE_API_KEY?.trim() ?? ''
   },
   ALLOWED_DOMAINS(): string[] {
-    return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3000']
+    return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3001']
   },
   CLOUDWATCH_GROUP_NAME(): string {
     return process.env.CLOUDWATCH_GROUP_NAME?.trim() ?? ''
@@ -135,6 +150,11 @@ export const ENV_VARS = {
 type envVarCategory =
   | 'AMPLITUDE_API_KEY'
   | 'ALLOWED_DOMAINS'
+  | 'AUTH0_AUDIENCE'
+  | 'AUTH0_ISSUER'
+  | 'AUTH0_JWKS_URI'
+  | 'AUTH0_DOMAIN_URL'
+  | 'AUTH0_MGMT_ACCESS_TOKEN'
   | 'CLOUDWATCH_ACCESS_KEY'
   | 'CLOUDWATCH_GROUP_NAME'
   | 'CLOUDWATCH_REGION'

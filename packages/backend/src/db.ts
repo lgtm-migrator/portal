@@ -26,3 +26,7 @@ export const connect = (
     ...userSettings,
   })
 }
+
+export const disconnect = async () => {
+  await mongoose.disconnect()
+}
