@@ -76,16 +76,21 @@ export function UserContextProvider({
       return {
         email: '',
         id: '',
+        sub: '',
         userLoading: true,
       } as UserInfo
     }
 
     if (data && env('PROD')) {
-      amplitude.getInstance().setUserId(data.id.replace(/auth0\|/, ''))
-
-      const identifiedUser = new amplitude.Identify().set('email', data.email)
-
-      amplitude.getInstance().identify(identifiedUser)
+      if (flags.useAuth0) {
+        amplitude.getInstance().setUserId(data?.sub?.replace(/auth0\|/, ''))
+        const identifiedUser = new amplitude.Identify().set('email', data.email)
+        amplitude.getInstance().identify(identifiedUser)
+      } else {
+        amplitude.getInstance().setUserId(data.id)
+        const identifiedUser = new amplitude.Identify().set('email', data.email)
+        amplitude.getInstance().identify(identifiedUser)
+      }
     }
 
     return {
