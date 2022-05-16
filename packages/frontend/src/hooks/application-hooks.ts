@@ -47,7 +47,9 @@ export function useUserApplications(): {
       }
 
       try {
+        console.log('DEBUG', 'Attempting to fetch LBs using LB path: ', lbPath)
         const { data: lbData } = await axios.get(lbPath, flags.authHeaders)
+        console.log('DEBUG', 'Successfully fetched LBs ', lbData)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
@@ -55,6 +57,7 @@ export function useUserApplications(): {
         })) as UserLB[]
         return [...userLbs]
       } catch (err) {
+        console.log('DEBUG', 'LB error:', error)
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
             scope.setTransactionName(`QUERY ${KNOWN_QUERY_SUFFIXES.USER_APPS}`)

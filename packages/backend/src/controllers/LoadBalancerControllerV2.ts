@@ -110,8 +110,11 @@ router.get(
   '',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
+    console.debug('DEBUG', 'Attempting to fetch LBs', req)
     const id = req.user.sub.replace(/auth0\|/g, '')
+    console.debug('DEBUG', 'USER ID', id, 'SUB', req.user.sub)
     const lbs = await LoadBalancer.find({ user: id })
+    console.debug('DEBUG', 'FETCHED LBs', lbs)
 
     if (!lbs) {
       return next(
@@ -201,6 +204,8 @@ router.get(
         return processedLb
       })
     )
+
+    console.debug('DEBUG', 'PROCESSED LBS', processedLbs)
 
     res.status(200).send(processedLbs.filter((lb) => lb?.user))
   })

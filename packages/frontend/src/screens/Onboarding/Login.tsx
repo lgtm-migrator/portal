@@ -37,13 +37,8 @@ export default function Login() {
         const path = `${env('BACKEND_URL')}/api/users/login`
         const res = await axios.post(
           path,
-          {
-            email,
-            password,
-          },
-          {
-            withCredentials: true,
-          }
+          { email, password },
+          { withCredentials: true }
         )
 
         if (res.status === 200 || res.status === 204) {
@@ -55,9 +50,7 @@ export default function Login() {
               lastActiveDate: new Date().toISOString(),
             })
           }
-          history.push({
-            pathname: '/home',
-          })
+          history.push({ pathname: '/home' })
         }
       } catch (err) {
         const { errors = [] } = err?.response?.data

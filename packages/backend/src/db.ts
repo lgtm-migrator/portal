@@ -8,25 +8,22 @@ function composeMongoUrl(production = false) {
   return production ? env('DATABASE_URL') : DEV_DB_URL
 }
 
-export const connect = (
+export const connect = async (
   url = composeMongoUrl(env('PROD')),
   opts = {}
 ): Promise<typeof mongoose> => {
-  console.debug('URL HERE!!', { url })
-
   const userSettings = env('PROD')
-    ? {
-        user: env('DATABASE_USER'),
-        pass: env('DATABASE_PASSWORD'),
-      }
+    ? { user: env('DATABASE_USER'), pass: env('DATABASE_PASSWORD') }
     : {}
 
-  return mongoose.connect(url, {
+  const connection = await mongoose.connect(url, {
     ...opts,
     useNewUrlParser: true,
     useUnifiedTopology: true,
     ...userSettings,
   })
+
+  return connection
 }
 
 export const disconnect = async () => {
