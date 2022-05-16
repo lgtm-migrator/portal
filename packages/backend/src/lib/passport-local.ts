@@ -21,7 +21,7 @@ const AUTH_FIELDS: IStrategyOptionsWithRequest = {
 }
 
 const JWT_OPTIONS: JwtOptions = {
-  secretOrKey: env('JWT_PUBLIC_KEY') as string,
+  secretOrKey: env('JWT_PUBLIC_KEY'),
   algorithms: ['RS256'],
   passReqToCallback: true,
   jwtFromRequest: ExtractJwt.fromExtractors([

@@ -54,11 +54,11 @@ if (env('PROD')) {
   logger.add(
     new WinstonCloudWatch({
       name: 'dashboard-mainnet-backend',
-      logGroupName: env('CLOUDWATCH_GROUP_NAME') as string,
-      logStreamName: env('CLOUDWATCH_GROUP_NAME') as string,
-      awsAccessKeyId: env('CLOUDWATCH_ACCESS_KEY') as string,
-      awsSecretKey: env('CLOUDWATCH_SECRET_KEY') as string,
-      awsRegion: env('CLOUDWATCH_REGION') as string,
+      logGroupName: env('CLOUDWATCH_GROUP_NAME'),
+      logStreamName: env('CLOUDWATCH_GROUP_NAME'),
+      awsAccessKeyId: env('CLOUDWATCH_ACCESS_KEY'),
+      awsSecretKey: env('CLOUDWATCH_SECRET_KEY'),
+      awsRegion: env('CLOUDWATCH_REGION'),
       jsonMessage: true,
       level: 'verbose',
       messageFormatter: (logObject: txLog | unknown) => {

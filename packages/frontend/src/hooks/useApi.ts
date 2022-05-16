@@ -4,8 +4,8 @@ import env from '../environment'
 
 export const useApi = (url: string) => {
   const options = {
-    audience: env('AUTH0_AUDIENCE') as string,
-    scope: env('AUTH0_SCOPE') as string,
+    audience: env('AUTH0_AUDIENCE'),
+    scope: env('AUTH0_SCOPE'),
   }
   const { getAccessTokenSilently } = useAuth0()
   const [state, setState] = useState({

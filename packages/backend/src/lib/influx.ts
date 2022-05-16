@@ -15,10 +15,10 @@ type FilteredAppQueryParams = AppQueryParams & {
 }
 
 export const influx = new InfluxDB({
-  url: env('INFLUX_ENDPOINT') as string,
-  token: env('INFLUX_TOKEN') as string,
+  url: env('INFLUX_ENDPOINT'),
+  token: env('INFLUX_TOKEN'),
   timeout: 60000,
-}).getQueryApi(env('INFLUX_ORG') as string)
+}).getQueryApi(env('INFLUX_ORG'))
 
 export const NETWORK_AGGREGATES_QUERY = `
 success = from(bucket: "mainnetRelayApp60m")
@@ -88,7 +88,7 @@ from(bucket: "mainnetRelayApp60m")
     r._measurement == "relay" and
     r._field == "count" and
     (r.method != "synccheck" and r.method != "chaincheck") and
-    contains(value: r["blockchain"], set: ["0001","0002","0003","0004","0005","0006","0007","0009","0010","0021","0022","0023","0024","0025","0026","0027","0028", "000B", "000C", "000D", "00A3", "0040", "0044"]) 
+    contains(value: r["blockchain"], set: ["0001","0002","0003","0004","0005","0006","0007","0009","0010","0021","0022","0023","0024","0025","0026","0027","0028", "000B", "000C", "000D", "00A3", "0040", "0044"])
     and
     r.result == "200"
   )
@@ -102,11 +102,11 @@ export function buildAnalyticsQuery({ start, stop }: QueryParams): string {
 from(bucket: "mainnetRelayApp10m")
   |> range(start: ${start}, stop: ${stop})
   |> filter(fn: (r) =>
-    r._measurement == "relay" and 
-    r._field == "count" and 
-    (r.method != "synccheck" and r.method != "chaincheck") and 
-    contains(value: r["blockchain"], set: ["0001","0002","0003","03DF","0004","0005","0006","0007","0009","000A","000B","000C","000F","0010","0021","0022","0023","0024","0025","0026","0027","0028","0040","0044","0046","0047","0048","0049"]) and 
-    contains(value: r["region"], set: ["ap-northeast-1","ap-northeast-2","ap-east-1","ap-southeast-1","ap-south1","us-west-2","us-east-1","us-east-2","ca-central-1","eu-north-1","eu-west-1","eu-south-1","eu-west-2","eu-west-3","eu-central-1"]) and 
+    r._measurement == "relay" and
+    r._field == "count" and
+    (r.method != "synccheck" and r.method != "chaincheck") and
+    contains(value: r["blockchain"], set: ["0001","0002","0003","03DF","0004","0005","0006","0007","0009","000A","000B","000C","000F","0010","0021","0022","0023","0024","0025","0026","0027","0028","0040","0044","0046","0047","0048","0049"]) and
+    contains(value: r["region"], set: ["ap-northeast-1","ap-northeast-2","ap-east-1","ap-southeast-1","ap-south1","us-west-2","us-east-1","us-east-2","ca-central-1","eu-north-1","eu-west-1","eu-south-1","eu-west-2","eu-west-3","eu-central-1"]) and
     r.result == "200"
   )
   |> keep(columns: ["_value", "applicationPublicKey", "blockchain"])

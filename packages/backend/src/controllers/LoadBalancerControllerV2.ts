@@ -60,7 +60,7 @@ const DEFAULT_TIMEOUT = 2000
 const DEFAULT_MAX_RELAYS = 42000
 const MAX_USER_ENDPOINTS = 2
 
-const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY') as string
+const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY')
 
 const encryptor = new Encryptor({ key: CRYPTO_KEY })
 
@@ -217,7 +217,7 @@ router.post(
 
     const isNewAppRequestInvalid =
       userLBs.length >= MAX_USER_ENDPOINTS &&
-      !(env('GODMODE_ACCOUNTS') as string[]).includes(id.toString())
+      !env('GODMODE_ACCOUNTS').includes(id.toString())
 
     if (isNewAppRequestInvalid) {
       return next(
@@ -243,7 +243,7 @@ router.post(
 
     const freeTierAAT = await PocketAAT.from(
       '0.0.1',
-      (env('POCKET_NETWORK') as PocketNetworkKeys).clientPubKey,
+      env('POCKET_NETWORK').clientPubKey,
       rawAccount.publicKey,
       rawAccount.privateKey
     )

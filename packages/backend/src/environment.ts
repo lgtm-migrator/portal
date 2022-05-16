@@ -19,108 +19,121 @@ export type PocketNetworkKeys = {
 }
 
 export const ENV_VARS = {
-  AUTH0_JWKS_URI(): string {
+  // String vars
+  AUTH0_JWKS_URI() {
     return process.env.AUTH0_JWKS_URI?.trim() ?? ''
   },
-  AUTH0_AUDIENCE(): string {
+  AUTH0_AUDIENCE() {
     return process.env.AUTH0_AUDIENCE?.trim() ?? ''
   },
-  AUTH0_ISSUER(): string {
+  AUTH0_ISSUER() {
     return process.env.AUTH0_ISSUER?.trim() ?? ''
   },
-  AUTH0_DOMAIN_URL(): string {
+  AUTH0_DOMAIN_URL() {
     return process.env.AUTH0_DOMAIN_URL?.trim() ?? ''
   },
-  AUTH0_MGMT_ACCESS_TOKEN(): string {
+  AUTH0_MGMT_ACCESS_TOKEN() {
     return process.env.AUTH0_MGMT_ACCESS_TOKEN?.trim() ?? ''
   },
-  PROD(): boolean {
-    return process.env.NODE_ENV === 'production'
-  },
-  FRONTEND_URL(): string {
+  FRONTEND_URL() {
     return process.env.FRONTEND_URL || 'http://localhost:3001'
   },
-  ERROR_METRICS_URL(): string {
+  ERROR_METRICS_URL() {
     return process.env.ERROR_METRICS_URL?.trim() ?? ''
   },
-  AMPLITUDE_API_KEY(): string {
+  AMPLITUDE_API_KEY() {
     return process.env.AMPLITUDE_API_KEY?.trim() ?? ''
   },
+  CLOUDWATCH_GROUP_NAME() {
+    return process.env.CLOUDWATCH_GROUP_NAME?.trim() ?? ''
+  },
+  CLOUDWATCH_ACCESS_KEY() {
+    return process.env.CLOUDWATCH_ACCESS_KEY?.trim() ?? ''
+  },
+  CLOUDWATCH_SECRET_KEY() {
+    return process.env.CLOUDWATCH_SECRET_KEY?.trim() ?? ''
+  },
+  CLOUDWATCH_REGION() {
+    return process.env.CLOUDWATCH_REGION?.trim() ?? ''
+  },
+  HASURA_SECRET() {
+    return process.env.HASURA_ADMIN_SECRET || ''
+  },
+  HASURA_URL() {
+    return process.env.HASURA_URL?.trim() ?? ''
+  },
+  INFLUX_ENDPOINT() {
+    return process.env.INFLUX_ENDPOINT?.trim() ?? ''
+  },
+  INFLUX_ORG() {
+    return process.env.INFLUX_ORG?.trim() ?? ''
+  },
+  INFLUX_TOKEN() {
+    return process.env.INFLUX_TOKEN?.trim() ?? ''
+  },
+  JWT_PUBLIC_KEY() {
+    return process.env.JWT_PUBLIC_SECRET?.replace(/\\n/gm, '\n') ?? ''
+  },
+  JWT_PRIVATE_KEY() {
+    return process.env.JWT_PRIVATE_SECRET?.replace(/\\n/gm, '\n') ?? ''
+  },
+  SECRET_KEY() {
+    return process.env.JWT_SECRET_KEY || ''
+  },
+  EMAIL_API_KEY() {
+    return process.env.EMAIL_API_KEY?.trim() ?? ''
+  },
+  EMAIL_FROM() {
+    return process.env.EMAIL_FROM
+  },
+  DATABASE_URL() {
+    return process.env.DATABASE_URL?.trim() ?? ''
+  },
+  DATABASE_USER() {
+    return process.env.DATABASE_USER?.trim() ?? ''
+  },
+  DATABASE_PASSWORD() {
+    return process.env.DATABASE_PASSWORD?.trim() ?? ''
+  },
+  DATABASE_NAME() {
+    return process.env.DATABASE_NAME?.trim() ?? ''
+  },
+  DATABASE_ENCRYPTION_KEY() {
+    return process.env.DATABASE_ENCRYPTION_KEY?.trim() ?? ''
+  },
+  FREE_TIER_ACCOUNT_PRIVATE_KEY() {
+    return process.env.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT
+  },
+  FREE_TIER_ACCOUNT_ADDRESS() {
+    return process.env.POCKET_NETWORK_FREE_TIER_FUND_ADDRESS
+  },
+  POCKET_PROVIDER_NODE() {
+    return process.env.POCKET_NETWORK_HTTP_PROVIDER_NODE
+  },
+  PROD_DB_URL() {
+    return process.env.PROD_DB_URL
+  },
+  REDIS_ENDPOINT() {
+    return process.env.REDIS_ENDPOINT?.trim() ?? ''
+  },
+
+  // String Array Vars
   ALLOWED_DOMAINS(): string[] {
     return process.env.ALLOWED_DOMAINS?.split(',') ?? ['http://localhost:3001']
   },
-  CLOUDWATCH_GROUP_NAME(): string {
-    return process.env.CLOUDWATCH_GROUP_NAME?.trim() ?? ''
+  GODMODE_ACCOUNTS(): string[] {
+    return process.env.GODMODE_ACCOUNTS?.trim().split(',') ?? []
   },
-  CLOUDWATCH_ACCESS_KEY(): string {
-    return process.env.CLOUDWATCH_ACCESS_KEY?.trim() ?? ''
-  },
-  CLOUDWATCH_SECRET_KEY(): string {
-    return process.env.CLOUDWATCH_SECRET_KEY?.trim() ?? ''
-  },
-  CLOUDWATCH_REGION(): string {
-    return process.env.CLOUDWATCH_REGION?.trim() ?? ''
-  },
-  ENABLE_WORKERS(): boolean {
+
+  // Boolean vars
+  ENABLE_WORKERS() {
     return process.env.ENABLE_WORKERS === 'true' || false
   },
-  HASURA_SECRET(): string {
-    return process.env.HASURA_ADMIN_SECRET || ''
+  PROD() {
+    return process.env.NODE_ENV === 'production'
   },
-  HASURA_URL(): string {
-    return process.env.HASURA_URL?.trim() ?? ''
-  },
-  INFLUX_ENDPOINT(): string {
-    return process.env.INFLUX_ENDPOINT?.trim() ?? ''
-  },
-  INFLUX_ORG(): string {
-    return process.env.INFLUX_ORG?.trim() ?? ''
-  },
-  INFLUX_TOKEN(): string {
-    return process.env.INFLUX_TOKEN?.trim() ?? ''
-  },
-  JWT_PUBLIC_KEY(): string {
-    return process.env.JWT_PUBLIC_SECRET?.replace(/\\n/gm, '\n') ?? ''
-  },
-  JWT_PRIVATE_KEY(): string {
-    return process.env.JWT_PRIVATE_SECRET?.replace(/\\n/gm, '\n') ?? ''
-  },
-  SECRET_KEY(): string {
-    return process.env.JWT_SECRET_KEY || ''
-  },
-  EMAIL_API_KEY(): string {
-    return process.env.EMAIL_API_KEY?.trim() ?? ''
-  },
-  EMAIL_FROM(): string {
-    return process.env.EMAIL_FROM
-  },
-  DATABASE_URL(): string {
-    return process.env.DATABASE_URL?.trim() ?? ''
-  },
-  DATABASE_USER(): string {
-    return process.env.DATABASE_USER?.trim() ?? ''
-  },
-  DATABASE_PASSWORD(): string {
-    return process.env.DATABASE_PASSWORD?.trim() ?? ''
-  },
-  DATABASE_NAME(): string {
-    return process.env.DATABASE_NAME?.trim() ?? ''
-  },
-  DATABASE_ENCRYPTION_KEY(): string {
-    return process.env.DATABASE_ENCRYPTION_KEY?.trim() ?? ''
-  },
-  FREE_TIER_ACCOUNT_PRIVATE_KEY(): string {
-    return process.env.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT
-  },
-  FREE_TIER_ACCOUNT_ADDRESS(): string {
-    return process.env.POCKET_NETWORK_FREE_TIER_FUND_ADDRESS
-  },
-  POCKET_PROVIDER_NODE(): string {
-    return process.env.POCKET_NETWORK_HTTP_PROVIDER_NODE
-  },
-  PROD_DB_URL(): string {
-    return process.env.PROD_DB_URL
-  },
+
+  // Pocket Network Vars
   POCKET_NETWORK(): PocketNetworkKeys {
     return {
       aatVersion: process.env.POCKET_NETWORK_AAT_VERSION,
@@ -139,17 +152,10 @@ export const ENV_VARS = {
       clientPubKey: process.env.POCKET_NETWORK_CLIENT_PUB_KEY,
     }
   },
-  REDIS_ENDPOINT(): string {
-    return process.env.REDIS_ENDPOINT?.trim() ?? ''
-  },
-  GODMODE_ACCOUNTS(): string[] {
-    return process.env.GODMODE_ACCOUNTS?.trim().split(',') ?? []
-  },
 }
 
-type envVarCategory =
+type IStringVars =
   | 'AMPLITUDE_API_KEY'
-  | 'ALLOWED_DOMAINS'
   | 'AUTH0_AUDIENCE'
   | 'AUTH0_ISSUER'
   | 'AUTH0_JWKS_URI'
@@ -166,12 +172,10 @@ type envVarCategory =
   | 'DATABASE_USER'
   | 'EMAIL_API_KEY'
   | 'EMAIL_FROM'
-  | 'ENABLE_WORKERS'
   | 'ERROR_METRICS_URL'
   | 'FREE_TIER_ACCOUNT_ADDRESS'
   | 'FREE_TIER_ACCOUNT_PRIVATE_KEY'
   | 'FRONTEND_URL'
-  | 'GODMODE_ACCOUNTS'
   | 'HASURA_SECRET'
   | 'HASURA_URL'
   | 'INFLUX_ENDPOINT'
@@ -179,12 +183,19 @@ type envVarCategory =
   | 'INFLUX_TOKEN'
   | 'JWT_PRIVATE_KEY'
   | 'JWT_PUBLIC_KEY'
-  | 'POCKET_NETWORK'
   | 'POCKET_PROVIDER_NODE'
-  | 'PROD'
   | 'PROD_DB_URL'
   | 'REDIS_ENDPOINT'
   | 'SECRET_KEY'
+type IStringArrayVars = 'ALLOWED_DOMAINS' | 'GODMODE_ACCOUNTS'
+type IBooleanVars = 'ENABLE_WORKERS' | 'PROD'
+type IPocketNetworkKeys = 'POCKET_NETWORK'
+
+type IEnvVars =
+  | IStringVars
+  | IStringArrayVars
+  | IBooleanVars
+  | IPocketNetworkKeys
 
 /**
  * Returns the corresponding object for the named passed
@@ -194,9 +205,20 @@ type envVarCategory =
  * @returns {object} object with scoped environment variables
  *
  */
-export default function env(
-  name: envVarCategory
-): string | string[] | boolean | PocketNetworkKeys {
-  // @ts-ignore
-  return ENV_VARS[name]()
+export default function env<B extends IEnvVars>(
+  name: B
+): B extends IStringVars
+  ? string
+  : B extends IStringArrayVars
+  ? string[]
+  : B extends IBooleanVars
+  ? boolean
+  : PocketNetworkKeys {
+  return ENV_VARS[name]() as B extends IStringVars
+    ? string
+    : B extends IStringArrayVars
+    ? string[]
+    : B extends IBooleanVars
+    ? boolean
+    : PocketNetworkKeys
 }

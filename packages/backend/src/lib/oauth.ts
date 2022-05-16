@@ -7,9 +7,9 @@ export const checkJWT = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: env('AUTH0_JWKS_URI') as string,
+    jwksUri: env('AUTH0_JWKS_URI'),
   }),
-  audience: env('AUTH0_AUDIENCE') as string,
-  issuer: env('AUTH0_ISSUER') as string,
+  audience: env('AUTH0_AUDIENCE'),
+  issuer: env('AUTH0_ISSUER'),
   algorithms: ['RS256'],
 })

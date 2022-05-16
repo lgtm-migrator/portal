@@ -120,8 +120,8 @@ export default function NetworkStatus() {
     if (flags.useAuth0) {
       const getAccessToken = async () => {
         const accessToken = await getAccessTokenSilently({
-          audience: env('AUTH0_AUDIENCE') as string,
-          scope: env('AUTH0_SCOPE') as string,
+          audience: env('AUTH0_AUDIENCE'),
+          scope: env('AUTH0_SCOPE'),
         })
 
         setAccessToken(accessToken)

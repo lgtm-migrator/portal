@@ -23,10 +23,10 @@ function App(): React.ReactElement {
     <QueryClientProvider client={queryClient}>
       {sessionStorage.getItem('useAuth0') === 'true' ? (
         <Auth0Provider
-          domain={env('AUTH0_DOMAIN') as string}
-          clientId={env('AUTH0_CLIENT_ID') as string}
-          audience={env('AUTH0_AUDIENCE') as string}
-          scope={env('AUTH0_SCOPE') as string}
+          domain={env('AUTH0_DOMAIN')}
+          clientId={env('AUTH0_CLIENT_ID')}
+          audience={env('AUTH0_AUDIENCE')}
+          scope={env('AUTH0_SCOPE')}
           useRefreshTokens={true}
           cacheLocation={env('AUTH0_CACHE_LOCATION') as CacheLocation}
           redirectUri={`${window.location.protocol}//${window.location.host}/#/home`}

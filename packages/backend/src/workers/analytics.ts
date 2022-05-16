@@ -338,7 +338,7 @@ export async function sendRelayCountToAmplitude({
   ctx: any
 }): Promise<void> {
   let totalUsage = 0
-  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY') as string)
+  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY'))
 
   for (const [
     userID,
