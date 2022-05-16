@@ -209,7 +209,12 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   ],
   [
     '0049',
-    { prefix: 'fantom-mainnet', name: 'Fantom Mainnet', abbrv: 'FTM', evm: true },
+    {
+      prefix: 'fantom-mainnet',
+      name: 'Fantom Mainnet',
+      abbrv: 'FTM',
+      evm: true,
+    },
   ],
   [
     '0004',

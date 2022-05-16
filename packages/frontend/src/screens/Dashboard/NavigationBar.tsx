@@ -85,8 +85,7 @@ export default function NavigationBar({
   const { mutate: onLogout } = useMutation(async function () {
     try {
       if (flags.useAuth0) {
-        logout()
-        history.push('/')
+        logout({ returnTo: window.location.origin })
       } else {
         await axios.post(
           path,

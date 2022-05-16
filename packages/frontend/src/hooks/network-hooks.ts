@@ -97,7 +97,7 @@ export function useChains(): {
     '/network/chains',
     async function getNetworkChains() {
       const path = `${env('BACKEND_URL')}/api/network/${
-        env('PROD') ? 'stakeable-' : ''
+        env('PROD') ? 'usable-' : ''
       }chains`
 
       try {
