@@ -36,17 +36,17 @@ function useUserData() {
   const { data, isLoading, isError } = useQuery(
     [KNOWN_QUERY_SUFFIXES.USER_CONTEXT],
     async function getUserContext() {
-      let path
-
       if (flags.useAuth0) {
-        path = `${env('BACKEND_URL')}/api/v2/users/user`
+        return { email: '', id: '' }
       } else {
-        path = `${env('BACKEND_URL')}/api/users/user`
+        const path = `${env('BACKEND_URL')}/api/users/user`
+        const { data } = await axios.get<{
+          email: string | undefined
+          id: string | undefined
+        }>(path, flags.authHeaders)
+
+        return data
       }
-
-      const { data } = await axios.get(path, flags.authHeaders)
-
-      return data as { email: string | undefined; id: string | undefined }
     }
   )
 
