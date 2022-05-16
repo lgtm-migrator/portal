@@ -63,13 +63,13 @@ export function UserContextProvider({
   children: React.ReactNode
 }) {
   const { flags } = useContext(FlagContext)
-  let data: any, isLoading: any
 
-  if (flags.useAuth0) {
-    ;({ user: data, isLoading } = useAuth0())
-  } else {
-    ;({ data, isLoading } = useUserData())
-  }
+  const auth0UserData = useAuth0()
+  const oldUserData = useUserData()
+
+  const { data, isLoading } = flags.useAuth0
+    ? { data: auth0UserData.user, isLoading: auth0UserData.isLoading }
+    : oldUserData
 
   const userData = useMemo(() => {
     if (isLoading) {
