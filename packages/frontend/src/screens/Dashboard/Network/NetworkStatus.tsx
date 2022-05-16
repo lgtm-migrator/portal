@@ -129,6 +129,7 @@ export default function NetworkStatus() {
           authHeaders: { headers: { Authorization: `Bearer ${accessToken}` } },
         })
       }
+
       getAccessToken()
     }
   }, [])

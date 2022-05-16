@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import env from '../environment'
 
-export const useApi = (url: string) => {
+interface UseApiReturn {
+  refresh: () => void
+  error: null
+  loading: boolean
+  data: null
+}
+
+export const useApi = (url: string): UseApiReturn => {
   const options = {
     audience: env('AUTH0_AUDIENCE'),
     scope: env('AUTH0_SCOPE'),
@@ -27,6 +34,7 @@ export const useApi = (url: string) => {
             Authorization: `Bearer ${accessToken}`,
           },
         })
+
         setState({
           ...state,
           data: await res.json(),

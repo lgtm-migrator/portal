@@ -105,6 +105,7 @@ export default function SuccessDetails({
     [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id],
     async function getFilteredRelays() {
       let errorMetricsURL
+
       if (flags.useAuth0) {
         errorMetricsURL = `${env('BACKEND_URL')}/api/v2/lb/error-metrics/${id}`
       } else {

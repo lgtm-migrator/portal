@@ -42,6 +42,7 @@ export function useUserApplications(): {
       }
 
       let lbPath = `${env('BACKEND_URL')}/api/lb`
+
       if (flags.useAuth0) {
         lbPath = `${env('BACKEND_URL')}/api/v2/lb`
       }
@@ -49,12 +50,14 @@ export function useUserApplications(): {
       try {
         console.log('DEBUG', 'Attempting to fetch LBs using LB path: ', lbPath)
         const { data: lbData } = await axios.get(lbPath, flags.authHeaders)
+
         console.log('DEBUG', 'Successfully fetched LBs ', lbData)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
           ...rest,
         })) as UserLB[]
+
         return [...userLbs]
       } catch (err) {
         console.log('DEBUG', 'LB error:', error)
@@ -99,6 +102,7 @@ export function useOriginClassification({ id }: { id: string }): {
       }
 
       let path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
+
       if (flags.useAuth0) {
         path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
       }

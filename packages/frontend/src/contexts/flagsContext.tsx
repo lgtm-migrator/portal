@@ -24,7 +24,10 @@ type FlagInfo = {
         | { withCredentials: boolean }
     }
   }
-  updateFlag: Function
+  updateFlag: (
+    key: string | { [key: string]: any },
+    value: string | undefined
+  ) => void
 }
 
 const FlagContext = React.createContext<FlagInfo>(DEFAULT_FLAGS_STATE)
@@ -42,7 +45,10 @@ export function useFlags() {
 const FlagContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [flags, setFlags] = useState(flagsData)
 
-  const updateFlag = (key: string | object, value: string | undefined) => {
+  const updateFlag = (
+    key: string | { [key: string]: any },
+    value: string | undefined
+  ) => {
     if (typeof key === 'object') {
       setFlags((prevState) => ({
         ...prevState,

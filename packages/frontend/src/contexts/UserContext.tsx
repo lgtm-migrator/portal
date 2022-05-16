@@ -88,6 +88,7 @@ export function UserContextProvider({
         amplitude.getInstance().setUserId(data.id)
       }
       const identifiedUser = new amplitude.Identify().set('email', data.email)
+
       amplitude.getInstance().identify(identifiedUser)
     }
 
