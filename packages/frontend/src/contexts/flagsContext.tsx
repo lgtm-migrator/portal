@@ -28,30 +28,29 @@ export function useFlags() {
 const FlagContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [flags, setFlags] = useState(flagsData)
 
-  const updateFlag = (
-    key: string | { [key: string]: any },
-    value: string | undefined
-  ) => {
-    if (typeof key === 'object') {
-      setFlags((prevState) => ({
-        ...prevState,
-        ...key,
-      }))
-    } else {
-      setFlags((prevState) => ({
-        ...prevState,
-        [key]: value,
-      }))
+  const memoState = useMemo(() => {
+    const updateFlag = (
+      key: string | { [key: string]: any },
+      value: string | undefined
+    ) => {
+      if (typeof key === 'object') {
+        setFlags((prevState) => ({
+          ...prevState,
+          ...key,
+        }))
+      } else {
+        setFlags((prevState) => ({
+          ...prevState,
+          [key]: value,
+        }))
+      }
     }
-  }
 
-  const memoState = useMemo(
-    () => ({
+    return {
       flags,
       updateFlag,
-    }),
-    [flags, updateFlag]
-  )
+    }
+  }, [flags, updateFlag])
 
   return (
     <FlagContext.Provider value={memoState}>{children}</FlagContext.Provider>
