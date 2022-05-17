@@ -23,7 +23,7 @@ import { typeGuard, QueryAppResponse, PocketAAT } from '@pokt-network/pocket-js'
 
 import { IAppInfo, GetApplicationQuery } from './types'
 import { cache, getResponseFromCache, LB_METRICS_TTL } from '../redis'
-import env, { PocketNetworkKeys } from '../environment'
+import env from '../environment'
 import asyncMiddleware from '../middlewares/async'
 import Application, { IApplication } from '../models/Application'
 import LoadBalancer, { ILoadBalancer } from '../models/LoadBalancer'

@@ -42,6 +42,15 @@ export const startServer = async (): Promise<void> => {
     app.listen(PORT, () => {
       console.log(`App listening to ${PORT}....`)
       console.log('Press Ctrl+C to quit.')
+      console.debug('JWT CHECK OBJECT', {
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: env('AUTH0_JWKS_URI'),
+        audience: env('AUTH0_AUDIENCE'),
+        issuer: env('AUTH0_ISSUER'),
+        algorithms: ['RS256'],
+      })
     })
   } catch (err) {
     console.error(err)
