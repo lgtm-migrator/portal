@@ -27,7 +27,7 @@ export function useUserApplications(): {
     } else {
       setLoading(userLoading)
     }
-  }, [flags?.authHeaders?.headers?.Authorization, userLoading])
+  }, [flags?.authHeaders?.headers?.Authorization, userLoading, flags.useAuth0])
 
   const {
     isLoading: isAppsLoading,
@@ -60,7 +60,8 @@ export function useUserApplications(): {
 
         return [...userLbs]
       } catch (err) {
-        console.log('DEBUG', 'LB error:', error)
+        console.log('DEBUG', 'LB error:', err)
+
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
             scope.setTransactionName(`QUERY ${KNOWN_QUERY_SUFFIXES.USER_APPS}`)

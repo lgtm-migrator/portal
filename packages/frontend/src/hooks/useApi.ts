@@ -10,10 +10,6 @@ interface UseApiReturn {
 }
 
 export const useApi = (url: string): UseApiReturn => {
-  const options = {
-    audience: env('AUTH0_AUDIENCE'),
-    scope: env('AUTH0_SCOPE'),
-  }
   const { getAccessTokenSilently } = useAuth0()
   const [state, setState] = useState({
     error: null,
@@ -24,6 +20,11 @@ export const useApi = (url: string): UseApiReturn => {
 
   useEffect(() => {
     ;(async () => {
+      const options = {
+        audience: env('AUTH0_AUDIENCE'),
+        scope: env('AUTH0_SCOPE'),
+      }
+
       try {
         const { audience, scope, ...fetchOptions } = options
         const accessToken = await getAccessTokenSilently({ audience, scope })
@@ -49,7 +50,7 @@ export const useApi = (url: string): UseApiReturn => {
         console.log(error)
       }
     })()
-  }, [refreshIndex])
+  }, [refreshIndex, getAccessTokenSilently, state, url])
 
   return {
     ...state,

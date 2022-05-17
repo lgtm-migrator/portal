@@ -1,4 +1,4 @@
-interface FlagsData {
+export interface FlagsData {
   authHeaders: {
     headers?: { Authorization: string }
     withCredentials?: boolean

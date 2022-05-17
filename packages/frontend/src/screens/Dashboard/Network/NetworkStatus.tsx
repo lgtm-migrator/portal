@@ -132,7 +132,7 @@ export default function NetworkStatus() {
 
       getAccessToken()
     }
-  }, [])
+  }, [flags.useAuth0, getAccessTokenSilently, updateFlag])
 
   const {
     labels = [],

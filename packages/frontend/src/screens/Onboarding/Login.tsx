@@ -253,7 +253,7 @@ export default function Login() {
   )
 }
 
-function ErrorMessage({ children }: any) {
+function ErrorMessage({ children }: { children: React.FC }) {
   const theme = useTheme()
 
   return (
