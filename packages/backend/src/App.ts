@@ -43,7 +43,7 @@ export const startServer = async (): Promise<void> => {
       console.log(`App listening to ${PORT}....`)
       console.log('Press Ctrl+C to quit.')
 
-      console.debug('JWT CHECK OBJECT', {
+      console.debug('DEBUG - TESTING JWT CHECK OBJECT', {
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
