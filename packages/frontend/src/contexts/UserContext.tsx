@@ -33,6 +33,7 @@ export function useUser(): UserInfo {
 
 function useUserData() {
   const { flags } = useContext(FlagContext)
+
   const { data, isLoading, isError } = useQuery(
     [KNOWN_QUERY_SUFFIXES.USER_CONTEXT],
     async function getUserContext() {
@@ -40,6 +41,7 @@ function useUserData() {
         return { email: '', id: '' }
       } else {
         const path = `${env('BACKEND_URL')}/api/users/user`
+
         const { data } = await axios.get<{
           email: string | undefined
           id: string | undefined

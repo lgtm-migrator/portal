@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useContext } from 'react'
-import flagsData from '../utils/flags'
+import flagsData, { FlagsData } from '../utils/flags'
 
 const DEFAULT_FLAGS_STATE = {
   flags: {
@@ -13,24 +13,7 @@ const DEFAULT_FLAGS_STATE = {
   updateFlag: Function,
 }
 
-type FlagInfo = {
-  flags: {
-    useAuth0: boolean
-    authHeaders: {
-      headers:
-        | {
-            Authorization: string
-          }
-        | { withCredentials: boolean }
-    }
-  }
-  updateFlag: (
-    key: string | { [key: string]: any },
-    value: string | undefined
-  ) => void
-}
-
-const FlagContext = React.createContext<FlagInfo>(DEFAULT_FLAGS_STATE)
+const FlagContext = React.createContext<FlagsData>(DEFAULT_FLAGS_STATE)
 
 export function useFlags() {
   const context = useContext(FlagContext)

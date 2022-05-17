@@ -95,7 +95,7 @@ const importUsers = async (formattedUsersArray: ParsedUser[][]) => {
       )
       console.log(res.data)
     } catch (err) {
-      /* Auth0 only allows 2 imports simultaneously and a batch of 2500 takes around 8-9 minutes 
+      /* Auth0 only allows 2 imports simultaneously and a batch of 2500 takes around 8-9 minutes
       so I'm waiting 10 mins to be safe. In total there are only 6 batches so it takes about 30 mins
       to import them all. Hang tight... */
       if (err.response.data.message.includes('active import users jobs')) {

@@ -95,12 +95,10 @@ async function createNewVerificationToken(
 router.post(
   '/login',
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    console.debug(await User.find({}))
     passport.authenticate(
       'login',
       { session: false },
       async (err, user: IUser) => {
-        console.debug('ERROR HERE', err, user)
         if (err) {
           return next(err)
         }
@@ -118,7 +116,6 @@ router.post(
         }
 
         if (!user.validated) {
-          console.log('USER NOT FOUND')
           const validationToken = await createNewVerificationToken(
             user._id,
             user.email

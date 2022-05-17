@@ -2,7 +2,6 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import morgan from 'morgan'
-import passport from 'passport'
 import env from './environment'
 import { errorHandler } from './helpers/utils'
 import notFoundMiddleware from './middlewares/not-found'
@@ -19,13 +18,10 @@ if (!env('PROD')) {
 const app = express()
 
 app.use(express.json())
-app.use(
-  express.urlencoded({
-    extended: false,
-  })
-)
+app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(morgan('dev'))
+
 app.use(
   cors({
     origin: ALLOWED_DOMAINS,
@@ -35,9 +31,8 @@ app.use(
   })
 )
 
-// passport.initialize()
-
 configureRoutes(app)
+
 app.use(notFoundMiddleware())
 app.use(errorHandler())
 

@@ -1,8 +1,6 @@
-type FlagsData = {
+interface FlagsData {
   authHeaders: {
-    headers?: {
-      Authorization: string
-    }
+    headers?: { Authorization: string }
     withCredentials?: boolean
   }
   useAuth0: boolean
