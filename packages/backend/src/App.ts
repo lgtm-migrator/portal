@@ -42,6 +42,7 @@ export const startServer = async (): Promise<void> => {
     app.listen(PORT, () => {
       console.log(`App listening to ${PORT}....`)
       console.log('Press Ctrl+C to quit.')
+
       console.debug('JWT CHECK OBJECT', {
         cache: true,
         rateLimit: true,
