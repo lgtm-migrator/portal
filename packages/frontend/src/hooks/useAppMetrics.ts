@@ -1,4 +1,3 @@
-import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import {
@@ -15,7 +14,7 @@ import {
 import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
-import { FlagContext } from '../contexts/flagsContext'
+import { useAuthHeaders } from './useAuthHeaders'
 
 export function useAppMetrics({
   activeApplication,
@@ -36,10 +35,10 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
-  const type = flags.useAuth0 ? 'v2/lb' : 'lb'
+  const useHeaders = useAuthHeaders()
+  const type = 'v2/lb'
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
@@ -69,44 +68,46 @@ export function useAppMetrics({
         'BACKEND_URL'
       )}/api/${type}/status/${appId}`
 
+      const headers = await useHeaders
+
       try {
         const { data: totalRelaysResponse } = await axios.get(
           totalRelaysPath,
-          flags.authHeaders
+          headers
         )
         const { data: successfulRelaysResponse } = await axios.get(
           successfulRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: dailyRelaysResponse } = await axios.get(
           dailyRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: sessionRelaysResponse } = await axios.get(
           sessionRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: previousSuccessfulRelaysResponse } = await axios.get(
           previousSuccessfulRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: previousTotalRelaysResponse } = await axios.get(
           previousTotalRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: hourlyLatencyResponse } = await axios.get(
           hourlyLatencyPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: onChainDataResponse } = await axios.get(
           onChainDataPath,
-          flags.authHeaders
+          headers
         )
 
         return [

@@ -1,10 +1,6 @@
 import React, { useContext, useMemo } from 'react'
-import { useQuery } from 'react-query'
 import amplitude from 'amplitude-js'
-import axios from 'axios'
 import env from '../environment'
-import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
-import { FlagContext } from '../contexts/flagsContext'
 import { useAuth0 } from '@auth0/auth0-react'
 
 type UserInfo = {
@@ -31,47 +27,12 @@ export function useUser(): UserInfo {
   return context
 }
 
-function useUserData() {
-  const { flags } = useContext(FlagContext)
-
-  const { data, isLoading, isError } = useQuery(
-    [KNOWN_QUERY_SUFFIXES.USER_CONTEXT],
-    async function getUserContext() {
-      if (flags.useAuth0) {
-        return { email: '', id: '' }
-      } else {
-        const path = `${env('BACKEND_URL')}/api/users/user`
-
-        const { data } = await axios.get<{
-          email: string | undefined
-          id: string | undefined
-        }>(path, flags.authHeaders)
-
-        return data
-      }
-    }
-  )
-
-  return {
-    data,
-    isLoading,
-    isError,
-  }
-}
-
 export function UserContextProvider({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { flags } = useContext(FlagContext)
-
-  const auth0UserData = useAuth0()
-  const oldUserData = useUserData()
-
-  const { data, isLoading } = flags.useAuth0
-    ? { data: auth0UserData.user, isLoading: auth0UserData.isLoading }
-    : oldUserData
+  const { user, isAuthenticated, isLoading } = useAuth0()
 
   const userData = useMemo(() => {
     if (isLoading) {
@@ -83,23 +44,19 @@ export function UserContextProvider({
       } as UserInfo
     }
 
-    if (data && env('PROD')) {
-      if (flags.useAuth0) {
-        amplitude.getInstance().setUserId(data?.sub?.replace(/auth0\|/, ''))
-      } else {
-        amplitude.getInstance().setUserId(data.id)
-      }
-      const identifiedUser = new amplitude.Identify().set('email', data.email)
+    if (isAuthenticated && user && env('PROD')) {
+      amplitude.getInstance().setUserId(user.sub?.replace(/auth0\|/, ''))
+      const identifiedUser = new amplitude.Identify().set('email', user.email)
 
       amplitude.getInstance().identify(identifiedUser)
     }
 
     return {
-      ...data,
+      ...user,
       userLoading: false,
     } as UserInfo
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(data), isLoading])
+  }, [JSON.stringify(user), isLoading])
 
   return (
     <UserContext.Provider value={userData}>{children}</UserContext.Provider>

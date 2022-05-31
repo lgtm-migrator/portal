@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useContext, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
@@ -26,9 +26,9 @@ import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
 import { useUser } from '../../../contexts/UserContext'
-import { FlagContext } from '../../../contexts/flagsContext'
 import MessagePopup from '../../../components/MessagePopup/MessagePopup'
 import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 const REFETCH_INTERVAL = 60 * 1000
 
@@ -81,13 +81,13 @@ export default function SuccessDetails({
   successfulRelays,
   totalRelays,
 }: SuccessDetailsProps) {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
   const [activeClockElement, setActiveClockElement] = useState<string>('')
   const [clockMsgVisible, setClockMsgVisible] = useState<boolean>(false)
   const { within } = useViewport()
+  const headers = useAuthHeaders()
 
   const onClockMsgOpen = useCallback((timestamp: string) => {
     setActiveClockElement(timestamp)
@@ -104,20 +104,16 @@ export default function SuccessDetails({
   const { isLoading, data } = useQuery(
     [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id],
     async function getFilteredRelays() {
-      let errorMetricsURL
-
-      if (flags.useAuth0) {
-        errorMetricsURL = `${env('BACKEND_URL')}/api/v2/lb/error-metrics/${id}`
-      } else {
-        errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
-      }
+      const errorMetricsURL = `${env(
+        'BACKEND_URL'
+      )}/api/v2/lb/error-metrics/${id}`
 
       if (!id) {
         return []
       }
 
       try {
-        const { data } = await axios.get(errorMetricsURL, flags.authHeaders)
+        const { data } = await axios.get(errorMetricsURL, await headers)
 
         const transformedErrorMetrics = await Promise.all(
           data.map(async (e: EndpointRpcError) => {
