@@ -1,12 +1,22 @@
-import React from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Redirect, Link as RouterLink } from 'react-router-dom'
 import 'styled-components/macro'
 import { useAuth0 } from '@auth0/auth0-react'
 import { Button, Link, Spacer, textStyle, GU } from '@pokt-foundation/ui'
 import Onboarding from '../../components/Onboarding/Onboarding'
+import env from '../../environment'
 
 export default function Login() {
-  const { loginWithRedirect } = useAuth0()
+  const { loginWithRedirect, isAuthenticated } = useAuth0()
+
+  if (isAuthenticated) {
+    return (
+      <Redirect
+        to={{
+          pathname: '/home',
+        }}
+      />
+    )
+  }
 
   return (
     <Onboarding>
@@ -49,8 +59,12 @@ export default function Login() {
             to={{
               pathname: '/signup',
             }}
+            onClick={(event) => {
+              event.preventDefault()
+              loginWithRedirect({ screen_hint: 'signup' })
+            }}
             component={Link}
-            external={false}
+            external={true}
           >
             Get started.
           </RouterLink>

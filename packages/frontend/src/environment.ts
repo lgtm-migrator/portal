@@ -15,7 +15,10 @@ const ENV_VARS = {
     return (import.meta.env.VITE_APP_AUTH0_SCOPE as string)?.trim() ?? ''
   },
   AUTH0_CACHE_LOCATION() {
-    return (import.meta.env.VITE_APP_CACHE_LOCATION as string)?.trim() ?? ''
+    return (
+      (import.meta.env.VITE_APP_AUTH0_CACHE_LOCATION as string)?.trim() ??
+      'localstorage'
+    )
   },
   AMPLITUDE_API_KEY() {
     return import.meta.env.VITE_APP_AMPLITUDE_API_KEY as string
