@@ -38,35 +38,32 @@ export function useAppMetrics({
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
   const useHeaders = useAuthHeaders()
-  const type = 'v2/lb'
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
     async function getMetrics() {
       const totalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/total-relays/${appId}`
+      )}/api/lb/total-relays/${appId}`
       const successfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/successful-relays/${appId}`
+      )}/api/lb/successful-relays/${appId}`
       const dailyRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/daily-relays/${appId}`
+      )}/api/lb/daily-relays/${appId}`
       const sessionRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/session-relays/${appId}`
+      )}/api/lb/session-relays/${appId}`
       const previousSuccessfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-successful-relays/${appId}`
+      )}/api/lb/previous-successful-relays/${appId}`
       const previousTotalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-total-relays/${appId}`
+      )}/api/lb/previous-total-relays/${appId}`
       const hourlyLatencyPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/hourly-latency/${appId}`
-      const onChainDataPath = `${env(
-        'BACKEND_URL'
-      )}/api/${type}/status/${appId}`
+      )}/api/lb/hourly-latency/${appId}`
+      const onChainDataPath = `${env('BACKEND_URL')}/api/lb/status/${appId}`
 
       const headers = await useHeaders
 
