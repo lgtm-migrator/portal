@@ -24,7 +24,10 @@ app.use(morgan('dev'))
 
 app.use(
   cors({
-    origin: ALLOWED_DOMAINS,
+    origin: [
+      /.*-pocket-foundation\.vercel\.app/,
+      ...ALLOWED_DOMAINS,
+    ],
     methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
     credentials: true,
     exposedHeaders: ['Authorization'],
