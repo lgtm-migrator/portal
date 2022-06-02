@@ -41,21 +41,16 @@ export function useUserApplications(): {
         return
       }
 
-      let lbPath = `${env('BACKEND_URL')}/api/lb`
+      const lbPath = `${env('BACKEND_URL')}/api/lb`
 
-      if (flags.useAuth0) {
-        lbPath = `${env('BACKEND_URL')}/api/v2/lb`
-      }
+      // DEV NOTE -> Turned off to test LB endpoint working.
+      // This logic no longer relevant once Auth0 PR merged to staging. -Pascal
+      // if (flags.useAuth0) {
+      //   lbPath = `${env('BACKEND_URL')}/api/v2/lb`
+      // }
 
       try {
-        console.debug(
-          'DEBUG',
-          'Attempting to fetch LBs using LB path: ',
-          lbPath
-        )
         const { data: lbData } = await axios.get(lbPath, flags.authHeaders)
-
-        console.debug('DEBUG', 'Successfully fetched LBs ', lbData)
 
         const userLbs = lbData.map(({ ...rest }) => ({
           isLb: true,
@@ -64,8 +59,6 @@ export function useUserApplications(): {
 
         return [...userLbs]
       } catch (err) {
-        console.debug('DEBUG', 'LB error:', err)
-
         if (sentryEnabled) {
           Sentry.configureScope((scope) => {
             scope.setTransactionName(`QUERY ${KNOWN_QUERY_SUFFIXES.USER_APPS}`)
@@ -106,11 +99,13 @@ export function useOriginClassification({ id }: { id: string }): {
         return []
       }
 
-      let path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
+      const path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
 
-      if (flags.useAuth0) {
-        path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
-      }
+      // DEV NOTE -> Turned off to test LB endpoint working.
+      // This logic no longer relevant once Auth0 PR merged to staging. -Pascal
+      // if (flags.useAuth0) {
+      //   path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
+      // }
 
       try {
         const { data } = await axios.get(path, flags.authHeaders)

@@ -107,7 +107,9 @@ export default function SuccessDetails({
       let errorMetricsURL
 
       if (flags.useAuth0) {
-        errorMetricsURL = `${env('BACKEND_URL')}/api/v2/lb/error-metrics/${id}`
+        // Removed v2 from endpoint to test backend change. -Pascal
+        // errorMetricsURL = `${env('BACKEND_URL')}/api/v2/lb/error-metrics/${id}`
+        errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
       } else {
         errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
       }
