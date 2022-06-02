@@ -18,7 +18,7 @@ export function useUserApplications(): {
   const [loading, setLoading] = useState(true)
   const { userLoading } = useUser()
   const headers = useAuthHeaders()
-  const path = `${env('BACKEND_URL')}/api/v2/lb`
+  const path = `${env('BACKEND_URL')}/api/lb`
 
   useEffect(() => {
     setLoading(userLoading)
@@ -76,7 +76,7 @@ export function useOriginClassification({ id }: { id: string }): {
   const { userLoading } = useUser()
   const headers = useAuthHeaders()
 
-  const path = `${env('BACKEND_URL')}/api/v2/lb/origin-classification/${id}`
+  const path = `${env('BACKEND_URL')}/api/lb/origin-classification/${id}`
 
   const {
     isLoading,

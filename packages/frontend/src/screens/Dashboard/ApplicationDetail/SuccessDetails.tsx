@@ -104,21 +104,7 @@ export default function SuccessDetails({
   const { isLoading, data } = useQuery(
     [KNOWN_QUERY_SUFFIXES.LATEST_FILTERED_DETAILS, id],
     async function getFilteredRelays() {
-<<<<<<< HEAD
-      const errorMetricsURL = `${env(
-        'BACKEND_URL'
-      )}/api/v2/lb/error-metrics/${id}`
-=======
-      let errorMetricsURL
-
-      if (flags.useAuth0) {
-        // Removed v2 from endpoint to test backend change. -Pascal
-        // errorMetricsURL = `${env('BACKEND_URL')}/api/v2/lb/error-metrics/${id}`
-        errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
-      } else {
-        errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
-      }
->>>>>>> staging
+      const errorMetricsURL = `${env('BACKEND_URL')}/api/lb/error-metrics/${id}`
 
       if (!id) {
         return []
