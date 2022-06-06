@@ -223,6 +223,10 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     '0050',
     { prefix: 'moonbeam-mainnet', name: 'MOONBEAM Mainnet', abbrv: 'MOONBEAM', evm: true },
   ],
+  [
+    '0051',
+    { prefix: 'moonriver-mainnet', name: 'MOONRIVER Mainnet', abbrv: 'MOONRIVER', evm: true },
+  ],
 ])
 
 export const PRODUCTION_CHAINS = [
@@ -247,7 +251,8 @@ export const PRODUCTION_CHAINS = [
   '0048',
   '0049',
   '0052',
-  '0050'
+  '0050',
+  '0051'
 ]
 export const ALPHA_CHAINS: string[] = []
 

@@ -143,5 +143,10 @@ export const KNOWN_CHAINS = {
     ticker: 'GLMR',
     id: '0050',
     limit: 0,
+  },
+  MOONRIVER_MAINNET: {
+    ticker: 'MOVR',
+    id: '0051',
+    limit: 0,
   }
 }
