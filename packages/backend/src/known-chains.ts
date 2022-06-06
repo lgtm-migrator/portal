@@ -117,12 +117,12 @@ export const KNOWN_CHAINS = {
   OEC_MAINNET: {
     ticker: 'OEC',
     id: '0047',
-    limit: 0
+    limit: 0,
   },
   BSC_MAINNET: {
     ticker: 'BSC',
     id: '0004',
-    limit: 0
+    limit: 0,
   },
   BOBA_MAINNET: {
     ticker: 'BOBA',
@@ -138,5 +138,15 @@ export const KNOWN_CHAINS = {
     ticker: 'NEAR',
     id: '0052',
     limit: 0,
-  }
+  },
+  MOONBEAM_MAINNET: {
+    ticker: 'GLMR',
+    id: '0050',
+    limit: 0,
+  },
+  MOONRIVER_MAINNET: {
+    ticker: 'MOVR',
+    id: '0051',
+    limit: 0,
+  },
 }
