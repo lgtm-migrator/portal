@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useMutation } from 'react-query'
 import axios from 'axios'
 import * as Sentry from '@sentry/react'
@@ -23,7 +23,7 @@ export default function ForgotPassword() {
   const theme = useTheme()
 
   const { isLoading, isError, isSuccess, mutate } = useMutation(
-    async function sendResetEmail(e) {
+    async function sendResetEmail() {
       const path = `${env('BACKEND_URL')}/api/users/send-reset-email`
 
       try {

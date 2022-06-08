@@ -4,6 +4,8 @@ import amplitude from 'amplitude-js'
 import axios from 'axios'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { FlagContext } from '../contexts/flagsContext'
+import { useAuth0 } from '@auth0/auth0-react'
 
 type UserInfo = {
   userLoading: boolean
@@ -30,16 +32,23 @@ export function useUser(): UserInfo {
 }
 
 function useUserData() {
+  const { flags } = useContext(FlagContext)
+
   const { data, isLoading, isError } = useQuery(
     [KNOWN_QUERY_SUFFIXES.USER_CONTEXT],
     async function getUserContext() {
-      const path = `${env('BACKEND_URL')}/api/users/user`
+      if (flags.useAuth0) {
+        return { email: '', id: '' }
+      } else {
+        const path = `${env('BACKEND_URL')}/api/users/user`
 
-      const { data } = await axios.get(path, {
-        withCredentials: true,
-      })
+        const { data } = await axios.get<{
+          email: string | undefined
+          id: string | undefined
+        }>(path, flags.authHeaders)
 
-      return data as { email: string | undefined; id: string | undefined }
+        return data
+      }
     }
   )
 
@@ -55,20 +64,31 @@ export function UserContextProvider({
 }: {
   children: React.ReactNode
 }) {
-  const { data, isLoading } = useUserData()
+  const { flags } = useContext(FlagContext)
+
+  const auth0UserData = useAuth0()
+  const oldUserData = useUserData()
+
+  const { data, isLoading } = flags.useAuth0
+    ? { data: auth0UserData.user, isLoading: auth0UserData.isLoading }
+    : oldUserData
 
   const userData = useMemo(() => {
     if (isLoading) {
       return {
         email: '',
         id: '',
+        sub: '',
         userLoading: true,
       } as UserInfo
     }
 
     if (data && env('PROD')) {
-      amplitude.getInstance().setUserId(data.id)
-
+      if (flags.useAuth0) {
+        amplitude.getInstance().setUserId(data?.sub?.replace(/auth0\|/, ''))
+      } else {
+        amplitude.getInstance().setUserId(data.id)
+      }
       const identifiedUser = new amplitude.Identify().set('email', data.email)
 
       amplitude.getInstance().identify(identifiedUser)

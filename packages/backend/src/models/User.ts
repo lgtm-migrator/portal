@@ -55,7 +55,7 @@ userSchema.statics.comparePassword = function comparePassword(
 }
 userSchema.methods.generateVerificationToken =
   function generateVerificationToken() {
-    const token = jwt.sign({ id: this._id }, env('JWT_PRIVATE_KEY') as string, {
+    const token = jwt.sign({ id: this._id }, env('JWT_PRIVATE_KEY'), {
       expiresIn: '10d',
       algorithm: 'RS256',
     })

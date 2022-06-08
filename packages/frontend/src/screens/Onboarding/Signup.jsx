@@ -201,7 +201,6 @@ function SignupForm({
   password,
   passwordError,
   repeatedPassword,
-  repeatedPasswordError,
   isSubmitDisabled,
   onCheckChange,
   onEmailBlur,

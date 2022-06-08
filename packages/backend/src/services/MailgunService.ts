@@ -80,7 +80,7 @@ export default class MailgunService {
 
   constructor() {
     this.mailService = mailgun({
-      apiKey: env('EMAIL_API_KEY') as string,
+      apiKey: env('EMAIL_API_KEY'),
       domain: DOMAIN,
     })
   }

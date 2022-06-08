@@ -14,6 +14,7 @@ interface DashboardViewProps {
 
 function DashboardView({ children }: DashboardViewProps) {
   const location = useLocation()
+
   const { appsLoading, userApps } = useUserApps()
   const { below } = useViewport()
 
@@ -95,10 +96,10 @@ interface DashboardProps {
 
 export default function Dashboard({ children }: DashboardProps) {
   return (
-    <AppsContextProvider>
-      <UserContextProvider>
+    <UserContextProvider>
+      <AppsContextProvider>
         <DashboardView>{children}</DashboardView>
-      </UserContextProvider>
-    </AppsContextProvider>
+      </AppsContextProvider>
+    </UserContextProvider>
   )
 }

@@ -313,7 +313,7 @@ export default function Create() {
             overflow-x: hidden;
           `}
         >
-          {transitionProps.map(({ _, key, props }) => (
+          {transitionProps.map(({ key, props }) => (
             <animated.div
               key={key}
               style={props}

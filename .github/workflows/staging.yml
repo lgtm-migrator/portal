@@ -27,6 +27,9 @@ jobs:
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v1
         with:
+          envkey_AUTH0_JWKS_URI: ${{ secrets.AUTH0_JWKS_URI }}
+          envkey_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          envkey_AUTH0_ISSUER: ${{ secrets.AUTH0_ISSUER }}
           envkey_DATABASE_URL: ${{ secrets.MONGO_PRODUCTION_DATABASE_URL }}
           envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}

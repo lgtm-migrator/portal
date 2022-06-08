@@ -1,11 +1,12 @@
+import axios from 'axios'
 import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
 import Application from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
-import User from '../models/User'
 import { composeHoursFromNowUtcDate } from '../lib/date-utils'
 import env from '../environment'
+import { splitAuth0ID } from '../lib/split-auth0-id'
 
 interface IUserProfile {
   email: string
@@ -14,6 +15,13 @@ interface IUserProfile {
   numberOfEndpoints: number
   publicKeys: string[]
   publicKeysPerEndpoint: number[]
+}
+
+interface IAuth0User {
+  email: string
+  id: string
+  legacy: boolean
+  auth0: boolean
 }
 
 interface IRelayMetricUpdate {
@@ -45,6 +53,28 @@ const DEFAULT_USER_PROFILE = {
 
 const { isValid } = Types.ObjectId
 const ORPHANED_KEY = 'ORPHANED'
+
+async function fetchUserFromAuth0(id: string): Promise<IAuth0User | null> {
+  try {
+    const res = await axios.get(
+      `${env('AUTH0_DOMAIN_URL')}/api/v2/users/${encodeURIComponent(id)}`,
+      {
+        headers: { authorization: `Bearer ${env('AUTH0_MGMT_ACCESS_TOKEN')}` },
+      }
+    )
+
+    const { data } = res
+
+    return {
+      email: data.email,
+      id: splitAuth0ID(data.user_id),
+      legacy: data.user_metadata?.legacy ?? false,
+      auth0: true,
+    } as IAuth0User
+  } catch (err) {
+    return null
+  }
+}
 
 export async function fetchUsedApps(
   ctx: any
@@ -79,8 +109,11 @@ export async function fetchUsedApps(
     const [applicationPublicKey, chainID] =
       applicationPublicKeyWithChain.split('-')
     const usageByChain = appsUsedByChain.get(applicationPublicKey) ?? []
+
     usageByChain.push({ chain: chainID, usage })
     appsUsedByChain.set(applicationPublicKey, usageByChain)
+
+    // Sum total endpoint usage for accounting purposes
     totalEndpointUsage += usage
   }
 
@@ -142,6 +175,9 @@ export async function mapUsageToProfiles(
       lb.applicationIDs.find((id) => id === app?._id?.toString())
     )
 
+    // Option 1:
+    // No LB found, so this app is considered orphaned.
+    // It has usage so it must be counted.
     if (!lb) {
       ctx.logger.warn(
         `No LB found for app ${app._id?.toString()} [${
@@ -188,11 +224,22 @@ export async function mapUsageToProfiles(
         userProfile: updatedUserProfile,
         metricUpdates: updatedMetricUpdates,
       })
+      // Option 2: LB was found, so we'll try to associate it to an user
+      // and count its usage.
     } else {
+      // It doesn't matter if it's an Auth0 or a legacy MongoDB user,
+      // they will still have a valid BSON ID.
       const userID = lb?.user?.toString() ?? ''
       const isUserIDValid = isValid(userID)
-      const user = isUserIDValid ? await User.findById(userID) : null
-      const userKey = user ? userID : ORPHANED_KEY
+      // Always fetch users from Auth0. Legacy users retain their old BSON ID in the Auth0 DB,
+      // and new users will be instatly found on the Auth0 DB, which means we don't have to query
+      // the old MongoDB for users anymore.
+      // If we don't have an user or the ID is not valid, the we'll set `user` as null and register the usage as an orphaned LB.
+      const user = isUserIDValid
+        ? await fetchUserFromAuth0(`auth0|${userID}`)
+        : null
+
+      const userKey = user ? user.id : ORPHANED_KEY
 
       if (!user) {
         ctx.logger.warn(
@@ -280,7 +327,7 @@ export async function mapUsageToProfiles(
   return userProfiles
 }
 
-export async function sendRelayCountByEmail({
+export async function sendRelayCountToAmplitude({
   userProfiles,
   ctx,
 }: {
@@ -291,7 +338,7 @@ export async function sendRelayCountByEmail({
   ctx: any
 }): Promise<void> {
   let totalUsage = 0
-  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY') as string)
+  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY'))
 
   for (const [
     userID,
@@ -321,7 +368,7 @@ export async function registerAnalytics(ctx): Promise<void> {
 
   const userProfiles = await mapUsageToProfiles(apps, ctx)
 
-  await sendRelayCountByEmail({
+  await sendRelayCountToAmplitude({
     ctx,
     userProfiles,
   })
