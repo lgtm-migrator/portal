@@ -109,7 +109,6 @@ jobs:
           envkey_CHECKOUT_P_RATE: 1
           envkey_POKT_SCAN_API_URL: ${{ secrets.POKT_SCAN_API_URL }}
           envkey_POKT_SCAN_TOKEN: ${{ secrets.POKT_SCAN_TOKEN }}
-          envkey_NODE_ENV: staging
           file_name: packages/backend/.env
 
       - name: Build, tag, and push image to Amazon ECR
