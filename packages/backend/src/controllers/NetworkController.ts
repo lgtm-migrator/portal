@@ -1,6 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
 import express, { Response, Request } from 'express'
-
 import {
   ChainsResponse,
   IChain,
@@ -27,6 +25,7 @@ import {
   NETWORK_METRICS_TTL,
 } from '../redis'
 import { KNOWN_CHAINS } from '../known-chains'
+import axios from 'axios'
 
 const router = express.Router()
 
@@ -188,28 +187,22 @@ router.get(
       return res.status(200).send(JSON.parse(cachedResponse as string))
     }
 
-    let latestBlockAndRelaysPerformanceResponse: AxiosResponse
-    try {
-      latestBlockAndRelaysPerformanceResponse = await axios.post(
-        process.env.POKT_SCAN_API_URL,
-        {
-          operationName: 'getRelaysAndPoktPerformance',
-          variables: {},
-          query:
-            'query getRelaysAndPoktPerformance { getRelaysPerformance {    max_relays    max_pokt    thirty_day_relays_avg    thirty_day_pokt_avg    today_relays    today_pokt    __typename  }  highestBlock { item { height time producer took total_nodes total_apps total_accounts total_txs total_relays_completed } validatorThreshold } }',
+    const latestBlockAndRelaysPerformanceResponse = await axios.post(
+      process.env.POKT_SCAN_API_URL,
+      {
+        operationName: 'getRelaysAndPoktPerformance',
+        variables: {},
+        query:
+          'query getRelaysAndPoktPerformance { getRelaysPerformance {    max_relays    max_pokt    thirty_day_relays_avg    thirty_day_pokt_avg    today_relays    today_pokt    __typename  }  highestBlock { item { height time producer took total_nodes total_apps total_accounts total_txs total_relays_completed } validatorThreshold } }',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: process.env.POKT_SCAN_TOKEN,
+          Accept: '*/*',
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: process.env.POKT_SCAN_TOKEN,
-            Accept: '*/*',
-          },
-        }
-      )
-    } catch (error) {
-      console.error(`POKTSCAN API error: ${error}`)
-      throw error
-    }
+      }
+    )
 
     await cache.set(
       cacheKey,
