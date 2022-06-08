@@ -149,4 +149,9 @@ export const KNOWN_CHAINS = {
     id: '0051',
     limit: 0,
   },
+  OPTIMISM_MAINNET: {
+    ticker: 'OP',
+    id: '0053',
+    limit: 0
+  }
 }
