@@ -45,6 +45,7 @@ import { checkJWT } from '../lib/oauth'
 import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
+import User, { IUser } from '../models/User'
 
 interface Request extends ExpressRequest {
   user: { sub: string; email: string }
@@ -442,7 +443,7 @@ router.get(
         },
         { stake: 0, relays: 0 }
       ) as UserLBOnChainDataResponse
-      res.status(200).send(appsStatus)
+      return res.status(200).send(appsStatus)
     }
 
     const apps = await Promise.all(
@@ -484,7 +485,7 @@ router.get(
       }
     ) as UserLBOnChainDataResponse
 
-    res.status(200).send(appsStatus)
+    return res.status(200).send(appsStatus)
   })
 )
 
@@ -544,9 +545,10 @@ router.put(
 
     await loadBalancer.save()
 
+    const user: IUser = await User.findById(userId)
     emailService.send({
       templateName: 'NotificationChange',
-      toEmail: req.user.email,
+      toEmail: user.email,
     })
 
     return res.status(204).send()
