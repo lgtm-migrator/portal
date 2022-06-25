@@ -179,7 +179,6 @@ from(bucket: "mainnetRelayApp60m")
     r._measurement == "relay" and
     r._field == "count" and
     (r.method != "synccheck" and r.method != "chaincheck") and
-    contains(value: r["blockchain"], set: ["0001","0002","0003","0004","0005","0006","0007","0009","0010","0021","0022","0023","0024","0025","0026","0027","0028", "000B", "000C", "000D", "00A3", "0040", "0044"]) and
     r.result == "200"
   )
   |> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
