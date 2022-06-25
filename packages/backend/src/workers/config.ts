@@ -19,4 +19,10 @@ export const workers = [
     workerFn: (ctx): Promise<void> => registerAnalytics(ctx),
     recurrence: SIXTY_MINUTES_OFFSET,
   },
+  {
+    name: 'NETWORK_AGGREGATE_WORKER',
+    color: 'blue',
+    workerFn: (ctx): Promise<void> => registerAnalytics(ctx),
+    recurrence: SIXTY_MINUTES_OFFSET,
+  },
 ]

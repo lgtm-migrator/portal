@@ -212,7 +212,7 @@ router.post(
   '',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const { name, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
+    const { name, chain, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
 
     const id = req.user.sub.replace(/auth0\|/g, '')
     const userLBs = await LoadBalancer.find({ user: id })
@@ -263,6 +263,7 @@ router.post(
       gatewayAAT: freeTierAAT,
       lastChangedStatusAt: new Date(Date.now()),
       maxRelays: DEFAULT_MAX_RELAYS,
+      chain,
       name,
       status: APPLICATION_STATUSES.IN_SERVICE,
       user: id,
@@ -283,6 +284,7 @@ router.post(
     const loadBalancer: ILoadBalancer = new LoadBalancer({
       user: id,
       name,
+      chain,
       requestTimeOut: DEFAULT_TIMEOUT,
       applicationIDs: [application._id.toString()],
       gigastakeRedirect: true,
@@ -293,7 +295,7 @@ router.post(
     await loadBalancer.save()
 
     const processedLb: GetApplicationQuery = {
-      chain: '',
+      chain: loadBalancer.chain,
       createdAt: new Date(Date.now()),
       updatedAt: loadBalancer.updatedAt,
       name: loadBalancer.name,
@@ -313,7 +315,7 @@ router.post(
       notificationSettings: application.notificationSettings,
     }
 
-    res.status(200).send(processedLb)
+    return res.status(200).send(processedLb)
   })
 )
 
@@ -388,7 +390,7 @@ router.put(
     loadBalancer.updatedAt = new Date(Date.now())
     await loadBalancer.save()
 
-    res.status(204).send()
+    return res.status(204).send()
   })
 )
 
@@ -608,7 +610,7 @@ router.post(
 
     await loadBalancer.save()
 
-    res.status(204).send()
+    return res.status(204).send()
   })
 )
 
@@ -677,7 +679,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedRelaysAndLatency)
+    return res.status(200).send(processedRelaysAndLatency)
   })
 )
 
@@ -745,7 +747,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedSuccessfulRelays)
+    return res.status(200).send(processedSuccessfulRelays)
   })
 )
 
@@ -822,7 +824,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedDailyRelaysResponse)
+    return res.status(200).send(processedDailyRelaysResponse)
   })
 )
 
@@ -871,7 +873,7 @@ router.get(
       })
     )
 
-    res.status(200).send({
+    return res.status(200).send({
       session_relays: _value,
     } as UserLBSessionRelaysResponse)
   })
@@ -941,7 +943,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedTotalRangedRelays)
+    return res.status(200).send(processedTotalRangedRelays)
   })
 )
 
@@ -1009,7 +1011,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedPreviousSuccessfulRelaysResponse)
+    return res.status(200).send(processedPreviousSuccessfulRelaysResponse)
   })
 )
 
@@ -1084,7 +1086,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedHourlyLatencyResponse)
+    return res.status(200).send(processedHourlyLatencyResponse)
   })
 )
 
@@ -1170,7 +1172,7 @@ router.get(
       LB_METRICS_TTL
     )
 
-    res.status(200).send(processedOriginClassificationResponse)
+    return res.status(200).send(processedOriginClassificationResponse)
   })
 )
 
@@ -1219,7 +1221,7 @@ router.get(
 
     const { data: metrics } = await axios.get(metricsURL)
 
-    res.status(200).send(metrics as UserLBErrorMetricsResponse)
+    return res.status(200).send(metrics as UserLBErrorMetricsResponse)
   })
 )
 

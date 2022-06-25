@@ -20,6 +20,58 @@ export const influx = new InfluxDB({
   timeout: 60000,
 }).getQueryApi(env('INFLUX_ORG'))
 
+export const NETWORK_AGGREGATES_DAY_QUERY = ({ start, stop }: QueryParams) => `
+success = from(bucket: "mainnetRelayApp60m")
+|> range(start: ${start}, stop: ${stop})
+|> filter(fn: (r) =>
+  r._measurement == "relay" and
+  r._field == "count" and
+  (r.method != "synccheck" and r.method != "chaincheck" and r.method != "checks") and
+  r.nodePublicKey !~ /^fallback/ and
+  r.result == "200"
+)
+|> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
+|> keep(columns: ["_value"])
+|> sum()
+|> map(fn: (r) => ({r with sync: "1", _field: "success"}))
+
+error = from(bucket: "mainnetRelayApp60m")
+|> range(start: ${start}, stop: ${stop})
+|> filter(fn: (r) =>
+  r._measurement == "relay" and
+  r._field == "count" and
+  (r.method != "synccheck" and r.method != "chaincheck" and r.method != "checks") and
+  r.nodePublicKey !~ /^fallback/ and
+  r.result == "500"
+)
+|> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
+|> keep(columns: ["_value"])
+|> sum()
+|> map(fn: (r) => ({r with sync: "1", _field: "error"}))
+
+total = from(bucket: "mainnetRelayApp60m")
+|> range(start: ${start}, stop: ${stop})
+|> filter(fn: (r) =>
+  r._measurement == "relay" and
+  r._field == "count" and
+  (r.method != "synccheck" and r.method != "chaincheck") and
+  r.nodePublicKey !~ /^fallback/
+)
+|> group(columns: ["host", "nodePublicKey", "region", "result", "method"])
+|> keep(columns: ["_value"])
+|> sum()
+|> map(fn: (r) => ({r with sync: "1", _field: "total"}))
+
+union(
+  tables: [success, error, total]
+)
+|> pivot(
+    rowKey: ["sync"],
+    columnKey: ["_field"],
+    valueColumn: "_value"
+)
+`
+
 export const NETWORK_AGGREGATES_QUERY = `
 success = from(bucket: "mainnetRelayApp60m")
 |> range(start: -168h, stop: -0h)

@@ -76,6 +76,7 @@
     "regenerator-runtime": "^0.13.7",
     "stripe": "^8.33.0",
     "strong-cryptor": "^2.2.0",
+    "utc": "link:dayjs/plugin/utc",
     "uuid": "^8.3.0",
     "validator": "^13.5.2",
     "winston": "^3.3.3",

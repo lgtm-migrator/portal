@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
 import dayJsutcPlugin from 'dayjs/plugin/utc'
 
+dayjs.extend(dayJsutcPlugin)
+
 export function getUTCTimestamp(): string {
   const timestamp = new Date()
 
@@ -8,24 +10,18 @@ export function getUTCTimestamp(): string {
 }
 
 export function composeDaysFromNowUtcDate(daysAgo: number): string {
-  dayjs.extend(dayJsutcPlugin)
-
   const dateDaysAgo = dayjs.utc().subtract(daysAgo, 'day')
 
   return dateDaysAgo.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
 }
 
 export function composeHoursFromNowUtcDate(hoursAgo: number): string {
-  dayjs.extend(dayJsutcPlugin)
-
   const hourAgo = dayjs.utc().subtract(hoursAgo, 'hour')
 
   return hourAgo.format('YYYY-MM-DDTHH:mm:ss[.000Z]')
 }
 
 export function composeTodayUtcDate(): string {
-  dayjs.extend(dayJsutcPlugin)
-
   const today = dayjs.utc()
 
   const monthDate =
@@ -38,10 +34,10 @@ export function composeTodayUtcDate(): string {
 }
 
 export function getSecondsUntilTomorrowUtc(): number {
-  dayjs.extend(dayJsutcPlugin)
-
   const now = dayjs.utc()
   const tomorrow = dayjs.utc().startOf('d').add(1, 'day')
 
   return tomorrow.diff(now, 's')
 }
+
+export { dayjs }

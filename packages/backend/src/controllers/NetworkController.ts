@@ -12,12 +12,6 @@ import Chain from '../models/Blockchains'
 import NetworkData from '../models/NetworkData'
 import ApplicationPool from '../models/PreStakedApp'
 import asyncMiddleware from '../middlewares/async'
-import { composeDaysFromNowUtcDate } from '../lib/date-utils'
-import {
-  buildSuccessfulNetworkRelaysQuery,
-  influx,
-  NETWORK_AGGREGATES_QUERY,
-} from '../lib/influx'
 import {
   cache,
   getResponseFromCache,
@@ -26,6 +20,9 @@ import {
 } from '../redis'
 import { KNOWN_CHAINS } from '../known-chains'
 import axios from 'axios'
+import NetworkAggregatorModel, {
+  INetworkAggregator,
+} from '../models/NetworkAggregate'
 
 const router = express.Router()
 
@@ -121,18 +118,24 @@ router.get(
       return res.status(200).send(JSON.parse(cachedResponse as string))
     }
 
-    const rawDailyRelays = await influx.collectRows(
-      buildSuccessfulNetworkRelaysQuery({
-        start: composeDaysFromNowUtcDate(8),
-        stop: composeDaysFromNowUtcDate(1),
+    const lastWeekStats = await NetworkAggregatorModel.find()
+      .sort({ date: -1 })
+      .limit(7)
+      .catch((err) => {
+        return res.status(500).send(err)
       })
-    )
 
-    const processedDailyRelaysResponse = rawDailyRelays.map(
-      ({ _time, _value }) =>
+    if (!lastWeekStats) {
+      return res.status(500).send('no data')
+    }
+
+    const processedDailyRelaysResponse = (
+      lastWeekStats as INetworkAggregator[]
+    ).map(
+      ({ date, total }) =>
         ({
-          total_relays: _value ?? 0,
-          bucket: _time,
+          total_relays: total,
+          bucket: date,
         } as NetworkDailyRelayBucket)
     ) as NetworkDailyRelaysResponse
 
@@ -156,8 +159,28 @@ router.get(
       return res.status(200).send(JSON.parse(cachedResponse as string))
     }
 
-    const [{ success, total }] = await influx.collectRows(
-      NETWORK_AGGREGATES_QUERY
+    const lastWeekStats = await NetworkAggregatorModel.find()
+      .sort({ date: -1 })
+      .limit(7)
+      .catch((err) => {
+        return res.status(500).send(err)
+      })
+
+    if (!lastWeekStats) {
+      return res.status(500).send('no data')
+    }
+
+    const { total, error, success } = (
+      lastWeekStats as INetworkAggregator[]
+    ).reduce(
+      (prev, curr) => {
+        return {
+          total: prev.total + curr.total,
+          error: prev.error + curr.error,
+          success: prev.success + curr.success,
+        }
+      },
+      { total: 0, error: 0, success: 0 }
     )
 
     const processedAggregateStatsResponse = {
