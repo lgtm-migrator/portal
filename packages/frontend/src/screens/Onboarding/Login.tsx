@@ -6,9 +6,9 @@ import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
 
 export default function Login() {
-  const { loginWithRedirect, isAuthenticated } = useAuth0()
+  const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0()
 
-  if (isAuthenticated) {
+  if (isAuthenticated && user?.email_verified) {
     return (
       <Redirect
         to={{
@@ -16,6 +16,10 @@ export default function Login() {
         }}
       />
     )
+  }
+
+  if (isAuthenticated && !user?.email_verified) {
+    logout()
   }
 
   return (

@@ -1,4 +1,4 @@
-import { Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import { useTheme } from '@pokt-foundation/ui'
@@ -12,8 +12,10 @@ import NetworkStatus from './Dashboard/Network/NetworkStatus'
 import NewPassword from './Onboarding/NewPassword'
 import Signup from './Onboarding/Signup'
 import Validate from './Onboarding/Validate'
+import { useAuth0 } from '@auth0/auth0-react'
 
 export default function DashboardRoutes() {
+  const { isAuthenticated, user } = useAuth0()
   const { within } = useViewport()
   const theme = useTheme()
 
@@ -63,12 +65,33 @@ export default function DashboardRoutes() {
           </Route>
 
           <Dashboard>
-            <Route exact path={`/home`}>
+            {/* <Route exact path={`/home`}>
               <NetworkStatus />
             </Route>
             <Route path={`/app/:appId`}>
               <ApplicationDetail />
-            </Route>
+            </Route> */}
+            <Route
+              exact
+              path={`/home`}
+              render={() =>
+                isAuthenticated && user?.email_verified ? (
+                  <NetworkStatus />
+                ) : (
+                  <Redirect to="/validate" />
+                )
+              }
+            />
+            <Route
+              path={`/app/:appId`}
+              render={() =>
+                isAuthenticated && user?.email_verified ? (
+                  <ApplicationDetail />
+                ) : (
+                  <Redirect to="/validate" />
+                )
+              }
+            />
           </Dashboard>
         </Switch>
       </ErrorBoundary>

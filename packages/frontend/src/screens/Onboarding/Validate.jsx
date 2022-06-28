@@ -119,7 +119,8 @@ export default function Validate() {
                 ${textStyle('body2')}
               `}
             >
-              There was a problem while verifying your email. Please try again.
+              We sent you an email verification, please verify your email and
+              try again.
             </p>
             <Spacer size={4 * GU} />
             <Button
