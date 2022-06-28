@@ -81,8 +81,8 @@ export async function fetchUsedApps(
 ): Promise<Map<string, UsageByID[]>> {
   const rawAppsUsed = await influx.collectRows(
     buildAnalyticsQuery({
-      start: composeHoursFromNowUtcDate(1),
-      stop: composeHoursFromNowUtcDate(0),
+      start: composeHoursFromNowUtcDate(2),
+      stop: composeHoursFromNowUtcDate(1),
     })
   )
 
