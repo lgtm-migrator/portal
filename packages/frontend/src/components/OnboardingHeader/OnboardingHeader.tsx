@@ -1,9 +1,11 @@
+import { useAuth0 } from '@auth0/auth0-react'
 import { useViewport } from 'use-viewport'
 import { Link, GU } from '@pokt-foundation/ui'
 import styled from 'styled-components/macro'
 import PortalLogo from '../../assets/portal_logo_full.png'
 
 export default function OnboardingHeader() {
+  const { loginWithRedirect } = useAuth0()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
 
@@ -58,7 +60,8 @@ export default function OnboardingHeader() {
           </li>
           <li>
             <Link
-              href="https://mainnet.portal.pokt.network"
+              href="#"
+              onClick={() => loginWithRedirect()}
               external={false}
               css={`
                 && {

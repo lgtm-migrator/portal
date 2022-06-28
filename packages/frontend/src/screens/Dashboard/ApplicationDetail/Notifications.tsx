@@ -28,6 +28,7 @@ import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
 import NavigationOptions from '../../../components/Notifications/NavigationOptions/NavigationOptions'
 import WeeklyBandwidthUsage from '../../../components/Notifications/WeeklyBandwidthUsage/WeeklyBandWidthUsage'
 import Alerts from '../../../components/Notifications/Alerts/Alerts'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 const DEFAULT_PERCENTAGES = {
   quarter: false,
@@ -56,6 +57,7 @@ export default function Notifications({
   const toast = useToast()
   const { appId } = useParams<{ appId: string }>()
   const queryClient = useQueryClient()
+  const headers = useAuthHeaders()
   const { isLoading: isNotificationsLoading, mutate } = useMutation(
     async function updateNotificationSettings() {
       const path = `${env('BACKEND_URL')}/api/lb/notifications/${appId}`
@@ -71,9 +73,7 @@ export default function Notifications({
             threeQuarters,
             full,
           },
-          {
-            withCredentials: true,
-          }
+          await headers
         )
 
         queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)

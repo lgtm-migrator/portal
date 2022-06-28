@@ -31,6 +31,7 @@ import { sentryEnabled } from '../../../sentry'
 import { useViewport } from 'use-viewport'
 import { getImageForChain } from '../../../known-chains/known-chains'
 import { AmplitudeEvents } from '../../../lib/analytics'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 const NORMALIZED_CHAIN_ID_PREFIXES = Array.from(CHAIN_ID_PREFIXES.entries())
 
@@ -101,6 +102,7 @@ export default function CreateModal({ visible, onClose }) {
   const { isAppsLoading, userApps, userID } = useUserApps()
   const { userLoading } = useUser()
   const queryClient = useQueryClient()
+  const headers = useAuthHeaders()
 
   const {
     isError: isCreateError,
@@ -123,9 +125,7 @@ export default function CreateModal({ visible, onClose }) {
             secretKeyRequired,
           },
         },
-        {
-          withCredentials: true,
-        }
+        await headers
       )
 
       const { data } = res
