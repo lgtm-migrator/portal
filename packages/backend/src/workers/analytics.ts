@@ -4,7 +4,7 @@ import * as Amplitude from '@amplitude/node'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
 import Application from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
-import { composeHoursFromNowUtcDate } from '../lib/date-utils'
+import { composeHoursFromNowUtcDate, dayjs } from '../lib/date-utils'
 import env from '../environment'
 import { splitAuth0ID } from '../lib/split-auth0-id'
 
@@ -79,10 +79,14 @@ async function fetchUserFromAuth0(id: string): Promise<IAuth0User | null> {
 export async function fetchUsedApps(
   ctx: any
 ): Promise<Map<string, UsageByID[]>> {
+  const currentHour = dayjs().utc().hour()
+  const start = dayjs(currentHour).subtract(2, 'hour').toISOString()
+  const stop = dayjs(currentHour).subtract(1, 'hour').toISOString()
+
   const rawAppsUsed = await influx.collectRows(
     buildAnalyticsQuery({
-      start: composeHoursFromNowUtcDate(1),
-      stop: composeHoursFromNowUtcDate(0),
+      start,
+      stop,
     })
   )
 
