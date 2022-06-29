@@ -105,12 +105,9 @@ from(bucket: "mainnetRelayApp10m")
     r._measurement == "relay" and
     r._field == "count" and
     (r.method != "synccheck" and r.method != "chaincheck") and
-    contains(value: r["blockchain"], set: ["0001","0002","0003","03DF","0004","0005","0006","0007","0009","000A","000B","000C","000F","0010","0021","0022","0023","0024","0025","0026","0027","0028","0040","0044","0046","0047","0048","0049"]) and
-    contains(value: r["region"], set: ["ap-northeast-1","ap-northeast-2","ap-east-1","ap-southeast-1","ap-south1","us-west-2","us-east-1","us-east-2","ca-central-1","eu-north-1","eu-west-1","eu-south-1","eu-west-2","eu-west-3","eu-central-1"]) and
     r.result == "200"
   )
   |> keep(columns: ["_value", "applicationPublicKey", "blockchain"])
-  |> group(columns: ["applicationPublicKey", "blockchain"])
   |> sum()
   |> yield()
 `
