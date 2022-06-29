@@ -1,10 +1,11 @@
+import axios from 'axios'
 import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
 import Application from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
 import User from '../models/User'
-import { composeHoursFromNowUtcDate } from '../lib/date-utils'
+import { composeHoursFromNowUtcDate, dayjs } from '../lib/date-utils'
 import env from '../environment'
 
 interface IUserProfile {
@@ -49,10 +50,28 @@ const ORPHANED_KEY = 'ORPHANED'
 export async function fetchUsedApps(
   ctx: any
 ): Promise<Map<string, UsageByID[]>> {
+  const currentHour = dayjs().utc().hour()
+  const start = dayjs()
+    .utc()
+    .hour(currentHour)
+    .minute(0)
+    .second(0)
+    .millisecond(0)
+    .subtract(2, 'hour')
+    .toISOString()
+  const stop = dayjs()
+    .utc()
+    .hour(currentHour)
+    .minute(0)
+    .second(0)
+    .millisecond(0)
+    .subtract(1, 'hour')
+    .toISOString()
+
   const rawAppsUsed = await influx.collectRows(
     buildAnalyticsQuery({
-      start: composeHoursFromNowUtcDate(1),
-      stop: composeHoursFromNowUtcDate(0),
+      start,
+      stop,
     })
   )
 
@@ -79,8 +98,11 @@ export async function fetchUsedApps(
     const [applicationPublicKey, chainID] =
       applicationPublicKeyWithChain.split('-')
     const usageByChain = appsUsedByChain.get(applicationPublicKey) ?? []
+
     usageByChain.push({ chain: chainID, usage })
     appsUsedByChain.set(applicationPublicKey, usageByChain)
+
+    // Sum total endpoint usage for accounting purposes
     totalEndpointUsage += usage
   }
 
@@ -142,6 +164,9 @@ export async function mapUsageToProfiles(
       lb.applicationIDs.find((id) => id === app?._id?.toString())
     )
 
+    // Option 1:
+    // No LB found, so this app is considered orphaned.
+    // It has usage so it must be counted.
     if (!lb) {
       ctx.logger.warn(
         `No LB found for app ${app._id?.toString()} [${
@@ -188,9 +213,15 @@ export async function mapUsageToProfiles(
         userProfile: updatedUserProfile,
         metricUpdates: updatedMetricUpdates,
       })
+      // Option 2: LB was found, so we'll try to associate it to an user
+      // and count its usage.
     } else {
+      // It doesn't matter if it's an Auth0 or a legacy MongoDB user,
+      // they will still have a valid BSON ID.
       const userID = lb?.user?.toString() ?? ''
       const isUserIDValid = isValid(userID)
+      // Fetch user from MongoDB.
+      // If we don't have an user or the ID is not valid, the we'll set `user` as null and register the usage as an orphaned LB.
       const user = isUserIDValid ? await User.findById(userID) : null
       const userKey = user ? userID : ORPHANED_KEY
 
@@ -280,7 +311,7 @@ export async function mapUsageToProfiles(
   return userProfiles
 }
 
-export async function sendRelayCountByEmail({
+export async function sendRelayCountToAmplitude({
   userProfiles,
   ctx,
 }: {
@@ -291,7 +322,7 @@ export async function sendRelayCountByEmail({
   ctx: any
 }): Promise<void> {
   let totalUsage = 0
-  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY') as string)
+  const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY'))
 
   for (const [
     userID,
@@ -321,7 +352,7 @@ export async function registerAnalytics(ctx): Promise<void> {
 
   const userProfiles = await mapUsageToProfiles(apps, ctx)
 
-  await sendRelayCountByEmail({
+  await sendRelayCountToAmplitude({
     ctx,
     userProfiles,
   })
