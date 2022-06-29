@@ -80,8 +80,22 @@ export async function fetchUsedApps(
   ctx: any
 ): Promise<Map<string, UsageByID[]>> {
   const currentHour = dayjs().utc().hour()
-  const start = dayjs(currentHour).subtract(2, 'hour').toISOString()
-  const stop = dayjs(currentHour).subtract(1, 'hour').toISOString()
+  const start = dayjs()
+    .utc()
+    .hour(currentHour)
+    .minute(0)
+    .second(0)
+    .millisecond(0)
+    .subtract(2, 'hour')
+    .toISOString()
+  const stop = dayjs()
+    .utc()
+    .hour(currentHour)
+    .minute(0)
+    .second(0)
+    .millisecond(0)
+    .subtract(1, 'hour')
+    .toISOString()
 
   const rawAppsUsed = await influx.collectRows(
     buildAnalyticsQuery({
