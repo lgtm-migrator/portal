@@ -15,6 +15,7 @@ interface ParsedUser {
   user_id: string
   email: string
   password_hash: string
+  email_verified: boolean
   user_metadata: { legacy: boolean }
 }
 
@@ -23,7 +24,7 @@ function waitMins(minutes: number) {
 }
 
 /** Gets all users from the MongoDB users collection, formats to the required JSON format
- * for Auth0 import and returns them in batches of 2500 users to get around Auth0 filesize limit
+ * for Auth0 import and returns them in batches of 2000 users to get around Auth0 filesize limit
  */
 const fetchAndFormatUsers = async (query = {}): Promise<ParsedUser[][]> => {
   const users = await User.find(query)
@@ -39,16 +40,17 @@ const fetchAndFormatUsers = async (query = {}): Promise<ParsedUser[][]> => {
       .replace('@@', '@')
       .replace('gmailcom', 'gmail.com'),
     password_hash: password,
+    email_verified: true,
     user_metadata: { legacy: true },
   }))
 
   const userArrays: ParsedUser[][] = []
   while (parsedUsers.length) {
-    userArrays.push(parsedUsers.splice(0, 2500))
+    userArrays.push(parsedUsers.splice(0, 2000))
   }
 
   console.log(
-    `Returning ${userArrays.length} batches of 2500 users from the database ...`
+    `Returning ${userArrays.length} batches of 2000 users from the database ...`
   )
 
   return userArrays
@@ -95,15 +97,15 @@ const importUsers = async (formattedUsersArray: ParsedUser[][]) => {
       )
       console.log(res.data)
     } catch (err) {
-      /* Auth0 only allows 2 imports simultaneously and a batch of 2500 takes around 8-9 minutes
-      so I'm waiting 10 mins to be safe. In total there are only 6 batches so it takes about 30 mins
+      /* Auth0 only allows 2 imports simultaneously and a batch of 2000 takes around 8-9 minutes
+      so I'm waiting 10 mins to be safe. In total there are currently 9 batches so it takes about 50 mins
       to import them all. Hang tight... */
       if (err.response.data.message.includes('active import users jobs')) {
         console.log(`${err.response.data.message}. Waiting 10 minutes ...`)
         await waitMins(10)
       } else {
         console.error(err)
-        throw new Error(err.response.data)
+        throw new Error(err.response)
       }
     }
   }

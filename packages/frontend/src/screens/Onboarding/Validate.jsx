@@ -9,10 +9,12 @@ import Onboarding from '../../components/Onboarding/Onboarding'
 import env from '../../environment'
 import { KNOWN_MUTATION_SUFFIXES } from '../../known-query-suffixes'
 import { sentryEnabled } from '../../sentry'
+import { useAuth0 } from '@auth0/auth0-react'
 
 export default function Validate() {
   const { search } = useLocation()
   const history = useHistory()
+  const { loginWithRedirect } = useAuth0()
 
   const token = new URLSearchParams(search).get('token')
   const rawEmail = new URLSearchParams(search).get('email')
@@ -101,14 +103,12 @@ export default function Validate() {
             <Spacer size={3 * GU} />
             <Button
               mode="primary"
-              onClick={goToLogin}
+              onClick={() => loginWithRedirect()}
               css={`
-                && {
-                  width: ${22 * GU}px;
-                }
+                width: ${22.5 * GU}px;
               `}
             >
-              Log In
+              Log in
             </Button>
           </>
         )}
@@ -119,19 +119,18 @@ export default function Validate() {
                 ${textStyle('body2')}
               `}
             >
-              There was a problem while verifying your email. Please try again.
+              We sent you an email verification, please verify your email and
+              try again.
             </p>
             <Spacer size={4 * GU} />
             <Button
               mode="primary"
-              onClick={goToLogin}
+              onClick={() => loginWithRedirect()}
               css={`
-                && {
-                  width: ${22 * GU}px;
-                }
+                width: ${22.5 * GU}px;
               `}
             >
-              Log In
+              Log in
             </Button>
           </>
         )}

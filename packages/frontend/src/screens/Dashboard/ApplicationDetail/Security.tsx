@@ -26,6 +26,7 @@ import WhitelistCard from '../../../components/Security/WhitelistCard/WhitelistC
 import WhitelistCardWithDropdown from '../../../components/Security/WhitelistCardWithDropdown/WhitelistCardWithDropdown'
 import WhitelistCardWithDropdownNoInput from '../../../components/Security/WhitelistCardWithDropdownNoInput/WhitelistCardWithDropdownNoInput'
 import SecretKey from '../../../components/Security/SecretKey/SecretKey'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 interface SecurityProps {
   appData: UserLB
@@ -60,6 +61,7 @@ export default function Security({ appData }: SecurityProps) {
   const history = useHistory()
   const toast = useToast()
   const queryClient = useQueryClient()
+  const headers = useAuthHeaders()
 
   useEffect(() => {
     if (!hasChanged) {
@@ -166,9 +168,7 @@ export default function Security({ appData }: SecurityProps) {
             whitelistBlockchains: blockchains,
           },
         },
-        {
-          withCredentials: true,
-        }
+        await headers
       )
 
       queryClient.invalidateQueries(KNOWN_QUERY_SUFFIXES.USER_APPS)

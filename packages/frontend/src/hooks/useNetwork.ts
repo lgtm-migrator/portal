@@ -1,10 +1,9 @@
-import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import env from '../environment'
 import { useUser } from '../contexts/UserContext'
 import { processChains, Chain } from '../lib/chain-utils'
-import { FlagContext } from '../contexts/flagsContext'
+import { useAuthHeaders } from './useAuthHeaders'
 
 export type SummaryData = {
   appsStaked: number
@@ -52,8 +51,8 @@ export function useNetworkSummary(): {
   isSummaryError: boolean
   summaryData: SummaryData
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
+  const headers = useAuthHeaders()
 
   const {
     isLoading: isSummaryLoading,
@@ -65,7 +64,7 @@ export function useNetworkSummary(): {
       const path = `${env('BACKEND_URL')}/api/network/summary`
 
       try {
-        const { data } = await axios.get(path, flags.authHeaders)
+        const { data } = await axios.get(path, await headers)
 
         return data
       } catch (err) {
@@ -87,8 +86,8 @@ export function useChains(): {
   isChainsLoading: boolean
   chains: Chain[] | undefined
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
+  const headers = useAuthHeaders()
   const {
     isLoading: isChainsLoading,
     isError: isChainsError,
@@ -101,7 +100,7 @@ export function useChains(): {
       }chains`
 
       try {
-        const res = await axios.get(path, flags.authHeaders)
+        const res = await axios.get(path, await headers)
 
         const { data } = res
 
@@ -125,8 +124,8 @@ export function useTotalWeeklyRelays(): {
   isRelaysLoading: boolean
   relayData: DailyRelayBucket[]
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
+  const headers = useAuthHeaders()
 
   const {
     isLoading: isRelaysLoading,
@@ -137,7 +136,7 @@ export function useTotalWeeklyRelays(): {
     async function getWeeklyRelays() {
       try {
         const path = `${env('BACKEND_URL')}/api/network/daily-relays`
-        const { data } = await axios.get(path, flags.authHeaders)
+        const { data } = await axios.get(path, await headers)
 
         return data
       } catch (err) {}
@@ -157,8 +156,8 @@ export function useNetworkStats(): {
   isNetworkStatsError: boolean
   networkStats: NetworkRelayStats | undefined
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
+  const headers = useAuthHeaders()
 
   const {
     isLoading: isNetworkStatsLoading,
@@ -175,7 +174,7 @@ export function useNetworkStats(): {
             successful_relays: successfulRelays,
             total_relays: totalRelays,
           },
-        } = await axios.get(path, flags.authHeaders)
+        } = await axios.get(path, await headers)
 
         return { successfulRelays, totalRelays }
       } catch (err) {
@@ -199,7 +198,8 @@ export function usePoktScanLatestBlockAndPerformance(): {
   isPoktScanLatestBlockAndPerformanceError: boolean
   latestBlockAndPerformance: PoktScanLatestBlockAndPerformanceData
 } {
-  const { flags } = useContext(FlagContext)
+  const headers = useAuthHeaders()
+
   const {
     data: latestBlockAndPerformance,
     isLoading: isPoktScanLatestBlockAndPerformanceLoading,
@@ -212,7 +212,7 @@ export function usePoktScanLatestBlockAndPerformance(): {
       )}/api/network/latest-block-and-performance`
 
       try {
-        const { data } = await axios.get(path, flags.authHeaders)
+        const { data } = await axios.get(path, await headers)
 
         return data?.data
       } catch (err) {

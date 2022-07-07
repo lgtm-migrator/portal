@@ -1,4 +1,3 @@
-import { useContext } from 'react'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import {
@@ -15,7 +14,7 @@ import {
 import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
-import { FlagContext } from '../contexts/flagsContext'
+import { useAuthHeaders } from './useAuthHeaders'
 
 export function useAppMetrics({
   activeApplication,
@@ -36,77 +35,76 @@ export function useAppMetrics({
       ]
     | []
 } {
-  const { flags } = useContext(FlagContext)
   const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
-  const type = flags.useAuth0 ? 'v2/lb' : 'lb'
+  const useHeaders = useAuthHeaders()
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
     async function getMetrics() {
       const totalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/total-relays/${appId}`
+      )}/api/lb/total-relays/${appId}`
       const successfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/successful-relays/${appId}`
+      )}/api/lb/successful-relays/${appId}`
       const dailyRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/daily-relays/${appId}`
+      )}/api/lb/daily-relays/${appId}`
       const sessionRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/session-relays/${appId}`
+      )}/api/lb/session-relays/${appId}`
       const previousSuccessfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-successful-relays/${appId}`
+      )}/api/lb/previous-successful-relays/${appId}`
       const previousTotalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-total-relays/${appId}`
+      )}/api/lb/previous-total-relays/${appId}`
       const hourlyLatencyPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/hourly-latency/${appId}`
-      const onChainDataPath = `${env(
-        'BACKEND_URL'
-      )}/api/${type}/status/${appId}`
+      )}/api/lb/hourly-latency/${appId}`
+      const onChainDataPath = `${env('BACKEND_URL')}/api/lb/status/${appId}`
+
+      const headers = await useHeaders
 
       try {
         const { data: totalRelaysResponse } = await axios.get(
           totalRelaysPath,
-          flags.authHeaders
+          headers
         )
         const { data: successfulRelaysResponse } = await axios.get(
           successfulRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: dailyRelaysResponse } = await axios.get(
           dailyRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: sessionRelaysResponse } = await axios.get(
           sessionRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: previousSuccessfulRelaysResponse } = await axios.get(
           previousSuccessfulRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: previousTotalRelaysResponse } = await axios.get(
           previousTotalRelaysPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: hourlyLatencyResponse } = await axios.get(
           hourlyLatencyPath,
-          flags.authHeaders
+          headers
         )
 
         const { data: onChainDataResponse } = await axios.get(
           onChainDataPath,
-          flags.authHeaders
+          headers
         )
 
         return [

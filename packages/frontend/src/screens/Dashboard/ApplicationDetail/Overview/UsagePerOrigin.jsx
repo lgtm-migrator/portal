@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useViewport } from 'use-viewport'
 import { DataView, Link, textStyle, GU, useTheme } from '@pokt-foundation/ui'
 import Card from '../../../../components/Card/Card'
-import { useOriginClassification } from '../../../../hooks/application-hooks'
+import { useOriginClassification } from '../../../../hooks/useApplication'
 import 'styled-components/macro'
 
 export default function UsagePerOrigin({ id }) {

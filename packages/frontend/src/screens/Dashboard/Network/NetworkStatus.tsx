@@ -1,14 +1,7 @@
-import React, {
-  useMemo,
-  useState,
-  useCallback,
-  useContext,
-  useEffect,
-} from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { format } from 'd3-format'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
-import { useAuth0 } from '@auth0/auth0-react'
 import {
   ButtonBase,
   CircleGraph,
@@ -34,7 +27,7 @@ import {
   useNetworkSummary,
   usePoktScanLatestBlockAndPerformance,
   useTotalWeeklyRelays,
-} from '../../../hooks/network-hooks'
+} from '../../../hooks/useNetwork'
 import Economics from '../../../assets/economicsDevs.png'
 import {
   getServiceLevelByChain,
@@ -48,8 +41,6 @@ import NetworkSummaryAppsImg from '../../../assets/networkSummaryApps.png'
 import NetworkSummaryNetworksImg from '../../../assets/networkSummaryNetworks.png'
 import Card from '../../../components/Card/Card'
 import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
-import { FlagContext } from '../../../contexts/flagsContext'
-import env from '../../../environment'
 import LatestBlock from '../../../components/LatestBlock/LatestBlock'
 import Performance from '../../../components/Performance/Performance'
 
@@ -103,7 +94,6 @@ export default function NetworkStatus() {
   const { isRelaysError, isRelaysLoading, relayData } = useTotalWeeklyRelays()
   const { isSummaryLoading, summaryData } = useNetworkSummary()
   const { isChainsLoading, chains } = useChains()
-  const [accessToken, setAccessToken] = useState('')
   const {
     isPoktScanLatestBlockAndPerformanceError,
     isPoktScanLatestBlockAndPerformanceLoading,
@@ -112,27 +102,6 @@ export default function NetworkStatus() {
   const theme = useTheme()
   const { within } = useViewport()
   const compactMode = within(-1, 'medium')
-  const { flags, updateFlag } = useContext(FlagContext)
-
-  const { getAccessTokenSilently } = useAuth0()
-
-  useEffect(() => {
-    if (flags.useAuth0) {
-      const getAccessToken = async () => {
-        const accessToken = await getAccessTokenSilently({
-          audience: env('AUTH0_AUDIENCE'),
-          scope: env('AUTH0_SCOPE'),
-        })
-
-        setAccessToken(accessToken)
-        updateFlag({
-          authHeaders: { headers: { Authorization: `Bearer ${accessToken}` } },
-        })
-      }
-
-      getAccessToken()
-    }
-  }, [flags.useAuth0, getAccessTokenSilently, updateFlag])
 
   const {
     labels = [],
@@ -162,7 +131,7 @@ export default function NetworkStatus() {
     ]
   )
 
-  return (flags.useAuth0 ? !accessToken : null) || loading || !networkStats ? (
+  return loading || !networkStats ? (
     <div
       css={`
         position: relative;
