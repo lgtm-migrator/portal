@@ -153,5 +153,10 @@ export const KNOWN_CHAINS = {
     ticker: 'OP',
     id: '0053',
     limit: 0
+  },
+  OSMOSIS_MAINNET: {
+    ticker: 'OSMO',
+    id: '0054',
+    limit: 0
   }
 }
