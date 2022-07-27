@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import amplitude from 'amplitude-js'
 import env from '../environment'
 import { useAuth0 } from '@auth0/auth0-react'
+import { splitAuth0ID } from '../lib/split-auth0-id'
 
 type UserInfo = {
   userLoading: boolean
@@ -44,8 +45,10 @@ export function UserContextProvider({
       } as UserInfo
     }
 
-    if (isAuthenticated && user && env('PROD')) {
-      amplitude.getInstance().setUserId(user.sub?.replace(/auth0\|/, ''))
+    if (isAuthenticated && user?.sub && user?.email && env('PROD')) {
+      const userId = splitAuth0ID(user.sub)
+
+      amplitude.getInstance().setUserId(userId)
       const identifiedUser = new amplitude.Identify().set('email', user.email)
 
       amplitude.getInstance().identify(identifiedUser)

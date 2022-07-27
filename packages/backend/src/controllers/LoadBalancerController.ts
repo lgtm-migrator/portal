@@ -46,6 +46,7 @@ import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
 import User, { IUser } from '../models/User'
+import { splitAuth0ID } from '../lib/split-auth0-id'
 
 interface Request extends ExpressRequest {
   user: { sub: string; email: string }
@@ -111,7 +112,7 @@ router.get(
   '',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.user.sub.replace(/auth0\|/g, '')
+    const id = splitAuth0ID(req.user.sub)
     const lbs = await LoadBalancer.find({ user: id })
 
     if (!lbs) {
@@ -214,7 +215,7 @@ router.post(
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const { name, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
 
-    const id = req.user.sub.replace(/auth0\|/g, '')
+    const id = splitAuth0ID(req.user.sub)
     const userLBs = await LoadBalancer.find({ user: id })
 
     const isNewAppRequestInvalid =
@@ -323,7 +324,7 @@ router.put(
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const { gatewaySettings, name } = req.body
     const { lbId } = req.params
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -396,7 +397,7 @@ router.get(
   '/status/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -493,7 +494,7 @@ router.put(
   '/notifications/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const { quarter, half, threeQuarters, full } = req.body
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -559,7 +560,7 @@ router.post(
   '/remove/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -616,7 +617,7 @@ router.get(
   '/total-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -685,7 +686,7 @@ router.get(
   '/successful-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -753,7 +754,7 @@ router.get(
   '/daily-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -830,7 +831,7 @@ router.get(
   '/session-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -881,7 +882,7 @@ router.get(
   '/previous-total-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -949,7 +950,7 @@ router.get(
   '/previous-successful-relays/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -1017,7 +1018,7 @@ router.get(
   '/hourly-latency/:lbId',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -1092,7 +1093,7 @@ router.get(
   '/origin-classification/:lbID',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbID } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)
@@ -1178,7 +1179,7 @@ router.get(
   '/error-metrics/:lbID',
   checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user.sub.replace(/auth0\|/g, '')
+    const userId = splitAuth0ID(req.user.sub)
     const { lbID } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)
