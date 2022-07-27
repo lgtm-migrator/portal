@@ -1,12 +1,13 @@
 import axios from 'axios'
 import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
+
+import env from '../environment'
+import { dayjs } from '../lib/date-utils'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
+import { splitAuth0ID } from '../lib/split-auth0-id'
 import Application from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
-import { composeHoursFromNowUtcDate, dayjs } from '../lib/date-utils'
-import env from '../environment'
-import { splitAuth0ID } from '../lib/split-auth0-id'
 
 interface IUserProfile {
   email: string
@@ -15,6 +16,12 @@ interface IUserProfile {
   numberOfEndpoints: number
   publicKeys: string[]
   publicKeysPerEndpoint: number[]
+}
+
+interface Auth0UserResponse {
+  email: string
+  user_metadata: { legacy?: boolean; admin?: boolean }
+  user_id: string
 }
 
 interface IAuth0User {
@@ -54,23 +61,25 @@ const DEFAULT_USER_PROFILE = {
 const { isValid } = Types.ObjectId
 const ORPHANED_KEY = 'ORPHANED'
 
-async function fetchUserFromAuth0(id: string): Promise<IAuth0User | null> {
+async function fetchUserFromAuth0(userId: string): Promise<IAuth0User | null> {
+  const url = `${env('AUTH0_DOMAIN_URL')}/api/v2/users`,
+    params = `?q=user_id:*${userId}&fields=user_id,email,user_metadata&include_fields=true`,
+    fullRequestPath = `${url}${params}`
+
   try {
-    const res = await axios.get(
-      `${env('AUTH0_DOMAIN_URL')}/api/v2/users/${encodeURIComponent(id)}`,
-      {
-        headers: { authorization: `Bearer ${env('AUTH0_MGMT_ACCESS_TOKEN')}` },
-      }
-    )
+    const { data } = await axios.get<Auth0UserResponse[]>(fullRequestPath, {
+      headers: { authorization: `Bearer ${env('AUTH0_MGMT_ACCESS_TOKEN')}` },
+    })
+    const [userResponse] = data
 
-    const { data } = res
-
-    return {
-      email: data.email,
-      id: splitAuth0ID(data.user_id),
-      legacy: data.user_metadata?.legacy ?? false,
-      auth0: true,
-    } as IAuth0User
+    return userResponse
+      ? ({
+          id: splitAuth0ID(userResponse.user_id),
+          email: userResponse.email,
+          legacy: userResponse.user_metadata?.legacy ?? false,
+          auth0: true,
+        } as IAuth0User)
+      : null
   } catch (err) {
     return null
   }
@@ -253,9 +262,7 @@ export async function mapUsageToProfiles(
       // and new users will be instatly found on the Auth0 DB, which means we don't have to query
       // the old MongoDB for users anymore.
       // If we don't have an user or the ID is not valid, the we'll set `user` as null and register the usage as an orphaned LB.
-      const user = isUserIDValid
-        ? await fetchUserFromAuth0(`auth0|${userID}`)
-        : null
+      const user = isUserIDValid ? await fetchUserFromAuth0(userID) : null
 
       const userKey = user ? user.id : ORPHANED_KEY
 
