@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
-
 import env from '../environment'
 import { dayjs } from '../lib/date-utils'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
