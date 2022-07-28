@@ -158,5 +158,10 @@ export const KNOWN_CHAINS = {
     ticker: 'OSMO',
     id: '0054',
     limit: 0
+  },
+  KLAYTN_MAINNET: {
+    ticker: 'KLAY',
+    id: '0056',
+    limit: 0
   }
 }

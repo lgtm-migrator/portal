@@ -235,6 +235,15 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     '0054',
     { prefix: 'osmosis-mainnet', name: 'Osmosis Mainnet', abbrv: 'OSMO', evm: true },
   ],
+  [
+    '0056',
+    {
+      prefix: 'klaytn-mainnet',
+      name: 'Klaytn Mainnet',
+      abbrv: 'KLAY',
+      evm: true,
+    },
+  ],
 ])
 
 export const PRODUCTION_CHAINS = [
@@ -262,7 +271,8 @@ export const PRODUCTION_CHAINS = [
   '0050',
   '0051',
   '0053',
-  '0054'
+  '0054',
+  '0056'
 ]
 export const ALPHA_CHAINS: string[] = []
 
