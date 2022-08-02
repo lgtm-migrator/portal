@@ -10,7 +10,7 @@ export default function initializeSentry(): void {
     console.log('SENTRY ENABLED')
 
     initSentry({
-      dsn: env('SENTRY_DSN') as string,
+      dsn: env('SENTRY_DSN'),
       environment: env('PROD') ? 'production' : 'development',
       integrations: [new Integrations.BrowserTracing()],
       release: 'pocket-portal@' + env('BUILD'),

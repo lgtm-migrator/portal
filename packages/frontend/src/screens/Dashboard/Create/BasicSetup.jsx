@@ -1,4 +1,3 @@
-import { useState, useMemo, useCallback } from 'react'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
 import {

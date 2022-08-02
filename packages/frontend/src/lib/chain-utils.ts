@@ -209,7 +209,12 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   ],
   [
     '0049',
-    { prefix: 'fantom-mainnet', name: 'Fantom Mainnet', abbrv: 'FTM', evm: true },
+    {
+      prefix: 'fantom-mainnet',
+      name: 'Fantom Mainnet',
+      abbrv: 'FTM',
+      evm: true,
+    },
   ],
   [
     '0004',
@@ -221,19 +226,48 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
   ],
   [
     '0050',
-    { prefix: 'moonbeam-mainnet', name: 'MOONBEAM Mainnet', abbrv: 'MOONBEAM', evm: true },
+    {
+      prefix: 'moonbeam-mainnet',
+      name: 'MOONBEAM Mainnet',
+      abbrv: 'MOONBEAM',
+      evm: true,
+    },
   ],
   [
     '0051',
-    { prefix: 'moonriver-mainnet', name: 'MOONRIVER Mainnet', abbrv: 'MOONRIVER', evm: true },
+    {
+      prefix: 'moonriver-mainnet',
+      name: 'MOONRIVER Mainnet',
+      abbrv: 'MOONRIVER',
+      evm: true,
+    },
   ],
   [
     '0053',
-    { prefix: 'optimism-mainnet', name: 'Optimism Mainnet', abbrv: 'OP', evm: true },
+    {
+      prefix: 'optimism-mainnet',
+      name: 'Optimism Mainnet',
+      abbrv: 'OP',
+      evm: true,
+    },
   ],
   [
     '0054',
-    { prefix: 'osmosis-mainnet', name: 'Osmosis Mainnet', abbrv: 'OSMO', evm: true },
+    {
+      prefix: 'osmosis-mainnet',
+      name: 'Osmosis Mainnet',
+      abbrv: 'OSMO',
+      evm: true,
+    },
+  ],
+  [
+    '0056',
+    {
+      prefix: 'klaytn-mainnet',
+      name: 'Klaytn Mainnet',
+      abbrv: 'KLAY',
+      evm: true,
+    },
   ],
   [
     '0056',

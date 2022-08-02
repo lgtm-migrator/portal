@@ -1,9 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
-import { useMutation } from 'react-query'
-import axios from 'axios'
+import { useLocation } from 'react-router-dom'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
+import { useAuth0 } from '@auth0/auth0-react'
 import { UserLB } from '@pokt-foundation/portal-types'
 import * as Sentry from '@sentry/react'
 import {
@@ -21,7 +20,6 @@ import {
   RADIUS,
 } from '@pokt-foundation/ui'
 import IconMenu from '../../components/MenuPanel/IconMenu'
-import env from '../../environment'
 import { shorten } from '../../lib/utils'
 import { sentryEnabled } from '../../sentry'
 
@@ -72,29 +70,21 @@ export default function NavigationBar({
   applications = [],
   toggleMenuPanel,
 }: NavigationBarProps) {
-  const history = useHistory()
   const title = useRouteTitle(applications)
   const theme = useTheme()
-  const { mutate: onLogout } = useMutation(async function logout() {
-    const path = `${env('BACKEND_URL')}/api/users/logout`
+  const { logout } = useAuth0()
 
+  const onLogout = () => {
     try {
-      await axios.post(
-        path,
-        {},
-        {
-          withCredentials: true,
-        }
-      )
-
-      history.push('/login')
+      logout({ returnTo: window.location.origin })
     } catch (err) {
       if (sentryEnabled) {
         Sentry.captureException(err)
       }
       throw err
     }
-  })
+  }
+
   const { below } = useViewport()
   const compact = below('medium')
 

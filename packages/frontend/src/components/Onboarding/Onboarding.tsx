@@ -60,27 +60,8 @@ export default function Onboarding({
           margin: 0 auto;
         `}
       >
-        <div
-          css={`
-            grid-column-start: 1;
-            align-self: center;
-            justify-self: center;
-            width: 100%;
-            max-width: ${62 * GU}px;
-            height: 100%;
-          `}
-        >
-          <main
-            css={`
-              grid-column-start: 1;
-              align-self: center;
-              justify-self: center;
-              width: 100%;
-              max-width: ${62 * GU}px;
-              height: 100%;
-              padding: ${1 * GU}px;
-            `}
-          >
+        <div>
+          <main>
             <Spacer size={3 * GU} />
             {children}
           </main>

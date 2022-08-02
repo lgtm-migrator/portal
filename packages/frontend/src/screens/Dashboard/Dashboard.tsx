@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Redirect } from 'react-router-dom'
 import { useViewport } from 'use-viewport'
 import 'styled-components/macro'
-import { Spacer, GU } from '@pokt-foundation/ui'
+import { Spacer, GU, textStyle } from '@pokt-foundation/ui'
 import NavigationBar from './NavigationBar'
 import MenuPanel from '../../components/MenuPanel/MenuPanel'
 import { AppsContextProvider, useUserApps } from '../../contexts/AppsContext'
 import { UserContextProvider } from '../../contexts/UserContext'
+import { useAuth0 } from '@auth0/auth0-react'
+import AnimatedLogo from '../../components/AnimatedLogo/AnimatedLogo'
 
 interface DashboardViewProps {
   children: React.ReactNode
@@ -14,6 +16,7 @@ interface DashboardViewProps {
 
 function DashboardView({ children }: DashboardViewProps) {
   const location = useLocation()
+
   const { appsLoading, userApps } = useUserApps()
   const { below } = useViewport()
 
@@ -94,11 +97,52 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ children }: DashboardProps) {
-  return (
-    <AppsContextProvider>
+  const location = useLocation()
+  const { user, isAuthenticated, isLoading } = useAuth0()
+
+  if (isLoading) {
+    return (
+      <div
+        css={`
+          position: relative;
+          width: 100%;
+          /* TODO: This is leaky. fix up with a permanent component */
+          height: 70vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        `}
+      >
+        <AnimatedLogo />
+        <Spacer size={2 * GU} />
+        <p
+          css={`
+            ${textStyle('body2')}
+          `}
+        >
+          Loading dashboard...
+        </p>
+      </div>
+    )
+  }
+
+  if (isAuthenticated && user) {
+    return (
       <UserContextProvider>
-        <DashboardView>{children}</DashboardView>
+        <AppsContextProvider>
+          <DashboardView>{children}</DashboardView>
+        </AppsContextProvider>
       </UserContextProvider>
-    </AppsContextProvider>
+    )
+  }
+
+  return (
+    <Redirect
+      to={{
+        pathname: '/login',
+        state: { from: location },
+      }}
+    />
   )
 }

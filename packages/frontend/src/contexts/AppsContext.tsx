@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useMemo } from 'react'
 import { UserLB } from '@pokt-foundation/portal-types'
-import { useUserApplications } from '../hooks/application-hooks'
-import { log } from '../lib/utils'
+import { useUserApplications } from '../hooks/useApplication'
 
 type UserAppInfo = {
   appsLoading: boolean
@@ -56,8 +55,6 @@ export function AppsContextProvider({
 
     return { appsLoading, userApps: appsData, refetchApps, userID }
   }, [appsData, appsLoading, refetchApps])
-
-  log('USER APPS:', userApps)
 
   return (
     <AppsContext.Provider value={userApps}>{children}</AppsContext.Provider>

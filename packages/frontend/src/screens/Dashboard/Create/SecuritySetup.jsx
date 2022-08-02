@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useViewport } from 'use-viewport'
 import styled from 'styled-components/macro'
 import {

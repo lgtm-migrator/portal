@@ -22,6 +22,7 @@ import {
   KNOWN_QUERY_SUFFIXES,
 } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 const APP_CONFIG_DATA_KEY = 'POKT_NETWORK_APP_CONFIG_DATA'
 const APP_CONFIG_SCREEN_KEY = 'POKT_NETWORK_APP_CONFIG_SREEN'
@@ -134,6 +135,7 @@ export default function Create() {
   const { isAppsLoading, userApps, userID } = useUserApps()
   const { userLoading } = useUser()
   const queryClient = useQueryClient()
+  const headers = useAuthHeaders()
 
   const {
     isLoading: isChainsLoading,
@@ -145,9 +147,7 @@ export default function Create() {
       const path = `${env('BACKEND_URL')}/api/network/usable-chains`
 
       try {
-        const res = await axios.get(path, {
-          withCredentials: true,
-        })
+        const res = await axios.get(path, await headers)
 
         const { data: chains } = res
 
@@ -183,9 +183,7 @@ export default function Create() {
             secretKeyRequired,
           },
         },
-        {
-          withCredentials: true,
-        }
+        await headers
       )
 
       const { data } = res
@@ -313,7 +311,7 @@ export default function Create() {
             overflow-x: hidden;
           `}
         >
-          {transitionProps.map(({ _, key, props }) => (
+          {transitionProps.map(({ key, props }) => (
             <animated.div
               key={key}
               style={props}

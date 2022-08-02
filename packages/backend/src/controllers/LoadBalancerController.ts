@@ -1,4 +1,9 @@
-import express, { Response, Request, NextFunction } from 'express'
+import axios from 'axios'
+import express, {
+  Response,
+  Request as ExpressRequest,
+  NextFunction,
+} from 'express'
 import crypto from 'crypto'
 import { Encryptor } from 'strong-cryptor'
 import {
@@ -15,14 +20,13 @@ import {
   UserLBTotalSuccessfulRelaysResponse,
 } from '@pokt-foundation/portal-types'
 import { typeGuard, QueryAppResponse, PocketAAT } from '@pokt-network/pocket-js'
+
 import { IAppInfo, GetApplicationQuery } from './types'
 import { cache, getResponseFromCache, LB_METRICS_TTL } from '../redis'
-import env, { PocketNetworkKeys } from '../environment'
+import env from '../environment'
 import asyncMiddleware from '../middlewares/async'
-import { authenticate } from '../middlewares/passport-auth'
 import Application, { IApplication } from '../models/Application'
 import LoadBalancer, { ILoadBalancer } from '../models/LoadBalancer'
-import { IUser } from '../models/User'
 import {
   composeDaysFromNowUtcDate,
   composeHoursFromNowUtcDate,
@@ -37,24 +41,28 @@ import {
   buildOriginClassificationQuery,
 } from '../lib/influx'
 import { getApp, createPocketAccount, PocketAccount } from '../lib/pocket'
+import { checkJWT } from '../lib/oauth'
 import HttpError from '../errors/http-error'
 import MailgunService from '../services/MailgunService'
 import { APPLICATION_STATUSES } from '../application-statuses'
-import axios from 'axios'
+import User, { IUser } from '../models/User'
+import { splitAuth0ID } from '../lib/split-auth0-id'
+
+interface Request extends ExpressRequest {
+  user: { sub: string; email: string }
+}
 
 const DEFAULT_GATEWAY_SETTINGS = {
   secretKey: '',
   secretKeyRequired: false,
   whitelistOrigins: [],
   whitelistUserAgents: [],
-  whitelistContracts: [],
-  whitelistMethods: []
 }
 const DEFAULT_TIMEOUT = 2000
 const DEFAULT_MAX_RELAYS = 42000
 const MAX_USER_ENDPOINTS = 2
 
-const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY') as string
+const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY')
 
 const encryptor = new Encryptor({ key: CRYPTO_KEY })
 
@@ -100,15 +108,12 @@ async function getAppChain(address: string): Promise<string> {
 
 const router = express.Router()
 
-router.use(authenticate)
-
 router.get(
   '',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const id = (req.user as IUser)._id
-    const lbs = await LoadBalancer.find({
-      user: id,
-    })
+    const id = splitAuth0ID(req.user.sub)
+    const lbs = await LoadBalancer.find({ user: id })
 
     if (!lbs) {
       return next(
@@ -140,14 +145,12 @@ router.get(
         // pre process apps
         const cleanedApplicationIDs = []
 
-        for (const appID of lb.applicationIDs) {
+        for await (const appID of lb.applicationIDs) {
           if (!appID) {
             continue
           }
 
-          const app = await Application.findById(appID)
-
-          if (!app) {
+          if (!(await Application.exists({ _id: appID }))) {
             continue
           }
 
@@ -156,7 +159,7 @@ router.get(
 
         lb.applicationIDs = cleanedApplicationIDs
 
-        for (const appId of cleanedApplicationIDs) {
+        for await (const appId of cleanedApplicationIDs) {
           const app = await Application.findById(appId)
 
           apps.push({
@@ -166,53 +169,58 @@ router.get(
           })
         }
 
-        const app = await Application.findById(lb.applicationIDs[0])
+        const {
+          freeTier,
+          freeTierApplicationAccount,
+          gatewaySettings,
+          notificationSettings,
+          status,
+        } = await Application.findById(lb.applicationIDs[0])
 
         const chain = lb.gigastakeRedirect
           ? ''
-          : await getAppChain(app.freeTierApplicationAccount.address)
+          : await getAppChain(freeTierApplicationAccount.address)
 
         if (chain === 'NOT_FOUND') {
           return
         }
-        app.chain = chain
 
         const processedLb: GetApplicationQuery = {
           apps,
-          chain: chain,
+          chain,
           createdAt: new Date(Date.now()),
           updatedAt: lb.updatedAt,
           gigastake: lb.gigastakeRedirect,
-          freeTier: app.freeTier,
-          gatewaySettings: app.gatewaySettings,
-          notificationSettings: app.notificationSettings,
+          freeTier,
+          gatewaySettings,
+          notificationSettings,
+          status,
           name: lb.name,
           id: lb._id.toString(),
           user: id,
-          status: app.status,
         }
 
         return processedLb
       })
     )
+    const lbsForUser = processedLbs.filter((lb) => lb?.user)
 
-    res
-      .status(200)
-      .send(processedLbs.filter((lb) => lb).filter((lb) => lb.user))
+    res.status(200).send(lbsForUser)
   })
 )
 
 router.post(
   '',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const { name, gatewaySettings = DEFAULT_GATEWAY_SETTINGS } = req.body
 
-    const id = (req.user as IUser)._id
+    const id = splitAuth0ID(req.user.sub)
     const userLBs = await LoadBalancer.find({ user: id })
 
     const isNewAppRequestInvalid =
       userLBs.length >= MAX_USER_ENDPOINTS &&
-      !(env('GODMODE_ACCOUNTS') as string[]).includes(id.toString())
+      !env('GODMODE_ACCOUNTS').includes(id.toString())
 
     if (isNewAppRequestInvalid) {
       return next(
@@ -238,7 +246,7 @@ router.post(
 
     const freeTierAAT = await PocketAAT.from(
       '0.0.1',
-      (env('POCKET_NETWORK') as PocketNetworkKeys).clientPubKey,
+      env('POCKET_NETWORK').clientPubKey,
       rawAccount.publicKey,
       rawAccount.privateKey
     )
@@ -312,10 +320,11 @@ router.post(
 
 router.put(
   '/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
     const { gatewaySettings, name } = req.body
     const { lbId } = req.params
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -386,8 +395,9 @@ router.put(
 
 router.get(
   '/status/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -434,7 +444,7 @@ router.get(
         },
         { stake: 0, relays: 0 }
       ) as UserLBOnChainDataResponse
-      res.status(200).send(appsStatus)
+      return res.status(200).send(appsStatus)
     }
 
     const apps = await Promise.all(
@@ -476,14 +486,15 @@ router.get(
       }
     ) as UserLBOnChainDataResponse
 
-    res.status(200).send(appsStatus)
+    return res.status(200).send(appsStatus)
   })
 )
 
 router.put(
   '/notifications/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const { quarter, half, threeQuarters, full } = req.body
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -535,9 +546,10 @@ router.put(
 
     await loadBalancer.save()
 
+    const user: IUser = await User.findById(userId)
     emailService.send({
       templateName: 'NotificationChange',
-      toEmail: (req.user as IUser).email,
+      toEmail: user.email,
     })
 
     return res.status(204).send()
@@ -546,8 +558,9 @@ router.put(
 
 router.post(
   '/remove/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
 
@@ -602,8 +615,9 @@ router.post(
 
 router.get(
   '/total-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -670,8 +684,9 @@ router.get(
 
 router.get(
   '/successful-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -737,8 +752,9 @@ router.get(
 
 router.get(
   '/daily-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -786,7 +802,7 @@ router.get(
       })
     )
 
-    // const rawDailyRelays = Array(7).fill({ _value: 0, _time: '' })
+    //const rawDailyRelays = Array(7).fill({ _value: 0, _time: '' })
     const processedDailyRelays = rawDailyRelays.map(
       ({ _value }: { _value: number; _time: string }, i) => {
         return {
@@ -813,8 +829,9 @@ router.get(
 
 router.get(
   '/session-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -863,8 +880,9 @@ router.get(
 
 router.get(
   '/previous-total-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -930,8 +948,9 @@ router.get(
 
 router.get(
   '/previous-successful-relays/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -997,8 +1016,9 @@ router.get(
 
 router.get(
   '/hourly-latency/:lbId',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbId } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbId)
@@ -1071,8 +1091,9 @@ router.get(
 
 router.get(
   '/origin-classification/:lbID',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbID } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)
@@ -1156,8 +1177,9 @@ router.get(
 
 router.get(
   '/error-metrics/:lbID',
+  checkJWT,
   asyncMiddleware(async (req: Request, res: Response, next: NextFunction) => {
-    const userId = (req.user as IUser)._id
+    const userId = splitAuth0ID(req.user.sub)
     const { lbID } = req.params
 
     const loadBalancer: ILoadBalancer = await LoadBalancer.findById(lbID)

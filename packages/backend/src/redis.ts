@@ -8,7 +8,7 @@ if (!env('REDIS_ENDPOINT')) {
   console.log('---REDIS ENDPOINT MISSING---')
 }
 
-export const cache = new Redis(env('REDIS_ENDPOINT') as string)
+export const cache = new Redis(env('REDIS_ENDPOINT'))
 
 export async function getResponseFromCache(key: string): Promise<unknown> {
   const cachedResponse = await cache.get(key)

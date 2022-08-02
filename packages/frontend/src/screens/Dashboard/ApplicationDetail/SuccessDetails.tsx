@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
@@ -25,8 +25,10 @@ import { log, shorten } from '../../../lib/utils'
 import env from '../../../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../../../known-query-suffixes'
 import { sentryEnabled } from '../../../sentry'
+import { useUser } from '../../../contexts/UserContext'
 import MessagePopup from '../../../components/MessagePopup/MessagePopup'
 import FeedbackBox from '../../../components/FeedbackBox/FeedbackBox'
+import { useAuthHeaders } from '../../../hooks/useAuthHeaders'
 
 const REFETCH_INTERVAL = 60 * 1000
 
@@ -76,16 +78,16 @@ interface EndpointRpcError {
 
 export default function SuccessDetails({
   id,
-  maxDailyRelays,
-  stakedTokens,
   successfulRelays,
   totalRelays,
 }: SuccessDetailsProps) {
+  const { userLoading } = useUser()
   const theme = useTheme()
   const toast = useToast()
   const [activeClockElement, setActiveClockElement] = useState<string>('')
   const [clockMsgVisible, setClockMsgVisible] = useState<boolean>(false)
   const { within } = useViewport()
+  const headers = useAuthHeaders()
 
   const onClockMsgOpen = useCallback((timestamp: string) => {
     setActiveClockElement(timestamp)
@@ -109,9 +111,7 @@ export default function SuccessDetails({
       }
 
       try {
-        const { data } = await axios.get(errorMetricsURL, {
-          withCredentials: true,
-        })
+        const { data } = await axios.get(errorMetricsURL, await headers)
 
         const transformedErrorMetrics = await Promise.all(
           data.map(async (e: EndpointRpcError) => {
@@ -150,6 +150,7 @@ export default function SuccessDetails({
     {
       keepPreviousData: true,
       refetchInterval: REFETCH_INTERVAL,
+      enabled: !userLoading,
     }
   )
 
@@ -427,33 +428,79 @@ export default function SuccessDetails({
                           `}
                         />
                         <div
-                          onMouseEnter={() => onClockMsgOpen(timestamp)}
-                          onMouseLeave={onClockMsgClose}
                           css={`
-                            position: relative;
+                            display: inline-block;
+                            width: ${1.5 * GU}px;
+                            height: ${1.5 * GU}px;
+                            border-radius: 50% 50%;
+                            background: ${theme.negative};
+                            box-shadow: ${theme.negative} 0px 2px 8px 0px;
+                          `}
+                        />
+                        ,
+                        <p
+                          css={`
+                            ${textStyle('body3')}
                           `}
                         >
-                          <IconClock
-                            css={`
-                              color: ${theme.accentAlternative};
-                              width: ${GU * 2}px;
-                              height: ${GU * 2}px;
-                            `}
-                          />
-                          <MessagePopup
-                            show={
-                              clockMsgVisible &&
-                              timestamp === activeClockElement
+                          {method ? method : 'Unknown'}
+                        </p>
+                        ,
+                        <p
+                          css={`
+                            ${textStyle('body3')}
+                          `}
+                        >
+                          {bytes}B
+                        </p>
+                        ,
+                        <div
+                          css={`
+                            display: flex;
+                            align-items: center;
+                          `}
+                        >
+                          <TextCopy
+                            value={shorten(nodeAddress, 16)}
+                            onCopy={() =>
+                              toast('Node address copied to cliboard')
                             }
                             css={`
-                              top: -34px;
-                              left: -95px;
-                              height: ${GU * 4}px;
-                              width: ${GU * 16}px;
+                              width: 100%;
+                              > div > input {
+                                background: transparent;
+                              }
+                            `}
+                          />
+                          <div
+                            onMouseEnter={() => onClockMsgOpen(timestamp)}
+                            onMouseLeave={onClockMsgClose}
+                            css={`
+                              position: relative;
                             `}
                           >
-                            {getDateFromTimestamp(timestamp)}
-                          </MessagePopup>
+                            <IconClock
+                              css={`
+                                color: ${theme.accentAlternative};
+                                width: ${GU * 2}px;
+                                height: ${GU * 2}px;
+                              `}
+                            />
+                            <MessagePopup
+                              show={
+                                clockMsgVisible &&
+                                timestamp === activeClockElement
+                              }
+                              css={`
+                                top: -34px;
+                                left: -95px;
+                                height: ${GU * 4}px;
+                                width: ${GU * 16}px;
+                              `}
+                            >
+                              {getDateFromTimestamp(timestamp)}
+                            </MessagePopup>
+                          </div>
                         </div>
                       </div>,
                     ]

@@ -38,6 +38,7 @@ import env from '../../../../environment'
 import { ReactComponent as Delete } from '../../../../assets/delete.svg'
 import { AmplitudeEvents } from '../../../../lib/analytics'
 import FeedbackBox from '../../../../components/FeedbackBox/FeedbackBox'
+import { useAuthHeaders } from '../../../../hooks/useAuthHeaders'
 
 const LATENCY_UPPER_BOUND = 1.25 // 1.25 seconds
 const SESSIONS_PER_DAY = 24
@@ -143,11 +144,12 @@ export default function Overview({
   const { appId } = useParams<{ appId: string }>()
   const { within } = useViewport()
   const theme = useTheme()
+  const headers = useAuthHeaders()
   const { mutate: onRemoveApp } = useMutation(async function removeApp() {
     try {
       const path = `${env('BACKEND_URL')}/api/lb/remove/${appId}`
 
-      await axios.post(path, {}, { withCredentials: true })
+      await axios.post(path, {}, await headers)
 
       if (env('PROD')) {
         amplitude.getInstance().logEvent(AmplitudeEvents.EndpointRemoval, {

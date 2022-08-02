@@ -4,7 +4,7 @@ import isEmail from 'validator/lib/isEmail'
 import { IFreeTierApplicationAccount, IGatewayAAT } from './types'
 import env from '../environment'
 
-const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY') as string
+const CRYPTO_KEY = env('DATABASE_ENCRYPTION_KEY')
 
 const encryptor = new Encryptor({ key: CRYPTO_KEY })
 const decryptor = new Decryptor({ key: CRYPTO_KEY })

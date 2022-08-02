@@ -11,12 +11,15 @@
     "moduleResolution": "node",
     "strict": false,
     "target": "esnext",
-    "outDir": "./build"
+    "outDir": "./build",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "references": [{ "path": "../types" }],
   "baseUrl": "src",
   "paths": {
     "@/*": ["*"]
   },
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "build"],
+  "include": ["src/**/*.ts", "src/**/*.json"]
 }

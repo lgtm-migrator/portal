@@ -117,12 +117,12 @@ export const KNOWN_CHAINS = {
   OEC_MAINNET: {
     ticker: 'OEC',
     id: '0047',
-    limit: 0
+    limit: 0,
   },
   BSC_MAINNET: {
     ticker: 'BSC',
     id: '0004',
-    limit: 0
+    limit: 0,
   },
   BOBA_MAINNET: {
     ticker: 'BOBA',

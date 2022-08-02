@@ -27,7 +27,7 @@ import {
   useNetworkSummary,
   usePoktScanLatestBlockAndPerformance,
   useTotalWeeklyRelays,
-} from '../../../hooks/network-hooks'
+} from '../../../hooks/useNetwork'
 import Economics from '../../../assets/economicsDevs.png'
 import {
   getServiceLevelByChain,
@@ -224,6 +224,7 @@ export default function NetworkStatus() {
                     `}
                   />
                   <Spacer size={3 * GU} />
+
                   <div
                     css={`
                       display: flex;

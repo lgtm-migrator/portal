@@ -1,12 +1,12 @@
 import axios from 'axios'
 import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
+import env from '../environment'
+import { dayjs } from '../lib/date-utils'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
+import { splitAuth0ID } from '../lib/split-auth0-id'
 import Application from '../models/Application'
 import LoadBalancer from '../models/LoadBalancer'
-import User from '../models/User'
-import { composeHoursFromNowUtcDate, dayjs } from '../lib/date-utils'
-import env from '../environment'
 
 interface IUserProfile {
   email: string
@@ -15,6 +15,19 @@ interface IUserProfile {
   numberOfEndpoints: number
   publicKeys: string[]
   publicKeysPerEndpoint: number[]
+}
+
+interface Auth0UserResponse {
+  email: string
+  user_metadata: { legacy?: boolean; admin?: boolean }
+  user_id: string
+}
+
+interface IAuth0User {
+  email: string
+  id: string
+  legacy: boolean
+  auth0: boolean
 }
 
 interface IRelayMetricUpdate {
@@ -46,6 +59,30 @@ const DEFAULT_USER_PROFILE = {
 
 const { isValid } = Types.ObjectId
 const ORPHANED_KEY = 'ORPHANED'
+
+async function fetchUserFromAuth0(userId: string): Promise<IAuth0User | null> {
+  const url = `${env('AUTH0_DOMAIN_URL')}/api/v2/users`,
+    params = `?q=user_id:*${userId}&fields=user_id,email,user_metadata&include_fields=true`,
+    fullRequestPath = `${url}${params}`
+
+  try {
+    const { data } = await axios.get<Auth0UserResponse[]>(fullRequestPath, {
+      headers: { authorization: `Bearer ${env('AUTH0_MGMT_ACCESS_TOKEN')}` },
+    })
+    const [userResponse] = data
+
+    return userResponse
+      ? ({
+          id: splitAuth0ID(userResponse.user_id),
+          email: userResponse.email,
+          legacy: userResponse.user_metadata?.legacy ?? false,
+          auth0: true,
+        } as IAuth0User)
+      : null
+  } catch (err) {
+    return null
+  }
+}
 
 export async function fetchUsedApps(
   ctx: any
@@ -220,10 +257,13 @@ export async function mapUsageToProfiles(
       // they will still have a valid BSON ID.
       const userID = lb?.user?.toString() ?? ''
       const isUserIDValid = isValid(userID)
-      // Fetch user from MongoDB.
+      // Always fetch users from Auth0. Legacy users retain their old BSON ID in the Auth0 DB,
+      // and new users will be instatly found on the Auth0 DB, which means we don't have to query
+      // the old MongoDB for users anymore.
       // If we don't have an user or the ID is not valid, the we'll set `user` as null and register the usage as an orphaned LB.
-      const user = isUserIDValid ? await User.findById(userID) : null
-      const userKey = user ? userID : ORPHANED_KEY
+      const user = isUserIDValid ? await fetchUserFromAuth0(userID) : null
+
+      const userKey = user ? user.id : ORPHANED_KEY
 
       if (!user) {
         ctx.logger.warn(

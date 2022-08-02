@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import {
@@ -12,8 +11,10 @@ import {
   UserLBTotalRelaysResponse,
   UserLBTotalSuccessfulRelaysResponse,
 } from '@pokt-foundation/portal-types'
+import { useUser } from '../contexts/UserContext'
 import env from '../environment'
 import { KNOWN_QUERY_SUFFIXES } from '../known-query-suffixes'
+import { useAuthHeaders } from './useAuthHeaders'
 
 export function useAppMetrics({
   activeApplication,
@@ -34,77 +35,77 @@ export function useAppMetrics({
       ]
     | []
 } {
+  const { userLoading } = useUser()
   const { id: appId = '' } = activeApplication
-  const type = 'lb'
+  const useHeaders = useAuthHeaders()
 
   const { data, isLoading } = useQuery(
     `${KNOWN_QUERY_SUFFIXES.METRICS}-${appId}`,
     async function getMetrics() {
       const totalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/total-relays/${appId}`
+      )}/api/lb/total-relays/${appId}`
       const successfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/successful-relays/${appId}`
+      )}/api/lb/successful-relays/${appId}`
       const dailyRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/daily-relays/${appId}`
+      )}/api/lb/daily-relays/${appId}`
       const sessionRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/session-relays/${appId}`
+      )}/api/lb/session-relays/${appId}`
       const previousSuccessfulRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-successful-relays/${appId}`
+      )}/api/lb/previous-successful-relays/${appId}`
       const previousTotalRelaysPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/previous-total-relays/${appId}`
+      )}/api/lb/previous-total-relays/${appId}`
       const hourlyLatencyPath = `${env(
         'BACKEND_URL'
-      )}/api/${type}/hourly-latency/${appId}`
-      const onChainDataPath = `${env(
-        'BACKEND_URL'
-      )}/api/${type}/status/${appId}`
+      )}/api/lb/hourly-latency/${appId}`
+      const onChainDataPath = `${env('BACKEND_URL')}/api/lb/status/${appId}`
+
+      const headers = await useHeaders
 
       try {
-        const { data: totalRelaysResponse } = await axios.get(totalRelaysPath, {
-          withCredentials: true,
-        })
+        const { data: totalRelaysResponse } = await axios.get(
+          totalRelaysPath,
+          headers
+        )
         const { data: successfulRelaysResponse } = await axios.get(
           successfulRelaysPath,
-          {
-            withCredentials: true,
-          }
+          headers
         )
-        const { data: dailyRelaysResponse } = await axios.get(dailyRelaysPath, {
-          withCredentials: true,
-        })
+
+        const { data: dailyRelaysResponse } = await axios.get(
+          dailyRelaysPath,
+          headers
+        )
+
         const { data: sessionRelaysResponse } = await axios.get(
           sessionRelaysPath,
-          {
-            withCredentials: true,
-          }
+          headers
         )
+
         const { data: previousSuccessfulRelaysResponse } = await axios.get(
           previousSuccessfulRelaysPath,
-          {
-            withCredentials: true,
-          }
+          headers
         )
+
         const { data: previousTotalRelaysResponse } = await axios.get(
           previousTotalRelaysPath,
-          {
-            withCredentials: true,
-          }
+          headers
         )
+
         const { data: hourlyLatencyResponse } = await axios.get(
           hourlyLatencyPath,
-          {
-            withCredentials: true,
-          }
+          headers
         )
-        const { data: onChainDataResponse } = await axios.get(onChainDataPath, {
-          withCredentials: true,
-        })
+
+        const { data: onChainDataResponse } = await axios.get(
+          onChainDataPath,
+          headers
+        )
 
         return [
           totalRelaysResponse as UserLBTotalRelaysResponse,
@@ -119,7 +120,8 @@ export function useAppMetrics({
       } catch (err) {
         console.log(err)
       }
-    }
+    },
+    { enabled: !userLoading }
   )
 
   return { metricsLoading: isLoading, metrics: data || [] }
