@@ -27,7 +27,7 @@ export interface ILoadBalancer extends Document {
 
 const LoadBalancerSchema = new Schema<ILoadBalancer>(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: { type: String, ref: 'User' },
     name: String,
     requestTimeOut: String,
     applicationIDs: [],
