@@ -48,7 +48,7 @@ export interface IApplication extends Document {
   notificationSettings: INotificationSettings
   status: string
   updatedAt?: Date | number
-  user: Types.ObjectId
+  user: string
   validateMetadata: ({
     name,
     owner,
