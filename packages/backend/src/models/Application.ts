@@ -66,7 +66,7 @@ const applicationSchema = new Schema<IApplication>(
   {
     chain: String,
     name: String,
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: { type: String, ref: 'User' },
     freeTier: Boolean,
     status: String,
     lastChangedStatusAt: Date,
