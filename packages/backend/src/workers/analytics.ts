@@ -1,6 +1,8 @@
 import axios from 'axios'
 import * as Amplitude from '@amplitude/node'
+
 import env from '../environment'
+import { WorkerContext } from './index'
 import { dayjs } from '../lib/date-utils'
 import { influx, buildAnalyticsQuery } from '../lib/influx'
 import { splitAuth0ID } from '../lib/split-auth0-id'
@@ -58,10 +60,23 @@ const DEFAULT_USER_PROFILE = {
 
 const ORPHANED_KEY = 'ORPHANED'
 
-async function fetchUserFromAuth0(userId: string): Promise<IAuth0User | null> {
-  const url = `${env('AUTH0_DOMAIN_URL')}/api/v2/users`,
+// This is main analytics function called by the analytics worker
+export async function registerAnalytics(ctx: WorkerContext): Promise<void> {
+  const apps = await fetchUsedApps(ctx)
+
+  const userProfiles = await mapUsageToProfiles(apps, ctx)
+
+  await sendRelayCountToAmplitude({ ctx, userProfiles })
+}
+
+async function fetchUserFromAuth0(
+  userId: string,
+  ctx: WorkerContext
+): Promise<IAuth0User | null> {
+  const url = `${env('AUTH0_AUDIENCE')}`,
+    path = 'users',
     params = `?q=user_id:*${userId}&fields=user_id,email,user_metadata&include_fields=true`,
-    fullRequestPath = `${url}${params}`
+    fullRequestPath = `${url}${path}${params}`
 
   try {
     const { data } = await axios.get<Auth0UserResponse[]>(fullRequestPath, {
@@ -78,12 +93,15 @@ async function fetchUserFromAuth0(userId: string): Promise<IAuth0User | null> {
         } as IAuth0User)
       : null
   } catch (err) {
+    ctx.logger.error(
+      `[AMPLITUDE] Error fetching user from Auth0: ${err?.message}`
+    )
     return null
   }
 }
 
 export async function fetchUsedApps(
-  ctx: any
+  ctx: WorkerContext
 ): Promise<Map<string, UsageByID[]>> {
   const currentHour = dayjs().utc().hour()
   const start = dayjs()
@@ -103,7 +121,11 @@ export async function fetchUsedApps(
     .subtract(1, 'hour')
     .toISOString()
 
-  const rawAppsUsed = await influx.collectRows<{_value: number,applicationPublicKey: string, blockchain: string}>(
+  const rawAppsUsed = await influx.collectRows<{
+    _value: number
+    applicationPublicKey: string
+    blockchain: string
+  }>(
     buildAnalyticsQuery({
       start,
       stop,
@@ -154,7 +176,7 @@ export async function fetchUsedApps(
 // particular user
 export async function mapUsageToProfiles(
   appsUsedByChain: Map<string, UsageByID[]>,
-  ctx: any
+  ctx: WorkerContext
 ): Promise<
   Map<
     string,
@@ -256,9 +278,9 @@ export async function mapUsageToProfiles(
       // the old MongoDB for users anymore.
       // If we don't have a user, the we'll set `user` as null and register the usage as an orphaned LB.
       const userID = lb?.user ?? ''
-      const user = userID ? await fetchUserFromAuth0(userID) : null
+      const user = userID ? await fetchUserFromAuth0(userID, ctx) : null
 
-      const userKey = user ? user.id : ORPHANED_KEY
+      const userKey = user?.id || ORPHANED_KEY
 
       if (!user) {
         ctx.logger.warn(
@@ -269,8 +291,7 @@ export async function mapUsageToProfiles(
       }
 
       // Get the current endpoints from this user. Will just be an empty array if there's no user.
-      const userEndpoints =
-        dbLBs.filter((lb) => lb?.user === userID) ?? []
+      const userEndpoints = dbLBs.filter((lb) => lb?.user === userID) ?? []
 
       // Get all the apps in this loadbalancer.
       const currentEndpointApps =
@@ -354,7 +375,7 @@ export async function sendRelayCountToAmplitude({
     string,
     { userProfile: IUserProfile; metricUpdates: IRelayMetricUpdate[] }
   >
-  ctx: any
+  ctx: WorkerContext
 }): Promise<void> {
   let totalUsage = 0
   const amplitudeClient = Amplitude.init(env('AMPLITUDE_API_KEY'))
@@ -380,15 +401,4 @@ export async function sendRelayCountToAmplitude({
   ctx.logger.info(
     `[AMPLITUDE] LOGGED ${userProfiles.size} users, with total usage ${totalUsage}`
   )
-}
-
-export async function registerAnalytics(ctx): Promise<void> {
-  const apps = await fetchUsedApps(ctx)
-
-  const userProfiles = await mapUsageToProfiles(apps, ctx)
-
-  await sendRelayCountToAmplitude({
-    ctx,
-    userProfiles,
-  })
 }

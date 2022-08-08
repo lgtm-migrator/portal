@@ -1,29 +1,17 @@
 import mongoose from 'mongoose'
 import env from './environment'
 
-const DEV_DB_URL =
-  'mongodb://mongouser:mongopassword@localhost:27017/gateway?authSource=admin'
-
-function composeMongoUrl(production = false) {
-  return production ? env('DATABASE_URL') : DEV_DB_URL
-}
-
-export const connect = async (
-  url = composeMongoUrl(env('PROD')),
-  opts = {}
-): Promise<typeof mongoose> => {
-  const userSettings = env('PROD')
+export const connect = async (): Promise<void> => {
+  const url = env('PROD') ? env('DATABASE_URL') : env('DEV_DATABASE_URL')
+  const userSettings: mongoose.ConnectOptions = env('PROD')
     ? { user: env('DATABASE_USER'), pass: env('DATABASE_PASSWORD') }
     : {}
 
-  const connection = await mongoose.connect(url, {
-    ...opts,
+  await mongoose.connect(url, {
+    ...userSettings,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    ...userSettings,
   })
-
-  return connection
 }
 
 export const disconnect = async () => {
