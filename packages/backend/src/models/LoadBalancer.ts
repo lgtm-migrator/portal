@@ -30,7 +30,7 @@ const LoadBalancerSchema = new Schema<ILoadBalancer>(
     user: { type: String, ref: 'User' },
     name: String,
     requestTimeOut: String,
-    applicationIDs: [],
+    applicationIDs: [String],
     gigastakeRedirect: Boolean,
     createdAt: {
       type: Date,
