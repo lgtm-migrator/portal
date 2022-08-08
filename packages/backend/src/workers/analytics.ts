@@ -57,7 +57,6 @@ const DEFAULT_USER_PROFILE = {
   publicKeysPerEndpoint: [],
 } as IUserProfile
 
-const { isValid } = Types.ObjectId
 const ORPHANED_KEY = 'ORPHANED'
 
 async function fetchUserFromAuth0(userId: string): Promise<IAuth0User | null> {
@@ -105,7 +104,7 @@ export async function fetchUsedApps(
     .subtract(1, 'hour')
     .toISOString()
 
-  const rawAppsUsed = await influx.collectRows(
+  const rawAppsUsed = await influx.collectRows<{_value: number,applicationPublicKey: string, blockchain: string}>(
     buildAnalyticsQuery({
       start,
       stop,
@@ -253,15 +252,12 @@ export async function mapUsageToProfiles(
       // Option 2: LB was found, so we'll try to associate it to an user
       // and count its usage.
     } else {
-      // It doesn't matter if it's an Auth0 or a legacy MongoDB user,
-      // they will still have a valid BSON ID.
-      const userID = lb?.user?.toString() ?? ''
-      const isUserIDValid = isValid(userID)
+      const userID = lb?.user ?? ''
       // Always fetch users from Auth0. Legacy users retain their old BSON ID in the Auth0 DB,
       // and new users will be instatly found on the Auth0 DB, which means we don't have to query
       // the old MongoDB for users anymore.
-      // If we don't have an user or the ID is not valid, the we'll set `user` as null and register the usage as an orphaned LB.
-      const user = isUserIDValid ? await fetchUserFromAuth0(userID) : null
+      // If we don't have an user ID then we'll set `user` as null and register the usage as an orphaned LB.
+      const user = userID ? await fetchUserFromAuth0(userID) : null
 
       const userKey = user ? user.id : ORPHANED_KEY
 
