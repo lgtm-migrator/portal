@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Types } from 'mongoose'
 import * as Amplitude from '@amplitude/node'
 import env from '../environment'
 import { dayjs } from '../lib/date-utils'
@@ -123,7 +122,7 @@ export async function fetchUsedApps(
   })
 
   ctx.logger.info(
-    `Got ${rawAppsUsed.length} apps used with a total usage of ${totalEndpointUsage}`
+    `[AMPLITUDE] Got ${rawAppsUsed.length} apps used with a total usage of ${totalEndpointUsage}`
   )
 
   const appsUsedByChain = new Map<string, UsageByID[]>()
@@ -143,7 +142,7 @@ export async function fetchUsedApps(
   }
 
   ctx.logger.info(
-    `Got ${rawAppsUsed.length} apps used with a total usage of ${totalEndpointUsage}`
+    `[AMPLITUDE] Got ${rawAppsUsed.length} apps used with a total usage of ${totalEndpointUsage}`
   )
   return appsUsedByChain
 }
@@ -184,7 +183,7 @@ export async function mapUsageToProfiles(
     // it's best to log a warning if it does and bail.
     if (!app) {
       ctx.logger.error(
-        `No app found for public key ${publicKey} but presents an usage of ${totalUsage}.`
+        `[AMPLITUDE] No app found for public key ${publicKey} but presents an usage of ${totalUsage}.`
       )
 
       continue
@@ -205,7 +204,7 @@ export async function mapUsageToProfiles(
     // It has usage so it must be counted.
     if (!lb) {
       ctx.logger.warn(
-        `No LB found for app ${app._id?.toString()} [${
+        `[AMPLITUDE] No LB found for app ${app._id?.toString()} [${
           app.name
         }], but presents usage ${totalUsage}. Categorizing as "orphaned" app.`
       )
@@ -252,18 +251,18 @@ export async function mapUsageToProfiles(
       // Option 2: LB was found, so we'll try to associate it to an user
       // and count its usage.
     } else {
-      const userID = lb?.user ?? ''
       // Always fetch users from Auth0. Legacy users retain their old BSON ID in the Auth0 DB,
       // and new users will be instatly found on the Auth0 DB, which means we don't have to query
       // the old MongoDB for users anymore.
-      // If we don't have an user ID then we'll set `user` as null and register the usage as an orphaned LB.
+      // If we don't have a user, the we'll set `user` as null and register the usage as an orphaned LB.
+      const userID = lb?.user ?? ''
       const user = userID ? await fetchUserFromAuth0(userID) : null
 
       const userKey = user ? user.id : ORPHANED_KEY
 
       if (!user) {
         ctx.logger.warn(
-          `${lb._id?.toString()} [${
+          `[AMPLITUDE] ${lb._id?.toString()} [${
             lb.name
           }] has usage ${totalUsage} but is not associated with any user.`
         )
@@ -271,7 +270,7 @@ export async function mapUsageToProfiles(
 
       // Get the current endpoints from this user. Will just be an empty array if there's no user.
       const userEndpoints =
-        dbLBs.filter((lb) => lb?.user?.toString() === userID) ?? []
+        dbLBs.filter((lb) => lb?.user === userID) ?? []
 
       // Get all the apps in this loadbalancer.
       const currentEndpointApps =
@@ -342,7 +341,7 @@ export async function mapUsageToProfiles(
     }
   }
 
-  ctx.logger.info(`Processed ${totalUsageProcessed} usage`)
+  ctx.logger.info(`[AMPLITUDE] Processed ${totalUsageProcessed} usage`)
 
   return userProfiles
 }
@@ -379,7 +378,7 @@ export async function sendRelayCountToAmplitude({
   }
 
   ctx.logger.info(
-    `LOGGED ${userProfiles.size} users, with total usage ${totalUsage}`
+    `[AMPLITUDE] LOGGED ${userProfiles.size} users, with total usage ${totalUsage}`
   )
 }
 
