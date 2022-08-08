@@ -29,9 +29,6 @@ export const ENV_VARS = {
   AUTH0_ISSUER() {
     return process.env.AUTH0_ISSUER?.trim() ?? ''
   },
-  AUTH0_DOMAIN_URL() {
-    return process.env.AUTH0_DOMAIN_URL?.trim() ?? ''
-  },
   AUTH0_MGMT_ACCESS_TOKEN() {
     return process.env.AUTH0_MGMT_ACCESS_TOKEN?.trim() ?? ''
   },
@@ -101,6 +98,9 @@ export const ENV_VARS = {
   DATABASE_ENCRYPTION_KEY() {
     return process.env.DATABASE_ENCRYPTION_KEY?.trim() ?? ''
   },
+  DEV_DATABASE_URL() {
+    return process.env.DEV_DATABASE_URL?.trim() ?? ''
+  },
   FREE_TIER_ACCOUNT_PRIVATE_KEY() {
     return process.env.POCKET_NETWORK_FREE_TIER_FUND_ACCOUNT
   },
@@ -159,7 +159,6 @@ type IStringVars =
   | 'AUTH0_AUDIENCE'
   | 'AUTH0_ISSUER'
   | 'AUTH0_JWKS_URI'
-  | 'AUTH0_DOMAIN_URL'
   | 'AUTH0_MGMT_ACCESS_TOKEN'
   | 'CLOUDWATCH_ACCESS_KEY'
   | 'CLOUDWATCH_GROUP_NAME'
@@ -170,6 +169,7 @@ type IStringVars =
   | 'DATABASE_PASSWORD'
   | 'DATABASE_URL'
   | 'DATABASE_USER'
+  | 'DEV_DATABASE_URL'
   | 'EMAIL_API_KEY'
   | 'EMAIL_FROM'
   | 'ERROR_METRICS_URL'

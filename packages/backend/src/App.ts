@@ -2,14 +2,15 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import morgan from 'morgan'
+
+import { connect } from './db'
 import env from './environment'
 import { errorHandler } from './helpers/utils'
 import notFoundMiddleware from './middlewares/not-found'
 import { configureRoutes } from './routes'
-import { connect } from './db'
 
 const PORT = process.env.PORT || 4200
-const ALLOWED_DOMAINS = env('ALLOWED_DOMAINS') as unknown as string[]
+const ALLOWED_DOMAINS = env('ALLOWED_DOMAINS')
 
 if (!env('PROD')) {
   ALLOWED_DOMAINS.push('http://localhost:3001')
@@ -39,6 +40,7 @@ app.use(errorHandler())
 export const startServer = async (): Promise<void> => {
   try {
     await connect()
+
     app.listen(PORT, () => {
       console.log(`App listening to ${PORT}....`)
       console.log('Press Ctrl+C to quit.')

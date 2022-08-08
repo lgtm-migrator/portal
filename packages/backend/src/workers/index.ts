@@ -1,10 +1,17 @@
 import cron from 'node-cron'
+import { Logger } from 'winston'
+
 import { logger } from '../lib/logger'
 import { workers } from './config'
 
 const ONE_SECOND = 1000
 
-export function startWorkers(): void {
+export interface WorkerContext {
+  logger: Logger
+  name: string
+}
+
+export function startWorkers() {
   for (const { name, color, workerFn, recurrence } of workers) {
     cron.schedule(recurrence, async function handleWorkerProcess() {
       const startTime = Date.now()
@@ -16,7 +23,8 @@ export function startWorkers(): void {
       )
 
       try {
-        await workerFn({ logger, name })
+        const ctx: WorkerContext = { logger, name }
+        await workerFn(ctx)
 
         endTime = Date.now()
         const endInUtc = new Date(endTime).toUTCString()

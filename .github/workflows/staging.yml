@@ -31,7 +31,6 @@ jobs:
           envkey_AUTH0_JWKS_URI: ${{ secrets.AUTH0_JWKS_URI }}
           envkey_AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           envkey_AUTH0_ISSUER: ${{ secrets.AUTH0_ISSUER }}
-          envkey_PROD_DB_URL: ${{ secrets.PROD_DB_URL }}
           envkey_DATABASE_USER: ${{ secrets.DATABASE_USER }}
           envkey_AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
           envkey_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
