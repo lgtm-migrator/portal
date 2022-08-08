@@ -251,11 +251,11 @@ export async function mapUsageToProfiles(
       // Option 2: LB was found, so we'll try to associate it to an user
       // and count its usage.
     } else {
-      const userID = lb?.user ?? ''
       // Always fetch users from Auth0. Legacy users retain their old BSON ID in the Auth0 DB,
       // and new users will be instatly found on the Auth0 DB, which means we don't have to query
       // the old MongoDB for users anymore.
-      // If we don't have an user ID then we'll set `user` as null and register the usage as an orphaned LB.
+      // If we don't have a user, the we'll set `user` as null and register the usage as an orphaned LB.
+      const userID = lb?.user ?? ''
       const user = userID ? await fetchUserFromAuth0(userID) : null
 
       const userKey = user ? user.id : ORPHANED_KEY
