@@ -29,8 +29,14 @@ export const ENV_VARS = {
   AUTH0_ISSUER() {
     return process.env.AUTH0_ISSUER?.trim() ?? ''
   },
-  AUTH0_MGMT_ACCESS_TOKEN() {
-    return process.env.AUTH0_MGMT_ACCESS_TOKEN?.trim() ?? ''
+  AUTH0_AUTH_URL() {
+    return process.env.AUTH0_AUTH_URL?.trim() ?? ''
+  },
+  AUTH0_CLIENT_ID() {
+    return process.env.AUTH0_CLIENT_ID?.trim() ?? ''
+  },
+  AUTH0_CLIENT_SECRET() {
+    return process.env.AUTH0_CLIENT_SECRET?.trim() ?? ''
   },
   FRONTEND_URL() {
     return process.env.FRONTEND_URL || 'http://localhost:3001'
@@ -157,9 +163,11 @@ export const ENV_VARS = {
 type IStringVars =
   | 'AMPLITUDE_API_KEY'
   | 'AUTH0_AUDIENCE'
+  | 'AUTH0_AUTH_URL'
+  | 'AUTH0_CLIENT_ID'
+  | 'AUTH0_CLIENT_SECRET'
   | 'AUTH0_ISSUER'
   | 'AUTH0_JWKS_URI'
-  | 'AUTH0_MGMT_ACCESS_TOKEN'
   | 'CLOUDWATCH_ACCESS_KEY'
   | 'CLOUDWATCH_GROUP_NAME'
   | 'CLOUDWATCH_REGION'

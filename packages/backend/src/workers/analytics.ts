@@ -18,6 +18,12 @@ interface IUserProfile {
   publicKeysPerEndpoint: number[]
 }
 
+interface Auth0TokenResponse {
+  access_token: string
+  expires_in: number
+  token_type: string
+}
+
 interface Auth0UserResponse {
   email: string
   user_metadata: { legacy?: boolean; admin?: boolean }
@@ -60,7 +66,7 @@ const DEFAULT_USER_PROFILE = {
 
 const ORPHANED_KEY = 'ORPHANED'
 
-// This is main analytics function called by the analytics worker
+// This is the main analytics function called by the analytics worker
 export async function registerAnalytics(ctx: WorkerContext): Promise<void> {
   const apps = await fetchUsedApps(ctx)
 
@@ -69,18 +75,44 @@ export async function registerAnalytics(ctx: WorkerContext): Promise<void> {
   await sendRelayCountToAmplitude({ ctx, userProfiles })
 }
 
+async function getAuth0Token(ctx: WorkerContext): Promise<string> {
+  try {
+    const url = env('AUTH0_AUTH_URL')
+
+    const {
+      data: { access_token },
+    } = await axios.post<Auth0TokenResponse>(
+      url,
+      new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: env('AUTH0_CLIENT_ID'),
+        client_secret: env('AUTH0_CLIENT_SECRET'),
+        audience: env('AUTH0_AUDIENCE'),
+      }),
+      { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+    )
+
+    return access_token
+  } catch (error) {
+    ctx.logger.error(
+      `[AMPLITUDE] Error fetching token from Auth0: ${error?.message}`
+    )
+  }
+}
+
 async function fetchUserFromAuth0(
   userId: string,
+  token: string,
   ctx: WorkerContext
 ): Promise<IAuth0User | null> {
-  const url = `${env('AUTH0_AUDIENCE')}`,
+  const url = env('AUTH0_AUDIENCE'),
     path = 'users',
     params = `?q=user_id:*${userId}&fields=user_id,email,user_metadata&include_fields=true`,
     fullRequestPath = `${url}${path}${params}`
 
   try {
     const { data } = await axios.get<Auth0UserResponse[]>(fullRequestPath, {
-      headers: { authorization: `Bearer ${env('AUTH0_MGMT_ACCESS_TOKEN')}` },
+      headers: { authorization: `Bearer ${token}` },
     })
     const [userResponse] = data
 
@@ -188,6 +220,8 @@ export async function mapUsageToProfiles(
   const dbLBs = await LoadBalancer.find()
   const userProfiles = new Map<string, UserProfileUpdate>()
 
+  const auth0Token = await getAuth0Token(ctx)
+
   let totalUsageProcessed = 0
   for (const [publicKey, usageByChain] of appsUsedByChain.entries()) {
     const app = dbApps.find(
@@ -278,8 +312,9 @@ export async function mapUsageToProfiles(
       // the old MongoDB for users anymore.
       // If we don't have a user, the we'll set `user` as null and register the usage as an orphaned LB.
       const userID = lb?.user ?? ''
-      const user = userID ? await fetchUserFromAuth0(userID, ctx) : null
-
+      const user = userID
+        ? await fetchUserFromAuth0(userID, auth0Token, ctx)
+        : null
       const userKey = user?.id || ORPHANED_KEY
 
       if (!user) {
