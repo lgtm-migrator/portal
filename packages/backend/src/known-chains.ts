@@ -104,6 +104,11 @@ export const KNOWN_CHAINS = {
     id: '0009',
     limit: 0,
   },
+  POLYGON_MUMBAI: {
+    ticker: 'POLTST',
+    id: '000F',
+    limit: 0,
+  },
   SOLANA_MAINNET: {
     ticker: 'SOL',
     id: '0006',

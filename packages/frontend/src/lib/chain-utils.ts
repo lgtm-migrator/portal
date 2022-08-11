@@ -60,6 +60,15 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     },
   ],
   [
+    '000F',
+    {
+      prefix: 'polygon-mumbai',
+      name: 'Polygon Mumbai',
+      abbrv: 'Polygon Mumbai',
+      evm: true,
+    },
+  ],
+  [
     '000C',
     {
       prefix: 'poa-xdai-archival',
@@ -290,6 +299,7 @@ export const PRODUCTION_CHAINS = [
   '0009',
   '000B',
   '000C',
+  '000F',
   '0021',
   '0022',
   '0023',
