@@ -279,11 +279,29 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
     },
   ],
   [
-    '0056',
+    '0057',
     {
-      prefix: 'klaytn-mainnet',
-      name: 'Klaytn Mainnet',
-      abbrv: 'KLAY',
+      prefix: 'meter-mainnet',
+      name: 'Meter Mainnet',
+      abbrv: 'MTR',
+      evm: true,
+    },
+  ],
+  [
+    '0058',
+    {
+      prefix: 'metis-mainnet',
+      name: 'Metis Mainnet',
+      abbrv: 'MTS',
+      evm: true,
+    },
+  ],
+  [
+    '0059',
+    {
+      prefix: 'dogechain-mainnet',
+      name: 'Dogechain Mainnet',
+      abbrv: 'DC',
       evm: true,
     },
   ],
@@ -316,7 +334,10 @@ export const PRODUCTION_CHAINS = [
   '0051',
   '0053',
   '0054',
-  '0056'
+  '0056',
+  '0057',
+  '0058',
+  '0059'
 ]
 export const ALPHA_CHAINS: string[] = []
 

@@ -168,5 +168,20 @@ export const KNOWN_CHAINS = {
     ticker: 'KLAY',
     id: '0056',
     limit: 0
+  },
+  METER_MAINNET: {
+    ticker: 'MTR',
+    id: '0057',
+    limit: 0
+  },
+  METIS_MAINNET: {
+    ticker: 'MTS',
+    id: '0058',
+    limit: 0
+  },
+  DOGECHAIN_MAINNET: {
+    ticker: 'DC',
+    id: '0059',
+    limit: 0
   }
 }
