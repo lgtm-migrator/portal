@@ -183,5 +183,15 @@ export const KNOWN_CHAINS = {
     ticker: 'DC',
     id: '0059',
     limit: 0
+  },
+  STARKNET_MAINNET: {
+    ticker: 'STARKNET',
+    id: '0060',
+    limit: 0
+  },
+  STARKNET_TESTNET: {
+    ticker: 'STARKNET-TESTNET',
+    id: '0061',
+    limit: 0
   }
 }
