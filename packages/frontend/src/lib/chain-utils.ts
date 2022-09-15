@@ -305,6 +305,24 @@ export const CHAIN_ID_PREFIXES = new Map<string, ChainMetadata>([
       evm: true,
     },
   ],
+  [
+    '0060',
+    {
+      prefix: 'starknet-mainnet',
+      name: 'Starknet Mainnet',
+      abbrv: 'STARKNET',
+      evm: true,
+    },
+  ],
+  [
+    '0061',
+    {
+      prefix: 'starknet-testnet',
+      name: 'Starknet Testnet',
+      abbrv: 'STARKNET-TESTNET',
+      evm: true,
+    },
+  ],
 ])
 
 export const PRODUCTION_CHAINS = [
@@ -337,7 +355,9 @@ export const PRODUCTION_CHAINS = [
   '0056',
   '0057',
   '0058',
-  '0059'
+  '0059',
+  '0060',
+  '0061'
 ]
 export const ALPHA_CHAINS: string[] = []
 
